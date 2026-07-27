@@ -1,63 +1,72 @@
 {
-  "gate_version": "plan-0.2.0",
-  "status": "blocked",
+  "gate_version": "0.3.0",
+  "status": "functional-preview",
   "gates": [
     {
-      "id": "local_web_mvp",
-      "owner": "TBD",
-      "criteria": [
-        "50 end-to-end Gold Cases pass",
-        "core decision works with FakeProvider",
-        "all decision times are evidence-backed",
+      "id": "local_web_functional",
+      "status": "passed",
+      "evidence": [
+        "backend unit/API tests",
+        "OpenAPI generated client",
+        "web lint/typecheck/build",
+        "Playwright import/decision/reminder/action flows",
         "no real personal data in repository"
       ]
     },
     {
       "id": "real_data_shadow",
-      "owner": "TBD",
+      "status": "guarded",
       "criteria": [
-        "each source has approved license and registry",
-        "PIPIA draft exists",
-        "source TTL and fallback are tested",
-        "at least 30 supervised trip replays are evaluated"
+        "each commercial source has approved credentials and license",
+        "runtime consent and source status remain visible",
+        "source TTL and fallback contract tests pass",
+        "supervised trip replays produce calibration evidence"
       ]
     },
     {
-      "id": "aliyun_staging",
-      "owner": "TBD",
+      "id": "aliyun_web",
+      "status": "deployment-required",
       "criteria": [
-        "existing ECS capacity gate passes or new ECS is approved",
-        "independent database and runtime identity exist",
-        "backup and rollback are tested",
-        "Mac shutdown does not affect service"
+        "isolated deployment from merged commit",
+        "HTTPS smoke test covers decision and privacy boundary",
+        "existing metro service remains healthy",
+        "rollback reference is recorded"
       ]
     },
     {
       "id": "wechat_experience",
-      "owner": "TBD",
+      "status": "upload-required",
       "implemented_baseline": [
-        "four-page Mini Program compiles in WeChat DevTools",
-        "trip remains in runtime memory and is not persisted",
-        "health and capabilities diagnostics pass against Aliyun",
-        "strict request-domain validation is enabled in committed configuration"
+        "independent AppID exists in ignored private configuration",
+        "request legal domain is configured",
+        "trip intake and confirmation",
+        "decision/context/evidence",
+        "reminder/action/question/privacy workflows",
+        "strict request-domain validation"
       ],
       "criteria": [
-        "independent production Mini Program AppID exists",
-        "strict request-domain validation passes",
-        "privacy guide and consent flows pass review",
-        "Android and iPhone cold-start tests pass",
-        "subscription reminders are idempotent"
+        "v0.3.0 official CLI compile/preview/upload succeeds",
+        "platform development version is selected as experience version",
+        "Android and iPhone cold-start checks pass"
+      ]
+    },
+    {
+      "id": "production_pilot",
+      "status": "blocked",
+      "criteria": [
+        "formal privacy guide and user agreement pass review",
+        "identity/object authorization exists before multi-user persistence",
+        "provider contracts and PIPIA are approved",
+        "decision calibration and incident response are accepted"
       ]
     },
     {
       "id": "native_app",
-      "owner": "TBD",
+      "status": "out-of-scope",
       "criteria": [
-        "pilot demonstrates recurring user value",
-        "stable flight and airport data contracts exist",
-        "mobile-only capabilities show measurable benefit",
-        "privacy and store policy review pass",
-        "dual-platform maintenance budget is approved"
+        "web and mini-program demonstrate recurring value",
+        "mobile-only capability has measured benefit",
+        "dual-platform privacy and maintenance budget is approved"
       ]
     }
   ]

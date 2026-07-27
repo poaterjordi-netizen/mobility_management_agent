@@ -1,48 +1,43 @@
 # Mobility Management Agent · 行前
 
-面向机场出行场景的、可核验的个人出行智能管家框架。它回答一个具体问题：
+面向机场出行的、证据可核验的个人出行管家。它回答一个具体问题：
 “为了按时登机，我应该几点离开出发地？”
 
-当前 `v0.2.0` 是可运行的基础版，包含本地网页、FastAPI、确定性决策引擎、证据与核验、
-微信小程序工程、Docker Compose 和阿里云部署入口。所有演示数据均为合成数据，不用于
-真实出行。
+`v0.3.0` 已完成本地网页、阿里云网页/API 和微信小程序的功能闭环；按既定范围不开发原生
+App。默认无状态、不持久化个人行程，未配置的商业来源会明确降级，不由大模型编造。
 
 ## 已实现
 
-- React / TypeScript / Vite 响应式网页；
-- FastAPI API 和自动生成的 OpenAPI 合约；
-- 机场流程、道路、叫车等待和风险缓冲的确定性时间计算；
-- Evidence + Verifier，确保时间线能由输入和规则重算；
-- FakeProvider，未配置模型密钥也能完整运行；
-- 可由微信开发者工具导入的四页小程序，包含建议、行程确认、运行诊断与隐私边界；
-- 隔离端口的 Docker Compose；
-- GitHub Actions：后端、网页 E2E、小程序、容器和仓库安全检查；
-- 阿里云 ECS 部署脚本及既有 HTTPS 站点的路径反代片段。
+- 文本/短信、ICS 日历、PNG/JPEG 截图 OCR 和手工行程导入；
+- 航班时间窗、6 个机场的版本化流程、道路 P50/P90、机场公开天气和用户事件信号；
+- 值机/登机硬约束、行李、无障碍、风险偏好和来源不确定性的确定性决策；
+- 每个分钟分项的 Evidence、来源状态、完整性、置信度和 Verifier 重算；
+- `gpt-5.6-sol` 兼容 Provider（仅在服务端密钥、策略和用户同意同时满足时解释证据）；
+- T-24 提醒预览与标准 ICS/VALARM 日历文件；
+- 高德官方 URI 地图/叫车提案，必须再次确认，不自动下单或付款；
+- 证据受限问答、隐私导出、会话删除语义；
+- React 网页与原生微信小程序共用 FastAPI/OpenAPI；
+- Docker Compose、阿里云 Nginx/部署脚本、GitHub Actions 和安全检查。
 
-## 系统边界
+## 运行边界
 
-本版本不会：
-
-- 读取携程、国航、航旅纵横或社交 App 的私有页面；
-- 使用真实航班、路况、天气、住址或订单；
-- 保存行程；
-- 自动预约车辆、付款或发送提醒；
-- 让大模型直接计算或覆盖出发时刻。
-
-架构预留的质量基线模型是 `gpt-5.6-sol`，但当前运行 Provider 固定为 `fake`。后续接入
-真实模型时，模型只负责意图理解与说明，核心时刻仍由可重放代码计算和核验。
+- 不逆向或抓取携程、航旅纵横、航空公司或社交 App 的私有页面；
+- 不收集第三方密码、Cookie、AppSecret 或客户端 API Key；
+- 不持久化行程、精确坐标、OCR 图片或问答内容；
+- 不用模型计算/修改权威出发时刻，也不用模型记忆补齐实时事实；
+- 不自动预约、付款、退改签或接受平台协议；
+- 实时高德路线和航班动态只有在服务端配置获权接口后启用；
+- 微信订阅消息投递仍需模板、AppSecret、用户授权和幂等 Outbox；当前用日历提醒完成可用闭环。
 
 ## 本地启动
 
-### Docker（推荐）
+### Docker
 
 ```bash
 docker compose up --build
 ```
 
 打开 [http://127.0.0.1:18081/mobility/](http://127.0.0.1:18081/mobility/)。
-容器产物按阿里云路径 `/mobility/` 构建；直接访问
-[http://127.0.0.1:18081/](http://127.0.0.1:18081/) 也可加载页面。
 
 ### 分别启动
 
@@ -60,18 +55,10 @@ npm ci
 npm run dev
 ```
 
-打开 [http://127.0.0.1:5173](http://127.0.0.1:5173)。如果该端口被占用：
+打开 [http://127.0.0.1:5173](http://127.0.0.1:5173)。
 
-```bash
-MOBILITY_API_PORT=18000 .venv/bin/mobility-agent-api
-```
-
-另开终端后：
-
-```bash
-cd clients/web
-VITE_DEV_PORT=15173 VITE_PROXY_TARGET=http://127.0.0.1:18000 npm run dev
-```
+可选的实时/模型能力只通过环境变量启用，示例见 [`.env.example`](.env.example)。密钥不能进入
+Git 或客户端。
 
 ## 验证
 
@@ -92,32 +79,22 @@ npm test
 
 ## 微信小程序
 
-用微信开发者工具导入 `clients/wechat-miniprogram`。仓库只提交 `touristappid`，避免泄露或
-误用正式 AppID。正式发布需要：
+用微信开发者工具导入 `clients/wechat-miniprogram`。公共
+[`project.config.json`](clients/wechat-miniprogram/project.config.json) 固定
+`touristappid`；正式 AppID 仅存在于 Git 忽略的 `project.private.config.json`。
 
-1. 注册独立小程序并填写 AppID；
-2. 在公众平台把 `https://metro.9m-zx.com` 配置为 request 合法域名；
-3. 完成真机、隐私合规和微信审核；
-4. 由有发布权限的微信账号上传。
+正式身份为独立产品 AppID，生产 API 为：
 
-小程序源代码会随仓库部署到阿里云 ECS，运行时 API 也托管于阿里云；小程序包本身必须由
-微信平台发布，不能由阿里云代替。
+```text
+https://metro.9m-zx.com/mobility
+```
 
-合成版已经完成：
-
-- 从阿里云加载合成行程并生成经 Verifier 核验的建议；
-- 在小程序中确认/修改航班、机场、航站楼、时间、合成出发地、行李和风险偏好；
-- 展示建议时间、最晚参考时间、机场到达时间、证据、置信度与策略版本；
-- 检查 `health` 和 `capabilities`，诊断 request 合法域名；
-- 展示隐私、数据最小化和未开放能力；
-- 行程只保存在运行内存，Storage 只保存非敏感环境枚举。
-
-完整操作与发布门禁见 [`docs/wechat_miniprogram.md`](docs/wechat_miniprogram.md)。
+微信公众平台的 `request` 合法域名应配置为 `https://metro.9m-zx.com`（不含路径）。
+完整上传与验收说明见 [小程序文档](docs/wechat_miniprogram.md)。
 
 ## 阿里云
 
-基础版复用客流智能体的阿里云 Web ECS，但使用独立 Compose project、目录和本机端口。
-公网入口设计为：
+公网入口：
 
 ```text
 https://metro.9m-zx.com/mobility/
@@ -127,42 +104,22 @@ https://metro.9m-zx.com/mobility/
 
 ```bash
 sudo bash infra/aliyun/deploy.sh main
-```
-
-把 `infra/aliyun/mobility-zones.conf` 安装到 Nginx `http` 上下文，并将
-`infra/aliyun/mobility-location.conf` 的两个 `location` 加入现有 HTTPS `server`。
-先运行 `nginx -t`，再平滑重载。部署脚本依次尝试 Docker Compose、隔离 Docker
-容器；若国内镜像源不可用，则使用现有 Python/Node 构建并安装两个受限 systemd 服务。
-三种模式统一监听回环端口 18081（网页）和 18082（API）。部署后执行：
-
-```bash
 bash scripts/smoke_cloud.sh
 ```
+
+该产品复用既有 ECS 和 HTTPS 入口，但使用独立目录、Compose project、容器/服务和回环端口
+18081/18082，不复用客流智能体的小程序身份或业务数据。
 
 ## 目录
 
 ```text
 clients/web/                 React 网页
 clients/wechat-miniprogram/  微信小程序
-src/mobility_agent/          API、Agent 边界、决策与核验
-tests/                       后端测试
-infra/docker/                容器镜像
-infra/aliyun/                ECS 与 Nginx 部署入口
-config/                      能力和晋级门禁
-docs/                        完整产品、架构、数据、合规与评测计划
+src/mobility_agent/          API、导入、来源、决策、提醒与动作
+config/                      机场配置、能力和晋级门禁
+tests/                       后端回归测试
+infra/                       Docker 与阿里云部署
+docs/                        产品、架构、数据、合规和实施经验
 ```
 
-## 计划文档
-
-- [总计划](MASTER_PLAN.md)
-- [产品范围与用户旅程](docs/product_scope.md)
-- [系统架构](docs/architecture.md)
-- [数据与外部集成](docs/data_integrations.md)
-- [出发时刻决策引擎](docs/decision_engine.md)
-- [阿里云与 GitHub 工程方案](docs/cloud_devops.md)
-- [第一阶段实施经验](docs/implementation_experience.md)
-- [安全、隐私与合规](docs/security_compliance.md)
-- [评测与验收](docs/evaluation_acceptance.md)
-- [实施 Backlog](docs/backlog.md)
-
-本仓库公开可见，但未授予开源许可证；真实凭据、真实行程和个人数据不得提交。
+本仓库公开可见，但未授予开源许可证；真实凭据、真实行程、个人数据和微信正式配置不得提交。

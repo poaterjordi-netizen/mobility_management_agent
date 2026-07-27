@@ -10,21 +10,21 @@
         <view class="brand-en">AI MOBILITY CONCIERGE</view>
       </view>
     </view>
-    <view class="scope"><view class="scope-dot"></view>合成数据 · v{{serviceVersion || "0.1"}}</view>
+    <view class="scope"><view class="scope-dot"></view>{{dataScope}} · v{{serviceVersion || "0.3.0"}}</view>
   </view>
 
   <view class="hero">
     <view class="eyebrow">下一段旅程 · 可核验建议</view>
     <view class="hero-title">明天去机场，<text>几点出发？</text></view>
-    <view class="hero-copy">把航班、机场流程和道路风险放进一条可核验的时间线。</view>
+    <view class="hero-copy">融合航班时间窗、机场流程、道路分位数、天气和事件信号，再由确定性引擎完整复核。</view>
     <view class="hero-actions">
-      <button class="hero-primary" bindtap="goTrip">编辑合成行程</button>
-      <button class="hero-secondary" bindtap="goSettings">检查连接</button>
+      <button class="hero-primary" bindtap="goTrip">导入或编辑行程</button>
+      <button class="hero-secondary" bindtap="goSettings">检查数据源</button>
     </view>
   </view>
 
   <view wx:if="{{error}}" class="error-card">
-    <view class="error-title">暂时无法生成建议</view>
+    <view class="error-title">暂时无法完成操作</view>
     <view class="error-copy">{{error}}</view>
     <button class="retry-button" bindtap="retry">重新连接</button>
   </view>
@@ -83,6 +83,7 @@
         <view class="flight-date">{{departureDate}}</view>
       </view>
       <view class="trip-place">{{trip.departure_place}}</view>
+      <view class="route-label">{{trip.departure_airport}} {{trip.terminal}} → {{trip.destination_airport || "目的地待确认"}}</view>
 
       <view class="control-row">
         <view>
@@ -99,26 +100,82 @@
       <button class="edit-trip-button" bindtap="goTrip">确认或修改全部行程字段</button>
     </view>
 
+    <view class="context-title">本次决策上下文</view>
+    <scroll-view class="context-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="context-row">
+        <view class="context-card">
+          <view class="context-label">航班时间窗</view>
+          <view class="context-value">值机截止 {{checkinCloseTime}}</view>
+          <view class="context-help">登机口 {{result.context.flight.gate || "待定"}}</view>
+        </view>
+        <view class="context-card">
+          <view class="context-label">机场流程</view>
+          <view class="context-value">安检 {{result.context.airport.security_minutes}} · 步行 {{result.context.airport.walking_minutes}} 分</view>
+          <view class="context-help">约 {{result.context.airport.gate_distance_meters || "—"}} 米</view>
+        </view>
+        <view class="context-card">
+          <view class="context-label">道路分位数</view>
+          <view class="context-value">P50 {{result.context.route.p50_minutes}} · P90 {{result.context.route.p90_minutes}} 分</view>
+          <view class="context-help">{{result.context.route.metadata.source_name}}</view>
+        </view>
+        <view class="context-card">
+          <view class="context-label">机场天气</view>
+          <view class="context-value">{{result.context.weather.summary}}</view>
+          <view class="context-help">缓冲 {{result.context.weather.buffer_minutes}} 分钟</view>
+        </view>
+      </view>
+    </scroll-view>
+
     <view class="evidence-title">每一分钟都有依据</view>
+    <view class="component-list">
+      <view wx:for="{{result.decision.components}}" wx:key="key" class="component-row">
+        <text>{{item.label}}</text><text>{{item.minutes}} 分钟</text>
+      </view>
+    </view>
     <view class="evidence-grid">
       <view wx:for="{{result.evidence}}" wx:for-item="evidence" wx:key="evidence_id" class="evidence-card">
         <view class="evidence-label">{{evidence.label}}</view>
         <view class="evidence-value">{{evidence.value}}</view>
         <view class="evidence-source">{{evidence.source}}</view>
+        <view class="evidence-meta">{{evidence.status}} · {{evidence.completeness}}</view>
       </view>
     </view>
 
-    <view class="reminder-preview">
-      <view>
-        <view class="reminder-title">T-24 出发提醒</view>
-        <view class="reminder-copy">提醒与预约能力尚未接入。正式开放前需要微信订阅授权、服务端幂等和用户确认。</view>
+    <view class="workflow-title">提醒与行动</view>
+    <view class="workflow-card">
+      <view class="workflow-head"><view><view class="reminder-title">T-24 出发提醒</view><view class="reminder-copy">生成可检查的提醒内容，不会静默订阅或发送。</view></view><view class="workflow-mark">24h</view></view>
+      <button class="workflow-button" loading="{{workflowBusy === 'reminder'}}" disabled="{{workflowBusy !== ''}}" bindtap="previewReminder">{{reminder ? "重新生成" : "预览提醒"}}</button>
+      <view wx:if="{{reminder}}" class="workflow-result">
+        <view class="result-strong">{{reminderTime}}</view>
+        <view>{{reminder.message}}</view>
+        <button class="result-action" bindtap="copyReminder">复制提醒内容</button>
       </view>
-      <view class="reminder-status">后续开放</view>
+    </view>
+
+    <view class="workflow-card">
+      <view class="workflow-head"><view><view class="reminder-title">地图与叫车入口</view><view class="reminder-copy">先展示参数，再经第二次确认复制高德官方链接。</view></view><view class="workflow-mark">↗</view></view>
+      <button class="workflow-button" loading="{{workflowBusy === 'action'}}" disabled="{{workflowBusy !== ''}}" bindtap="proposeAction">{{actionProposal ? "更新提案" : "生成操作提案"}}</button>
+      <view wx:if="{{actionProposal}}" class="workflow-result">
+        <view wx:for="{{actionParameters}}" wx:key="label" class="action-row"><text>{{item.label}}</text><text>{{item.value}}</text></view>
+        <button class="result-action primary-result" bindtap="confirmAction">确认并复制官方地图链接</button>
+      </view>
+    </view>
+
+    <view class="workflow-card">
+      <view class="workflow-head"><view><view class="reminder-title">证据受限问答</view><view class="reminder-copy">回答只能引用本次证据，缺少覆盖时会明确说明。</view></view><view class="workflow-mark">?</view></view>
+      <input class="question-input" value="{{question}}" maxlength="300" placeholder="为什么这么早出发？" bindinput="handleQuestion" />
+      <button class="workflow-button" loading="{{workflowBusy === 'question'}}" disabled="{{workflowBusy !== ''}}" bindtap="askQuestion">询问 Agent</button>
+      <view wx:if="{{answer}}" class="workflow-result">
+        <view class="result-strong">{{answer.answer}}</view>
+        <view>引用：{{citedEvidence || "无"}}</view>
+        <view>Provider：{{answer.provider}}</view>
+      </view>
     </view>
   </block>
 
   <view class="boundary">
     <view class="boundary-title">模型负责理解，代码负责决定</view>
-    <view>行程只保留在本次小程序运行内存中；当前不读取其他 App，不会自动叫车或付款。</view>
+    <view>服务端默认不持久化行程、位置、截图或问答；不会抓取其他 App、自动叫车或付款。</view>
+    <button class="clear-button" bindtap="clearSession">清空本次会话</button>
   </view>
 </view>

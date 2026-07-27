@@ -1,26 +1,37 @@
 const { request } = require("../../utils/request")
 const { buildDecisionView } = require("../../utils/decision-view")
+const { formatDate, formatTime } = require("../../utils/time")
 const { RISK_OPTIONS, riskIndexFor } = require("../../utils/trip")
 
 Page({
   data: {
     loading: true,
     calculating: false,
+    workflowBusy: "",
     error: "",
     trip: null,
     result: null,
     capabilities: null,
     serviceVersion: "",
+    dataScope: "synthetic",
     riskOptions: RISK_OPTIONS,
     riskIndex: 1,
     leaveTime: "--:--",
     latestTime: "--:--",
     terminalTime: "--:--",
     departureTime: "--:--",
+    checkinCloseTime: "--:--",
     departureDate: "",
     verifiedLabel: "",
     confidenceLabel: "",
     evidenceCount: 0,
+    reminder: null,
+    reminderTime: "",
+    actionProposal: null,
+    actionParameters: [],
+    question: "为什么建议这个时间出发？",
+    answer: null,
+    citedEvidence: "",
   },
 
   onLoad() {
@@ -63,9 +74,11 @@ Page({
         app.globalData.tripRevision += 1
       }
       app.globalData.capabilities = capabilities
+      app.globalData.dataScope = capabilities.data_scope
       this.setData({
         capabilities,
         serviceVersion: health.version || capabilities.version || "",
+        dataScope: capabilities.data_scope || health.data_scope || "synthetic",
       })
       if (
         app.globalData.decision
@@ -79,7 +92,7 @@ Page({
       this.setData({
         loading: false,
         calculating: false,
-        error: error.message || "暂时无法连接演示服务",
+        error: error.message || "暂时无法连接服务",
       })
     }
   },
@@ -87,7 +100,15 @@ Page({
   async calculate(trip = this.data.trip) {
     if (!trip) return
     const sequence = ++this._requestSequence
-    this.setData({ calculating: true, error: "", trip, riskIndex: riskIndexFor(trip.risk_profile) })
+    this.setData({
+      calculating: true,
+      error: "",
+      trip,
+      riskIndex: riskIndexFor(trip.risk_profile),
+      reminder: null,
+      actionProposal: null,
+      answer: null,
+    })
     try {
       const result = await request("/api/v1/decisions/preview", {
         method: "POST",
@@ -119,6 +140,7 @@ Page({
       loading: false,
       calculating: false,
       error: "",
+      dataScope: result.context.data_scope,
       ...view,
     })
   },
@@ -146,6 +168,138 @@ Page({
     app.globalData.tripRevision += 1
     this.setData({ trip })
     this.calculate(trip)
+  },
+
+  async previewReminder() {
+    if (!this.data.result || this.data.workflowBusy) return
+    this.setData({ workflowBusy: "reminder", error: "" })
+    try {
+      const reminder = await request("/api/v1/reminders/preview", {
+        method: "POST",
+        data: {
+          trip: this.data.result.trip,
+          decision: this.data.result.decision,
+          lead_hours: 24,
+        },
+      })
+      this.setData({
+        reminder,
+        reminderTime: `${formatDate(reminder.remind_at)} ${formatTime(reminder.remind_at)}`,
+      })
+    } catch (error) {
+      this.setData({ error: error.message || "提醒生成失败" })
+    } finally {
+      this.setData({ workflowBusy: "" })
+    }
+  },
+
+  copyReminder() {
+    const reminder = this.data.reminder
+    if (!reminder) return
+    wx.setClipboardData({
+      data: `${reminder.title}\n${this.data.reminderTime}\n${reminder.message}`,
+      success() {
+        wx.showToast({ title: "提醒内容已复制", icon: "success" })
+      },
+    })
+  },
+
+  async proposeAction() {
+    if (!this.data.result || this.data.workflowBusy) return
+    this.setData({ workflowBusy: "action", error: "" })
+    try {
+      const actionProposal = await request("/api/v1/action-proposals", {
+        method: "POST",
+        data: {
+          trip: this.data.result.trip,
+          decision: this.data.result.decision,
+          action_type: "open_ride_hailing",
+        },
+      })
+      const actionParameters = Object.entries(
+        actionProposal.parameters_preview || {},
+      ).map(([label, value]) => ({ label, value }))
+      this.setData({ actionProposal, actionParameters })
+    } catch (error) {
+      this.setData({ error: error.message || "地图提案生成失败" })
+    } finally {
+      this.setData({ workflowBusy: "" })
+    }
+  },
+
+  confirmAction() {
+    const proposal = this.data.actionProposal
+    if (!proposal) return
+    wx.showModal({
+      title: "确认打开官方地图",
+      content: "将复制高德官方链接；不会自动下单或付款。是否继续？",
+      confirmText: "确认复制",
+      success(result) {
+        if (!result.confirm) return
+        wx.setClipboardData({
+          data: proposal.deep_link,
+          success() {
+            wx.showToast({ title: "官方链接已复制", icon: "success" })
+          },
+        })
+      },
+    })
+  },
+
+  handleQuestion(event) {
+    this.setData({ question: event.detail.value })
+  },
+
+  async askQuestion() {
+    if (!this.data.result || !String(this.data.question).trim()) return
+    this.setData({ workflowBusy: "question", error: "" })
+    try {
+      const answer = await request("/api/v1/assistant/questions", {
+        method: "POST",
+        data: {
+          question: String(this.data.question).trim(),
+          decision: this.data.result,
+        },
+      })
+      this.setData({
+        answer,
+        citedEvidence: (answer.cited_evidence_ids || []).join("、"),
+      })
+    } catch (error) {
+      this.setData({ error: error.message || "问答失败" })
+    } finally {
+      this.setData({ workflowBusy: "" })
+    }
+  },
+
+  clearSession() {
+    wx.showModal({
+      title: "清空本次会话",
+      content: "将清除当前小程序内存中的行程、建议和候选内容。",
+      confirmText: "确认清空",
+      success: async (result) => {
+        if (!result.confirm) return
+        try {
+          await request("/api/v1/privacy/session", { method: "DELETE" })
+        } catch (_) {
+          // 服务端当前不持久化，本地清空仍可安全完成。
+        }
+        const app = getApp()
+        app.globalData.trip = null
+        app.globalData.tripRevision += 1
+        app.globalData.decision = null
+        app.globalData.decisionRevision = -1
+        app.globalData.tripCandidate = null
+        this.setData({
+          result: null,
+          trip: null,
+          reminder: null,
+          actionProposal: null,
+          answer: null,
+        })
+        this.bootstrap({ forceDemo: true })
+      },
+    })
   },
 
   retry() {

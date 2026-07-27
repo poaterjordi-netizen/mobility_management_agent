@@ -1,5 +1,5 @@
 const STORAGE_KEY = "mobilityAgentRuntimeConfig"
-const CONFIG_VERSION = 1
+const CONFIG_VERSION = 2
 
 const ENVIRONMENTS = {
   production: {
@@ -33,7 +33,7 @@ function getRuntimeConfig() {
     label: environment.label,
     apiBaseUrl: environment.apiBaseUrl,
     requestDomain: environment.requestDomain,
-    dataScope: "synthetic",
+    dataScope: "mixed",
   }
 }
 

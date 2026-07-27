@@ -1,0 +1,156 @@
+{
+  "registry_version": "airport-registry-0.3.0",
+  "updated_at": "2026-07-27T00:00:00+08:00",
+  "airports": {
+    "PEK": {
+      "name": "北京首都国际机场",
+      "city": "北京",
+      "coordinates": {
+        "longitude": 116.5975,
+        "latitude": 40.0799
+      },
+      "route_baseline": {
+        "p50_minutes": 55,
+        "p90_minutes": 70,
+        "distance_km": 32.0
+      },
+      "terminals": {
+        "T2": {
+          "checkin_minutes": 28,
+          "security_minutes": 20,
+          "walking_minutes": 16,
+          "gate_distance_meters": 1050
+        },
+        "T3": {
+          "checkin_minutes": 32,
+          "security_minutes": 22,
+          "walking_minutes": 18,
+          "gate_distance_meters": 1350
+        }
+      }
+    },
+    "PKX": {
+      "name": "北京大兴国际机场",
+      "city": "北京",
+      "coordinates": {
+        "longitude": 116.4109,
+        "latitude": 39.5098
+      },
+      "route_baseline": {
+        "p50_minutes": 72,
+        "p90_minutes": 92,
+        "distance_km": 52.0
+      },
+      "terminals": {
+        "航站楼": {
+          "checkin_minutes": 30,
+          "security_minutes": 20,
+          "walking_minutes": 17,
+          "gate_distance_meters": 1200
+        }
+      }
+    },
+    "PVG": {
+      "name": "上海浦东国际机场",
+      "city": "上海",
+      "coordinates": {
+        "longitude": 121.8052,
+        "latitude": 31.1443
+      },
+      "route_baseline": {
+        "p50_minutes": 62,
+        "p90_minutes": 82,
+        "distance_km": 46.0
+      },
+      "terminals": {
+        "T1": {
+          "checkin_minutes": 28,
+          "security_minutes": 22,
+          "walking_minutes": 18,
+          "gate_distance_meters": 1300
+        },
+        "T2": {
+          "checkin_minutes": 30,
+          "security_minutes": 24,
+          "walking_minutes": 21,
+          "gate_distance_meters": 1550
+        }
+      }
+    },
+    "SHA": {
+      "name": "上海虹桥国际机场",
+      "city": "上海",
+      "coordinates": {
+        "longitude": 121.3363,
+        "latitude": 31.1979
+      },
+      "route_baseline": {
+        "p50_minutes": 42,
+        "p90_minutes": 60,
+        "distance_km": 24.0
+      },
+      "terminals": {
+        "T1": {
+          "checkin_minutes": 24,
+          "security_minutes": 18,
+          "walking_minutes": 13,
+          "gate_distance_meters": 850
+        },
+        "T2": {
+          "checkin_minutes": 26,
+          "security_minutes": 20,
+          "walking_minutes": 15,
+          "gate_distance_meters": 1000
+        }
+      }
+    },
+    "HGH": {
+      "name": "杭州萧山国际机场",
+      "city": "杭州",
+      "coordinates": {
+        "longitude": 120.4345,
+        "latitude": 30.2361
+      },
+      "route_baseline": {
+        "p50_minutes": 50,
+        "p90_minutes": 68,
+        "distance_km": 30.0
+      },
+      "terminals": {
+        "T3": {
+          "checkin_minutes": 27,
+          "security_minutes": 20,
+          "walking_minutes": 15,
+          "gate_distance_meters": 1050
+        },
+        "T4": {
+          "checkin_minutes": 30,
+          "security_minutes": 22,
+          "walking_minutes": 18,
+          "gate_distance_meters": 1280
+        }
+      }
+    },
+    "TNA": {
+      "name": "济南遥墙国际机场",
+      "city": "济南",
+      "coordinates": {
+        "longitude": 117.2160,
+        "latitude": 36.8572
+      },
+      "route_baseline": {
+        "p50_minutes": 47,
+        "p90_minutes": 64,
+        "distance_km": 33.0
+      },
+      "terminals": {
+        "T1": {
+          "checkin_minutes": 25,
+          "security_minutes": 19,
+          "walking_minutes": 13,
+          "gate_distance_meters": 820
+        }
+      }
+    }
+  }
+}

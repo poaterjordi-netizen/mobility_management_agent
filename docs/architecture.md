@@ -1,5 +1,27 @@
 # 系统架构
 
+## 0. v0.3.0 已落地架构
+
+当前实现是无状态模块化单体，不依赖数据库：
+
+```text
+React Web / 微信小程序
+        │ HTTPS + OpenAPI
+        ▼
+FastAPI
+  ├─ intake: 文本 / ICS / 本地 OCR → TripCandidate
+  ├─ integrations: Flight / Airport / Route / Weather / Disruption
+  ├─ decision: 纯函数 + Evidence + Verifier
+  ├─ assistant: 确定性模板 / 可选 Responses API
+  ├─ reminders: T-24 + ICS/VALARM
+  ├─ actions: 高德官方 URI 提案
+  └─ privacy: 无状态导出/删除语义
+```
+
+机场流程来自 `config/airports.json`；实时高德、获权航班和模型通过服务端配置与用户同意
+门禁启用。原始截图、住址和票务敏感字段不发送给模型。持久化、身份、worker/Outbox 是未来
+多用户订阅消息阶段的独立扩展，不是当前核心闭环的隐式依赖。
+
 ## 1. 总体结构
 
 ```text
@@ -9,13 +31,12 @@ React Web / 微信小程序 / 未来原生 App
                     ▼
 ┌─────────────────────────────────────────────┐
 │ FastAPI                                    │
-│ Auth / Trip / Decision / Reminder / Admin  │
+│ Trip / Sources / Decision / Reminder / Privacy │
 └───────────────────┬─────────────────────────┘
                     ▼
 ┌─────────────────────────────────────────────┐
-│ MobilityAssistantService 状态机             │
-│ Understand → Link → Plan → Fetch → Assess  │
-│ → Compute → Synthesize → Verify → Propose  │
+│ MobilityAssistantService                    │
+│ Build context → Compute → Verify → Explain │
 └───────┬──────────────┬──────────────┬────────┘
         ▼              ▼              ▼
   LLMProvider     ToolRegistry    TraceStore

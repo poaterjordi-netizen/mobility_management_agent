@@ -8,6 +8,8 @@ services:
     restart: unless-stopped
     environment:
       MOBILITY_ENV: staging
+      MOBILITY_DATA_MODE: mixed
+      MOBILITY_PUBLIC_DATA_ENABLED: "true"
       MOBILITY_API_HOST: 0.0.0.0
       MOBILITY_API_PORT: "8000"
     ports:

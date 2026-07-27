@@ -23,6 +23,7 @@ Page({
     testMessage: "",
     health: null,
     capabilities: null,
+    sources: [],
   },
 
   onLoad() {
@@ -56,6 +57,7 @@ Page({
       testMessage: "",
       health: null,
       capabilities: null,
+      sources: [],
     })
   },
 
@@ -68,23 +70,22 @@ Page({
       capabilities: null,
     })
     try {
-      const [health, capabilities] = await Promise.all([
+      const [health, capabilities, sources] = await Promise.all([
         request("/health", { timeout: 12000 }),
         request("/api/v1/capabilities", { timeout: 12000 }),
+        request("/api/v1/sources", { timeout: 12000 }),
       ])
       if (health.status !== "ok") throw new Error("健康检查没有返回 ok")
-      if (health.data_scope !== "synthetic" || capabilities.data_scope !== "synthetic") {
-        throw new Error("数据范围与当前小程序安全边界不一致")
-      }
-      if (capabilities.provider !== "fake") {
-        throw new Error("当前版本只允许使用 FakeProvider")
+      if (!["synthetic", "mixed", "live"].includes(capabilities.data_scope)) {
+        throw new Error("服务返回了未知数据范围")
       }
       this.setData({
         testing: false,
         testStatus: "success",
-        testMessage: "服务、能力契约和合成数据边界均正常",
+        testMessage: `服务与能力契约正常；${sources.length} 个数据来源状态可核验`,
         health,
         capabilities,
+        sources,
       })
     } catch (error) {
       this.setData({
@@ -106,6 +107,7 @@ Page({
       testMessage: "已恢复阿里云正式入口",
       health: null,
       capabilities: null,
+      sources: [],
     })
   },
 

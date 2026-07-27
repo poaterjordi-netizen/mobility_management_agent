@@ -6,11 +6,18 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends \
+        tesseract-ocr \
+        tesseract-ocr-chi-sim \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN groupadd --system --gid 10001 mobility \
     && useradd --system --uid 10001 --gid mobility --home-dir /nonexistent mobility
 
 COPY pyproject.toml README.md ./
 COPY src ./src
+COPY config ./config
 
 RUN python -m pip install --no-cache-dir .
 

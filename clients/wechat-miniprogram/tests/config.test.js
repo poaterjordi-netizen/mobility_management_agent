@@ -27,7 +27,7 @@ test("defaults to the fixed Alibaba Cloud ingress", () => {
   assert.equal(config.environment, "production")
   assert.equal(config.apiBaseUrl, "https://metro.9m-zx.com/mobility")
   assert.equal(config.requestDomain, "https://metro.9m-zx.com")
-  assert.equal(config.dataScope, "synthetic")
+  assert.equal(config.dataScope, "mixed")
 })
 
 test("stores only a versioned non-sensitive environment choice", () => {

@@ -2,37 +2,34 @@
 
 ## 1. 当前交付
 
-版本 `0.2.0` 完成合成数据范围内的小程序闭环：
+版本 `0.3.0` 与 Web 共用完整 API：
 
 ```text
-阿里云 health/capabilities
-        ↓
-加载或确认 TripInput
-        ↓
-POST /api/v1/decisions/preview
-        ↓
-DecisionResponse + Evidence + Verifier
-        ↓
-建议时间线 / 证据 / 产品边界
+短信 / ICS / 截图
+  → TripCandidate（敏感字段遮盖）
+  → 用户逐项确认 TripInput
+  → 航班 / 机场 / 路线 / 天气 / 事件上下文
+  → Decision + Evidence + Verifier
+  → 提醒预览 / 地图提案 / 证据问答 / 删除
 ```
-
-页面：
 
 | 页面 | 责任 |
 | --- | --- |
-| `pages/index/index` | 建议、时间线、证据、风险/行李快速调整、提醒预览 |
-| `pages/trip/trip` | 合成行程确认、客户端格式校验、提交决策 |
-| `pages/settings/settings` | 固定环境选择、AppID/request 域名、health/capabilities 诊断 |
-| `pages/about/about` | 隐私、数据最小化、当前/未来能力边界 |
+| `pages/index/index` | 建议、上下文、分项、证据、提醒、地图提案、问答、清除 |
+| `pages/trip/trip` | 文本/ICS/截图导入、候选确认、完整行程与同意设置 |
+| `pages/settings/settings` | AppID/request 域名、health/capabilities/source registry |
+| `pages/about/about` | 隐私、数据最小化、已开放与禁止能力 |
 
-## 2. 隐私和安全边界
+## 2. 隐私和安全
 
-- 行程、地址和决定只存在 `App.globalData`，不写入 Storage；
-- Storage 只保存版本化的 `production`/`local` 枚举；
-- API 主机由代码 allowlist 固定，用户不能输入任意 URL；
-- 客户端不包含 AppSecret、访问令牌、数据库/模型/地图密钥；
-- 合成出发地输入会在退出小程序后清除；
-- 真实行程、微信登录、上传、订阅消息和预约仍未开放。
+- 行程、坐标、决定和候选只存在 `App.globalData`，不写入 Storage；
+- Storage 只保存 `{configVersion, environment}`；
+- API 地址来自固定 allowlist，用户不能输入 URL；
+- 截图最大 5 MB，由服务端本地 Tesseract 临时识别，响应后删除；
+- 候选始终 `needs_user_confirmation=true`；
+- 地图和模型分别需要用户同意，且密钥只在服务端；
+- 地图动作先显示参数，再二次确认复制高德官方 URI；
+- 不自动下单、付款、抓取其他 App 或收集 AppSecret。
 
 ## 3. 本地验证
 
@@ -40,72 +37,80 @@ DecisionResponse + Evidence + Verifier
 cd clients/wechat-miniprogram
 npm run check
 npm test
+find miniprogram scripts tests -name '*.js' -print0 | xargs -0 -n1 node --check
 ```
 
-微信开发者工具：
+开发者工具中至少验证：
 
-1. 导入 `clients/wechat-miniprogram`；
-2. 保持基础库与 `project.config.json` 一致；
-3. 编译后检查建议页 `05:15` 合成结果；
-4. 在行程页提交合成行程，确认回到建议页并重新计算；
-5. 在设置页运行连接检查，确认 `synthetic`、`fake` 和计划模型；
-6. 打开隐私与边界页；
-7. “问题”面板必须为 0；游客模式自身的安全接口告警不计入项目代码错误。
+1. 设置页连接检查返回 `0.3.0` 和来源状态；
+2. 文本和 ICS 生成候选，点击确认后才带入表单；
+3. PNG/JPEG 截图走 OCR，非法类型/过大文件显示明确错误；
+4. 三档风险、托运行李、无障碍和事件输入会重算；
+5. 提醒、地图提案和证据问答完成；
+6. 清空会话后运行内存被清理；
+7. “问题”面板无项目错误。
 
-## 4. 私有 AppID 配置
+## 4. AppID 与合法域名
 
-公开仓库必须保留：
+公共仓库必须保留：
 
 ```json
 {"appid": "touristappid"}
 ```
 
-正式 AppID 写入被 `.gitignore` 排除的
-`clients/wechat-miniprogram/project.private.config.json`。不得复用
-`metro-passenger-flow-agent` 的 AppID，因为上传会覆盖另一个产品的开发版本。
+正式 AppID 位于被 `.gitignore` 排除的
+`clients/wechat-miniprogram/project.private.config.json`。不得复用客流智能体 AppID。
 
-## 5. 微信公众平台配置
-
-在本项目独立小程序的“开发管理 → 开发设置 → 服务器域名”中添加：
+微信公众平台配置：
 
 ```text
 request 合法域名：https://metro.9m-zx.com
 ```
 
-域名不包含 `/mobility` 路径。保存后完全关闭并重新进入小程序，再在设置页运行连接检查。
-浏览器可访问域名不能替代微信严格域名校验。
+不能包含 `/mobility`。保存后清理开发者工具网络缓存并重新编译，保持 `urlCheck: true`。
 
-## 6. 上传体验版
-
-有上传权限的开发者登录微信开发者工具后：
+## 5. CLI 预览与上传
 
 ```bash
-/Applications/wechatwebdevtools.app/Contents/MacOS/cli upload \
-  --project /absolute/path/to/clients/wechat-miniprogram \
-  --version 0.2.0 \
-  --desc "合成行程确认、出发建议、证据与运行诊断"
+WECHAT_CLI=/Applications/wechatwebdevtools.app/Contents/MacOS/cli
+PROJECT=/Users/xiaobosun/software/mobility-management-agent/clients/wechat-miniprogram
+
+"$WECHAT_CLI" islogin
+"$WECHAT_CLI" cache --clean network --project "$PROJECT" --lang zh
+"$WECHAT_CLI" preview \
+  --project "$PROJECT" \
+  --qr-format image \
+  --qr-output /safe/local/path/mobility-v0.3.0-preview.png \
+  --lang zh
+"$WECHAT_CLI" upload \
+  --project "$PROJECT" \
+  --version 0.3.0 \
+  --desc "行程导入确认、多源决策、提醒、地图提案与证据问答" \
+  --lang zh
 ```
 
-上传前必须确认项目使用独立正式 AppID、严格域名检查开启、生产环境已选择。上传完成后在微信
-公众平台设为体验版并只添加批准的体验成员。
+上传成功只表示开发版本存在。还需在公众平台“版本管理”把 `0.3.0` 设为体验版，并添加批准
+的体验成员。
 
-## 7. 体验版验收
+## 6. 体验版验收
 
 - iPhone 与 Android 各完成一次冷启动；
-- 建议、行程、设置和隐私页面均可达；
-- 合成行程校验能阻止错误航班号、机场代码、日期和空地址；
-- API 成功、超时、5xx、422 和 request 域名未配置均有明确提示；
-- 行李和三档风险偏好会触发重新计算；
-- 退出并重新进入后不保留行程；
-- 无屏幕、日志或上传包包含秘密或真实个人数据。
+- 四个页面均可达；
+- request 合法域名严格检查开启；
+- 文本、ICS、截图和手工输入路径均通过；
+- 422、5xx、超时、OCR 不可用和域名错误均有可理解提示；
+- 提醒不会静默发送；地图不会静默打开或下单；
+- 退出重进不保留个人行程；
+- 上传包、日志和 Git 中无秘密或真实行程。
 
-## 8. 尚未晋级的功能
+## 7. 平台依赖能力
 
-下列功能需要独立后端、隐私、合规和验收工作，不能因为小程序界面完成而自动开放：
+真实微信订阅消息不是纯代码能力。启用前必须具备：
 
-- `wx.login` 服务端身份交换和对象级授权；
-- 截图/OCR 上传、删除和生命周期；
-- 微信订阅消息模板、用户授权、幂等 Outbox 和取消；
-- 真实航班、机场、地图、天气和事件数据；
-- 网约车官方入口或预约动作；
-- 微信隐私保护指引、用户协议、审核与正式发布。
+- 公众平台审核通过的订阅消息模板；
+- 服务端 AppSecret/Access Token 管理；
+- 用户单次订阅授权；
+- 幂等 Outbox、重试、取消和投递状态；
+- 正式隐私保护指引与用户协议。
+
+条件不足时，当前 T-24 ICS/复制提醒是明确、可用且不夸大的降级路径。

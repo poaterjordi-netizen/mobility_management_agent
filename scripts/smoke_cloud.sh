@@ -13,11 +13,15 @@ curl --fail --silent --show-error \
   -d '{
     "flight_number": "CA1234",
     "departure_airport": "PEK",
+    "destination_airport": "SHA",
     "terminal": "T3",
     "scheduled_departure": "2026-08-01T09:20:00+08:00",
     "departure_place": "北京市朝阳区望京（合成示例）",
     "checked_baggage": true,
-    "risk_profile": "cautious"
+    "risk_profile": "cautious",
+    "live_data_consent": false,
+    "model_egress_consent": false,
+    "user_disruption_notes": ["机场高速施工演练（合成）"]
   }' \
   "${base_url}/api/v1/decisions/preview" >"${work_dir}/decision.json"
 
@@ -29,7 +33,14 @@ with open(sys.argv[1], encoding="utf-8") as source:
     response = json.load(source)
 
 assert response["verified"] is True
-assert response["runtime"]["data_scope"] == "synthetic"
-assert response["decision"]["recommended_leave_at"] == "2026-08-01T05:15:00+08:00"
-print("Cloud smoke test passed: verified synthetic decision at 05:15.")
+assert response["runtime"]["persistence"] == "none"
+assert response["runtime"]["automatic_booking"] is False
+assert len(response["evidence"]) == 8
+assert response["decision"]["recommended_leave_at"] < response["decision"]["target_terminal_arrival"]
+assert response["context"]["data_scope"] in {"synthetic", "mixed", "live"}
+print(
+    "Cloud smoke test passed:",
+    response["context"]["data_scope"],
+    response["decision"]["recommended_leave_at"],
+)
 PY
