@@ -35,7 +35,16 @@ with open(sys.argv[1], encoding="utf-8") as source:
 assert response["verified"] is True
 assert response["runtime"]["persistence"] == "none"
 assert response["runtime"]["automatic_booking"] is False
-assert len(response["evidence"]) == 8
+evidence_ids = {item["evidence_id"] for item in response["evidence"]}
+assert {
+    "ev-trip",
+    "ev-flight",
+    "ev-airport",
+    "ev-route",
+    "ev-weather",
+    "ev-disruptions",
+    "ev-uncertainty",
+}.issubset(evidence_ids)
 assert response["decision"]["recommended_leave_at"] < response["decision"]["target_terminal_arrival"]
 assert response["context"]["data_scope"] in {"synthetic", "mixed", "live"}
 print(
