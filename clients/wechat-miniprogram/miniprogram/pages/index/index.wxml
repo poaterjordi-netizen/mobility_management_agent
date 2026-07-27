@@ -10,17 +10,24 @@
         <view class="brand-en">AI MOBILITY CONCIERGE</view>
       </view>
     </view>
-    <view class="scope"><view class="scope-dot"></view>{{dataScope}} · v{{serviceVersion || "0.4.1"}}</view>
+    <view class="scope"><view class="scope-dot"></view>小程序 v{{clientVersion}}</view>
   </view>
 
   <view class="hero">
     <view class="eyebrow">下一段旅程 · 可核验建议</view>
-    <view class="hero-title">明天去机场，<text>几点出发？</text></view>
+    <view class="hero-title">明天去机场，<text class="hero-accent">几点出发？</text></view>
     <view class="hero-copy">融合航班时间窗、机场流程、道路分位数、天气和事件信号，再由确定性引擎完整复核。</view>
     <view class="hero-actions">
-      <button class="hero-primary" bindtap="goTrip">导入或编辑行程</button>
+      <button class="hero-primary" bindtap="goTrip">填写行程（3 步）</button>
       <button class="hero-secondary" bindtap="goSettings">检查数据源</button>
     </view>
+  </view>
+
+  <view wx:if="{{!result && !loading}}" class="quick-journey-card">
+    <view class="quick-kicker">一键真实测试</view>
+    <view class="quick-heading">北京交大 → 首都机场 → 大连 → 大连理工</view>
+    <view class="quick-copy">载入 CA8908 21:50 起飞测试，并显示落地大连后的打车到校时间。</view>
+    <button class="quick-action" bindtap="loadBjtuDutExample">直接查看这条测试建议</button>
   </view>
 
   <view wx:if="{{error}}" class="error-card">
@@ -33,6 +40,13 @@
     <view class="skeleton skeleton-wide"></view>
     <view class="skeleton"></view>
     <view class="skeleton skeleton-short"></view>
+  </view>
+
+  <view wx:elif="{{!result}}" class="empty-result-card">
+    <view class="empty-mark">↗</view>
+    <view class="empty-title">建议会显示在这里</view>
+    <view class="empty-copy">先填写出发地并导入已订航班。生成后，最大字号时间就是建议离开学校、家或酒店的时间。</view>
+    <button class="edit-trip-button" bindtap="goTrip">开始填写</button>
   </view>
 
   <block wx:elif="{{result}}">
@@ -70,9 +84,9 @@
         <view>{{result.assistant_summary}}</view>
       </view>
       <view class="decision-meta">
-        <text>{{confidenceLabel}}</text>
-        <text>{{evidenceCount}} 项证据</text>
-        <text>{{result.decision.policy_version}}</text>
+        <text class="meta-pill">{{confidenceLabel}}</text>
+        <text class="meta-pill">{{evidenceCount}} 项证据</text>
+        <text class="meta-pill">{{result.decision.policy_version}}</text>
       </view>
     </view>
 
@@ -99,6 +113,19 @@
         </view>
       </view>
       <button class="edit-trip-button" bindtap="goTrip">确认或修改全部行程字段</button>
+    </view>
+
+    <view wx:if="{{showBjtuDutJourney}}" class="complete-journey-card">
+      <view class="complete-kicker">COMPLETE JOURNEY</view>
+      <view class="complete-title">北京交通大学 → 大连理工大学</view>
+      <view class="complete-row"><text class="complete-time">{{leaveTime}}</text><text>离开北京交通大学</text></view>
+      <view class="complete-row"><text class="complete-time">{{terminalTime}}</text><text>到达首都机场 T3</text></view>
+      <view class="complete-row"><text class="complete-time">21:50</text><text>CA8908 计划起飞</text></view>
+      <view class="complete-row"><text class="complete-time">{{lastMile.scheduled_arrival}}</text><text>计划到达大连机场</text></view>
+      <view class="complete-row highlight-row"><text class="complete-time">{{lastMile.campus_arrival_window}}</text><text>预计到达大连理工大学凌水校区</text></view>
+      <view class="complete-warning">如果你的意思是“21:00 才离开北京交通大学”，测试结论是高风险不可行；这里展示的是乘坐 21:50 航班所需的更早离校时间。</view>
+      <view class="complete-note">预计 {{lastMile.pickup_window}} 完成接驾。航班动态和最后一段道路需在出发当天重新确认。</view>
+      <button class="route-copy-button" bindtap="copyDutRoute">复制大连机场到大连理工高德路线</button>
     </view>
 
     <view class="context-title">本次决策上下文</view>
@@ -143,7 +170,7 @@
     <view class="evidence-title">每一分钟都有依据</view>
     <view class="component-list">
       <view wx:for="{{result.decision.components}}" wx:key="key" class="component-row">
-        <text>{{item.label}}</text><text>{{item.minutes}} 分钟</text>
+        <text>{{item.label}}</text><text class="component-minutes">{{item.minutes}} 分钟</text>
       </view>
     </view>
     <view class="evidence-grid">
@@ -171,7 +198,7 @@
       <view class="workflow-head"><view><view class="reminder-title">地图与叫车入口</view><view class="reminder-copy">先展示参数，再经第二次确认复制高德官方链接。</view></view><view class="workflow-mark">↗</view></view>
       <button class="workflow-button" loading="{{workflowBusy === 'action'}}" disabled="{{workflowBusy !== ''}}" bindtap="proposeAction">{{actionProposal ? "更新提案" : "生成操作提案"}}</button>
       <view wx:if="{{actionProposal}}" class="workflow-result">
-        <view wx:for="{{actionParameters}}" wx:key="label" class="action-row"><text>{{item.label}}</text><text>{{item.value}}</text></view>
+        <view wx:for="{{actionParameters}}" wx:key="label" class="action-row"><text class="action-label">{{item.label}}</text><text class="action-value">{{item.value}}</text></view>
         <button class="result-action primary-result" bindtap="confirmAction">确认并复制官方地图链接</button>
       </view>
     </view>

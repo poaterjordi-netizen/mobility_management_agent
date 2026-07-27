@@ -2,7 +2,8 @@
 
 ## 1. 当前交付
 
-版本 `0.4.1` 与 Web 共用完整 API：
+版本 `0.4.2` 与 Web 共用完整 API。首页不再自动载入旧演示数据，用户可按“出发地、已订
+航班通知、字段确认”三步生成建议，也可一键载入北京交大到大连理工的完整验收行程：
 
 ```text
 短信 / ICS / 截图
@@ -42,13 +43,14 @@ find miniprogram scripts tests -name '*.js' -print0 | xargs -0 -n1 node --check
 
 开发者工具中至少验证：
 
-1. 设置页连接检查返回 `0.4.1` 和来源状态；
-2. 文本和 ICS 生成候选，点击确认后才带入表单；
-3. PNG/JPEG 截图走 OCR，非法类型/过大文件显示明确错误；
-4. 三档风险、托运行李、无障碍和事件输入会重算；
-5. 提醒、地图提案和证据问答完成；
-6. 清空会话后运行内存被清理；
-7. “问题”面板无项目错误。
+1. 首页右上角显示“小程序 v0.4.2”，空会话不会出现旧演示行程；
+2. 点击“北京交大 → 首都机场 → 大连 → 大连理工”一键测试，生成完整时间链；
+3. 文本和 ICS 生成候选，点击确认后才带入表单；
+4. PNG/JPEG 截图走 OCR，非法类型/过大文件显示明确错误；
+5. 三档风险、托运行李、无障碍和事件输入会重算；
+6. 提醒、地图提案和证据问答完成；
+7. 清空会话后运行内存被清理；
+8. “问题”面板无项目错误。
 
 ## 4. AppID 与合法域名
 
@@ -80,17 +82,19 @@ PROJECT=/Users/xiaobosun/software/mobility-management-agent/clients/wechat-minip
 "$WECHAT_CLI" preview \
   --project "$PROJECT" \
   --qr-format image \
-  --qr-output /safe/local/path/mobility-v0.4.1-preview.png \
+  --qr-output /safe/local/path/mobility-v0.4.2-preview.png \
   --lang zh
 "$WECHAT_CLI" upload \
   --project "$PROJECT" \
-  --version 0.4.1 \
-  --desc "高德实时驾车ETA与路况、行程导入确认、多源决策与证据问答" \
+  --version 0.4.2 \
+  --desc "三步输入与北京交大到大连理工完整行程建议" \
   --lang zh
 ```
 
 本产品首次体验版选择和体验成员配置已经完成。按当前公众平台配置，后续版本只需使用官方
-CLI 上传，无需对每个版本重复点击“设为体验版”；`0.4.1` 已按此流程上传。
+CLI 上传，无需对每个版本重复点击“设为体验版”。`0.4.2` 已于 2026-07-27 使用独立
+AppID 完成官方 CLI 编译、预览和上传；最终包约 87.0 KB，开发者工具复编译为 0 错误、
+0 警告。
 
 ## 6. 体验版验收
 

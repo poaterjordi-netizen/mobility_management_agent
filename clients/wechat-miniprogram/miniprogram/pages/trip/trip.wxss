@@ -2,15 +2,91 @@
   padding-top: 54rpx;
 }
 
+.quick-example {
+  margin-top: 30rpx;
+  padding: 28rpx;
+  border: 1rpx solid rgba(36, 214, 199, 0.24);
+  border-radius: 24rpx;
+  background: linear-gradient(135deg, rgba(36, 214, 199, 0.1), rgba(15, 31, 49, 0.94));
+}
+
+.quick-title {
+  color: #eef6fc;
+  font-size: 25rpx;
+  font-weight: 650;
+}
+
+.quick-copy {
+  margin-top: 10rpx;
+  color: #8499ad;
+  font-size: 19rpx;
+  line-height: 1.6;
+}
+
+.quick-button {
+  min-height: 76rpx;
+  margin: 22rpx 0 0;
+  border-radius: 18rpx;
+  color: #07111f;
+  font-size: 22rpx;
+  font-weight: 650;
+  background: #24d6c7;
+}
+
 .intake-card,
 .trip-form {
   margin-top: 38rpx;
   padding: 30rpx;
 }
 
+.step-title {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  color: #dce8f2;
+  font-size: 23rpx;
+  font-weight: 650;
+}
+
+.step-number {
+  display: flex;
+  width: 38rpx;
+  height: 38rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #07111f;
+  font-size: 19rpx;
+  background: #24d6c7;
+}
+
+.second-step {
+  margin-top: 34rpx;
+}
+
+.step-help {
+  margin: 10rpx 0 0 52rpx;
+  color: #687e92;
+  font-size: 18rpx;
+  line-height: 1.5;
+}
+
+.origin-input {
+  min-height: 82rpx;
+  margin-top: 16rpx;
+  padding: 0 22rpx;
+  border: 1rpx solid rgba(36, 214, 199, 0.2);
+  border-radius: 18rpx;
+  box-sizing: border-box;
+  color: #eef6fc;
+  font-size: 25rpx;
+  background: rgba(4, 13, 24, 0.45);
+}
+
 .intake-tabs {
   display: flex;
   gap: 8rpx;
+  margin-top: 18rpx;
   padding: 8rpx;
   border-radius: 20rpx;
   background: rgba(4, 13, 24, 0.45);
@@ -126,11 +202,11 @@
   font-size: 21rpx;
 }
 
-.candidate-row text:first-child {
+.candidate-label {
   color: #70869a;
 }
 
-.candidate-row text:last-child {
+.candidate-value {
   text-align: right;
 }
 

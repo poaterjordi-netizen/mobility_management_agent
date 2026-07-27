@@ -132,7 +132,7 @@
   border-bottom: 0;
 }
 
-.diagnostic-row text:last-child {
+.diagnostic-value {
   color: #d9e6ef;
 }
 

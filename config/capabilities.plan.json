@@ -1,7 +1,23 @@
 {
-  "registry_version": "0.4.1",
+  "registry_version": "0.4.2",
   "status": "real-data-preview",
   "capabilities": [
+    {
+      "id": "guided_trip_input",
+      "status": "implemented",
+      "clients": ["web", "wechat-miniprogram"],
+      "steps": ["departure_place", "booked_itinerary", "field_confirmation"],
+      "automatic_demo_loading": false,
+      "requires_user_confirmation": true
+    },
+    {
+      "id": "full_journey_acceptance_example",
+      "status": "implemented",
+      "clients": ["web", "wechat-miniprogram"],
+      "contract": "docs/examples/bjtu_pek_ca8908_evening_request.json",
+      "last_mile": "DLC to DUT LingShui campus",
+      "automatic_booking": false
+    },
     {
       "id": "create_trip_candidate",
       "status": "implemented",

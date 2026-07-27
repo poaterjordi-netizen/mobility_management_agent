@@ -1,7 +1,7 @@
 {
   "name": "mobility-management-agent-wechat-miniprogram",
   "private": true,
-  "version": "0.4.1",
+  "version": "0.4.2",
   "scripts": {
     "check": "node scripts/check-project.js",
     "test": "node --test tests/*.test.js"

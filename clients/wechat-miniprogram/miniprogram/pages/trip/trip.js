@@ -12,6 +12,10 @@ const {
   riskIndexFor,
   validateTrip,
 } = require("../../utils/trip")
+const {
+  BJTU_DUT_INTAKE,
+  buildBjtuDutTrip,
+} = require("../../utils/examples")
 
 const INTAKE_OPTIONS = [
   { label: "短信/通知", value: "text" },
@@ -21,13 +25,13 @@ const INTAKE_OPTIONS = [
 
 Page({
   data: {
-    loading: true,
+    loading: false,
     saving: false,
     parsing: false,
     error: "",
     intakeOptions: INTAKE_OPTIONS,
     intakeMode: "text",
-    intakeText: "【携程行程通知示例】CA1832 杭州萧山机场 T4 → 北京首都机场，2026/8/1 09:20 起飞",
+    intakeText: "",
     intakeImagePath: "",
     intakeImageName: "",
     candidate: null,
@@ -58,7 +62,7 @@ Page({
   },
 
   onLoad() {
-    this.setData({ minimumDate: todayDate() })
+    this.setData({ minimumDate: todayDate(), loading: false })
   },
 
   onShow() {
@@ -70,20 +74,7 @@ Page({
       this.applyTrip(trip)
       return
     }
-    this.loadDemo()
-  },
-
-  async loadDemo() {
-    this.setData({ loading: true, error: "" })
-    try {
-      const trip = await request("/api/v1/demo/trip")
-      this.applyTrip(trip)
-    } catch (error) {
-      this.setData({
-        loading: false,
-        error: error.message || "无法载入示例行程",
-      })
-    }
+    this.setData({ loading: false })
   },
 
   applyTrip(trip) {
@@ -153,10 +144,14 @@ Page({
       wx.showToast({ title: "请先粘贴行程内容", icon: "none" })
       return
     }
+    if (!String(this.data.draft.departure_place).trim()) {
+      wx.showToast({ title: "请先填写去机场的出发地", icon: "none" })
+      return
+    }
     this.setData({ parsing: true, candidate: null, error: "" })
     try {
       const common = {
-        departure_place: this.data.draft.departure_place || "待确认出发地",
+        departure_place: this.data.draft.departure_place,
         checked_baggage: String(Boolean(this.data.draft.checked_baggage)),
         risk_profile: this.data.draft.risk_profile || "cautious",
       }
@@ -203,24 +198,56 @@ Page({
     if (!candidate) return
     const merged = normalizeTrip({
       ...this.data.draft,
-      flight_number: candidate.flight_number || this.data.draft.flight_number,
-      departure_airport:
-        candidate.departure_airport || this.data.draft.departure_airport,
-      destination_airport:
-        candidate.destination_airport || this.data.draft.destination_airport,
-      terminal: candidate.terminal || this.data.draft.terminal,
-      scheduled_departure:
-        candidate.scheduled_departure
-        || toChinaIso(this.data.departureDate, this.data.departureTime),
+      flight_number: candidate.flight_number || "",
+      departure_airport: candidate.departure_airport || "",
+      destination_airport: candidate.destination_airport || null,
+      terminal: candidate.terminal || "",
+      scheduled_departure: candidate.scheduled_departure || "",
       departure_place: candidate.departure_place,
+      departure_coordinates: null,
       checked_baggage: candidate.checked_baggage,
       risk_profile: candidate.risk_profile,
       itinerary_source: candidate.itinerary_source || "other",
+      user_disruption_notes: [],
     })
     getApp().globalData.tripCandidate = null
     this.setData({ candidate: null })
     this.applyTrip(merged)
     wx.showToast({ title: "已带入，请逐项确认", icon: "none" })
+  },
+
+  loadBjtuDutExample() {
+    const trip = buildBjtuDutTrip()
+    const app = getApp()
+    app.globalData.trip = trip
+    app.globalData.tripRevision += 1
+    app.globalData.decision = null
+    app.globalData.decisionRevision = -1
+    app.globalData.tripCandidate = null
+    app.globalData.showBjtuDutJourney = true
+    this.setData({ intakeText: BJTU_DUT_INTAKE, candidate: null, error: "" })
+    this.applyTrip(trip)
+    wx.switchTab({ url: "/pages/index/index" })
+  },
+
+  clearDraft() {
+    const emptyTrip = normalizeTrip({ risk_profile: "cautious" })
+    const app = getApp()
+    app.globalData.trip = null
+    app.globalData.tripRevision += 1
+    app.globalData.decision = null
+    app.globalData.decisionRevision = -1
+    app.globalData.tripCandidate = null
+    app.globalData.showBjtuDutJourney = false
+    this.setData({
+      loading: false,
+      error: "",
+      intakeText: "",
+      intakeImagePath: "",
+      intakeImageName: "",
+      candidate: null,
+    })
+    this.applyTrip(emptyTrip)
   },
 
   handleTextInput(event) {
@@ -301,6 +328,7 @@ Page({
     app.globalData.decision = null
     app.globalData.decisionRevision = -1
     app.globalData.tripCandidate = null
+    app.globalData.showBjtuDutJourney = false
     wx.switchTab({
       url: "/pages/index/index",
       complete: () => this.setData({ saving: false }),
@@ -308,6 +336,6 @@ Page({
   },
 
   retry() {
-    this.loadDemo()
+    this.setData({ error: "", loading: false })
   },
 })
