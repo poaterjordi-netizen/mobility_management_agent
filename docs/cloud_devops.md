@@ -13,7 +13,7 @@
 | 既有北京 VPC | 内网通信 | 新安全组规则最小化 |
 | 既有数据库 ECS | P2/P3 shadow 的独立数据库 | 不使用 `metroflow` 或其账号 |
 | `9m-zx.com` 已备案域名 | 新子域名 | 建议 `mobility.9m-zx.com` |
-| 同一 GitHub 账号 | 新私有仓库 | 不复制历史秘密或真实数据 |
+| 同一 GitHub 账号 | 公开框架仓库 | 不复制历史秘密、真实数据或正式 AppID |
 
 实例 ID、公网 IP、SSH 公钥、证书材料和安全组 ID 不进入 Git，存放在项目外受限部署清单。
 
@@ -88,7 +88,7 @@ staging：
 
 ## 6. GitHub 仓库与分支
 
-推荐：
+当前：
 
 ```text
 remote:  poaterjordi-netizen/mobility_management_agent
@@ -97,7 +97,7 @@ branch:  codex/<issue-number>-<short-name>
 release: v0.x.y
 ```
 
-保护 `main`：
+仓库按用户要求公开。公开可见不代表允许提交用户数据、云凭据或第三方数据。保护 `main`：
 
 - Pull Request；
 - 至少一名审查者；
@@ -108,7 +108,7 @@ release: v0.x.y
 - 合并前解决所有 review；
 - 生产环境需要 GitHub Environment 人工批准。
 
-初始仓库设为 private。代码、合成 fixture 和公开文档完成清理后，另行决定是否开源。
+仓库未附加开源许可证；如需接受外部贡献，另行选择许可证并增加贡献者协议。
 
 ## 7. CI
 
@@ -148,7 +148,9 @@ release: v0.x.y
 
 ## 9. 域名、HTTPS 和小程序
 
-- 新子域名单独 Nginx `server`；
+- 基础版先复用 `https://metro.9m-zx.com/mobility/` 路径，降低 DNS 与证书变更风险；
+- 容器只监听 ECS 回环地址 `127.0.0.1:18081`，由既有 Nginx 反代；
+- 流量或隔离需求增加后，再迁移到独立子域名和 ECS；
 - 证书自动续期并告警；
 - 只开放 80/443，80 跳转 HTTPS；
 - HSTS/CSP/CORS/安全响应头逐步开启；

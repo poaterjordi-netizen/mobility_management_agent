@@ -1,0 +1,17 @@
+{
+  "appid": "touristappid",
+  "compileType": "miniprogram",
+  "libVersion": "3.7.10",
+  "miniprogramRoot": "miniprogram/",
+  "projectname": "mobility-management-agent",
+  "setting": {
+    "checkSiteMap": true,
+    "coverView": true,
+    "es6": true,
+    "lazyloadPlaceholderEnable": false,
+    "minified": true,
+    "postcss": true,
+    "preloadBackgroundData": false,
+    "urlCheck": true
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "mobility-management-agent-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "generate-client": "openapi-typescript openapi.json -o src/api-schema.d.ts",
+    "check": "tsc --noEmit",
+    "build": "npm run check && vite build",
+    "lint": "biome check .",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "openapi-fetch": "^0.15.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@playwright/test": "^1.57.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react-swc": "^4.2.0",
+    "openapi-typescript": "^7.10.1",
+    "typescript": "^5.9.0",
+    "vite": "^7.2.0"
+  }
+}
