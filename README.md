@@ -160,6 +160,7 @@ docs/                        完整产品、架构、数据、合规与评测计
 - [数据与外部集成](docs/data_integrations.md)
 - [出发时刻决策引擎](docs/decision_engine.md)
 - [阿里云与 GitHub 工程方案](docs/cloud_devops.md)
+- [第一阶段实施经验](docs/implementation_experience.md)
 - [安全、隐私与合规](docs/security_compliance.md)
 - [评测与验收](docs/evaluation_acceptance.md)
 - [实施 Backlog](docs/backlog.md)
