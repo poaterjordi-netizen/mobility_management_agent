@@ -11,7 +11,7 @@ export default defineConfig({
   },
   webServer: [
     {
-      command: "MOBILITY_API_PORT=18000 .venv/bin/mobility-agent-api",
+      command: "MOBILITY_API_PORT=18000 bash scripts/run_api.sh",
       cwd: "../..",
       url: "http://127.0.0.1:18000/health",
       reuseExistingServer: true,
