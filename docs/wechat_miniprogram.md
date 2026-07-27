@@ -2,7 +2,7 @@
 
 ## 1. 当前交付
 
-版本 `0.3.0` 与 Web 共用完整 API：
+版本 `0.4.0` 与 Web 共用完整 API：
 
 ```text
 短信 / ICS / 截图
@@ -42,7 +42,7 @@ find miniprogram scripts tests -name '*.js' -print0 | xargs -0 -n1 node --check
 
 开发者工具中至少验证：
 
-1. 设置页连接检查返回 `0.3.0` 和来源状态；
+1. 设置页连接检查返回 `0.4.0` 和来源状态；
 2. 文本和 ICS 生成候选，点击确认后才带入表单；
 3. PNG/JPEG 截图走 OCR，非法类型/过大文件显示明确错误；
 4. 三档风险、托运行李、无障碍和事件输入会重算；
@@ -80,16 +80,16 @@ PROJECT=/Users/xiaobosun/software/mobility-management-agent/clients/wechat-minip
 "$WECHAT_CLI" preview \
   --project "$PROJECT" \
   --qr-format image \
-  --qr-output /safe/local/path/mobility-v0.3.0-preview.png \
+  --qr-output /safe/local/path/mobility-v0.4.0-preview.png \
   --lang zh
 "$WECHAT_CLI" upload \
   --project "$PROJECT" \
-  --version 0.3.0 \
+  --version 0.4.0 \
   --desc "行程导入确认、多源决策、提醒、地图提案与证据问答" \
   --lang zh
 ```
 
-上传成功只表示开发版本存在。还需在公众平台“版本管理”把 `0.3.0` 设为体验版，并添加批准
+上传成功只表示开发版本存在。还需在公众平台“版本管理”把 `0.4.0` 设为体验版，并添加批准
 的体验成员。
 
 ## 6. 体验版验收

@@ -146,7 +146,7 @@ export function App() {
 
   const [intakeMode, setIntakeMode] = useState<IntakeMode>("text")
   const [intakeText, setIntakeText] = useState(
-    "【国航】CA1832 杭州萧山机场 T4 → 北京首都机场，2026/8/1 09:20 起飞",
+    "【携程行程通知示例】CA1832 杭州萧山机场 T4 → 北京首都机场，2026/8/1 09:20 起飞",
   )
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [candidate, setCandidate] = useState<TripCandidate | null>(null)
@@ -251,6 +251,7 @@ export function App() {
       departure_place: candidate.departure_place,
       checked_baggage: candidate.checked_baggage,
       risk_profile: candidate.risk_profile,
+      itinerary_source: candidate.itinerary_source,
     })
     setCandidate(null)
     setEditing(true)
@@ -356,7 +357,7 @@ export function App() {
         </nav>
         <div className="status-pill">
           <span className="status-dot" />
-          {capabilities?.data_scope ?? "synthetic"} · v{capabilities?.version ?? "0.3.0"}
+          {capabilities?.data_scope ?? "synthetic"} · v{capabilities?.version ?? "0.4.0"}
         </div>
       </header>
 
@@ -422,7 +423,9 @@ export function App() {
               <SectionLabel>TRIP UNDERSTANDING</SectionLabel>
               <h2>把行程交给 Agent 整理</h2>
             </div>
-            <p>原始内容只用于本次解析；候选字段必须由你确认后才能计算。</p>
+            <p>
+              可直接粘贴你自己的携程、航旅纵横或航司通知；原文只用于本次解析，字段确认后才计算。
+            </p>
           </div>
           <div className="intake-layout">
             <article className="intake-card">
@@ -490,7 +493,9 @@ export function App() {
                 <>
                   <div className="candidate-head">
                     <h3>{candidate.flight_number ?? "航班号待确认"}</h3>
-                    <span>{candidate.source_type}</span>
+                    <span>
+                      {candidate.itinerary_source} · {candidate.source_type}
+                    </span>
                   </div>
                   <dl className="candidate-fields">
                     <div>
@@ -662,6 +667,13 @@ export function App() {
                     </div>
                     <div>
                       <dt>
+                        <FileText size={15} />
+                        行程来源
+                      </dt>
+                      <dd>{decision.trip.itinerary_source}</dd>
+                    </div>
+                    <div>
+                      <dt>
                         <TimerReset size={15} />
                         总预算
                       </dt>
@@ -711,7 +723,46 @@ export function App() {
                   <strong>{decision.context.weather.summary}</strong>
                   <small>增加 {decision.context.weather.buffer_minutes} 分钟缓冲</small>
                 </article>
+                {decision.context.flight_telemetry && (
+                  <article className="live-context">
+                    <Plane size={19} />
+                    <span>ADS-B 实时遥测</span>
+                    <strong>
+                      {decision.context.flight_telemetry.callsign} ·{" "}
+                      {decision.context.flight_telemetry.state}
+                    </strong>
+                    <small>
+                      最近信号 {formatTime(decision.context.flight_telemetry.last_contact_at)}
+                      {decision.context.flight_telemetry.groundspeed_kph
+                        ? ` · ${Math.round(decision.context.flight_telemetry.groundspeed_kph)} km/h`
+                        : ""}
+                    </small>
+                  </article>
+                )}
+                {decision.context.aviation_weather && (
+                  <article className="live-context">
+                    <CloudRain size={19} />
+                    <span>机场 METAR 实况</span>
+                    <strong>
+                      {decision.context.aviation_weather.station_icao} ·{" "}
+                      {decision.context.aviation_weather.flight_category}
+                    </strong>
+                    <small title={decision.context.aviation_weather.raw_metar}>
+                      观测 {formatTime(decision.context.aviation_weather.observed_at)} ·{" "}
+                      {decision.context.aviation_weather.temperature_c ?? "—"}°C
+                    </small>
+                  </article>
+                )}
               </div>
+              {decision.context.warnings.length > 0 && (
+                <output className="source-warnings">
+                  {decision.context.warnings.map((warning) => (
+                    <span key={warning}>
+                      <CircleAlert size={14} /> {warning}
+                    </span>
+                  ))}
+                </output>
+              )}
             </>
           )}
         </section>
@@ -745,6 +796,16 @@ export function App() {
                   <span>{item.label}</span>
                   <strong>{item.value}</strong>
                   <small>{item.source}</small>
+                  {item.source_url && (
+                    <a
+                      className="evidence-link"
+                      href={item.source_url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      查看来源原文 <ArrowRight size={13} />
+                    </a>
+                  )}
                   <div className="evidence-meta">
                     <span>{item.status}</span>
                     <span>{Math.round(item.confidence * 100)}%</span>
@@ -924,7 +985,7 @@ export function App() {
             <small>MOBILITY MANAGEMENT AGENT</small>
           </span>
         </div>
-        <p>版本 0.3.0 · Evidence-backed · No automatic booking or payment</p>
+        <p>版本 0.4.0 · Live evidence · No automatic booking or payment</p>
       </footer>
 
       {editing && trip && (
@@ -1129,7 +1190,7 @@ export function App() {
                       setTrip({ ...trip, live_data_consent: event.target.checked })
                     }
                   />
-                  <span>允许调用已配置的航班来源，并发送坐标用于本次地图算路</span>
+                  <span>允许本次查询公开 ADS-B/获权航班来源；提供坐标时允许服务端地图算路</span>
                 </label>
                 <label className="checkbox-label">
                   <input

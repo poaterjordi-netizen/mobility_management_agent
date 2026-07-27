@@ -3,7 +3,7 @@
   "info": {
     "title": "Mobility Management Agent API",
     "summary": "Governed, evidence-backed airport-access mobility concierge",
-    "version": "0.3.0"
+    "version": "0.4.0"
   },
   "paths": {
     "/health": {
@@ -603,6 +603,86 @@
         ],
         "title": "AssistantQuestionRequest"
       },
+      "AviationWeatherSnapshot": {
+        "properties": {
+          "station_icao": {
+            "type": "string",
+            "title": "Station Icao"
+          },
+          "raw_metar": {
+            "type": "string",
+            "title": "Raw Metar"
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          },
+          "flight_category": {
+            "type": "string",
+            "enum": [
+              "VFR",
+              "MVFR",
+              "IFR",
+              "LIFR",
+              "UNKNOWN"
+            ],
+            "title": "Flight Category"
+          },
+          "visibility_km": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Visibility Km"
+          },
+          "wind_speed_kph": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 300.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wind Speed Kph"
+          },
+          "temperature_c": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 70.0,
+                "minimum": -100.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Temperature C"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/SourceMetadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "station_icao",
+          "raw_metar",
+          "observed_at",
+          "flight_category",
+          "metadata"
+        ],
+        "title": "AviationWeatherSnapshot"
+      },
       "Body_parse_trip_image_api_v1_trips_candidates_image_post": {
         "properties": {
           "image": {
@@ -914,7 +994,7 @@
           "policy_version": {
             "type": "string",
             "title": "Policy Version",
-            "default": "decision-policy-0.3.0"
+            "default": "decision-policy-0.4.0"
           }
         },
         "additionalProperties": false,
@@ -1024,6 +1104,7 @@
               "user_confirmed",
               "official_api",
               "official_public",
+              "public_feed",
               "configured_rule",
               "synthetic_rule",
               "derived"
@@ -1079,6 +1160,17 @@
             ],
             "title": "Completeness",
             "default": "complete"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
           }
         },
         "additionalProperties": false,
@@ -1189,6 +1281,110 @@
         ],
         "title": "FlightSnapshot"
       },
+      "FlightTelemetrySnapshot": {
+        "properties": {
+          "callsign": {
+            "type": "string",
+            "title": "Callsign"
+          },
+          "icao24": {
+            "type": "string",
+            "title": "Icao24"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "airborne",
+              "ground",
+              "unknown"
+            ],
+            "title": "State"
+          },
+          "latitude": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 90.0,
+                "minimum": -90.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude"
+          },
+          "longitude": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 180.0,
+                "minimum": -180.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude"
+          },
+          "altitude_meters": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 30000.0,
+                "minimum": -1000.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Altitude Meters"
+          },
+          "groundspeed_kph": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 2000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Groundspeed Kph"
+          },
+          "track_degrees": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 360.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Track Degrees"
+          },
+          "last_contact_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Contact At"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/SourceMetadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "callsign",
+          "icao24",
+          "state",
+          "last_contact_at",
+          "metadata"
+        ],
+        "title": "FlightTelemetrySnapshot"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1269,6 +1465,26 @@
           },
           "weather": {
             "$ref": "#/components/schemas/WeatherSnapshot"
+          },
+          "flight_telemetry": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FlightTelemetrySnapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "aviation_weather": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AviationWeatherSnapshot"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "disruptions": {
             "items": {
@@ -1590,6 +1806,7 @@
               "user_confirmed",
               "official_api",
               "official_public",
+              "public_feed",
               "configured_rule",
               "synthetic_rule",
               "derived"
@@ -1640,6 +1857,28 @@
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Confidence"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "license_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "License Note"
           },
           "warnings": {
             "items": {
@@ -1746,6 +1985,18 @@
           "source_summary": {
             "type": "string",
             "title": "Source Summary"
+          },
+          "itinerary_source": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "ctrip",
+              "umetrip",
+              "airline",
+              "calendar",
+              "other"
+            ],
+            "title": "Itinerary Source"
           },
           "flight_number": {
             "anyOf": [
@@ -1855,6 +2106,7 @@
           "candidate_id",
           "source_type",
           "source_summary",
+          "itinerary_source",
           "departure_place",
           "checked_baggage",
           "risk_profile",
@@ -1944,6 +2196,19 @@
             "type": "boolean",
             "title": "Model Egress Consent",
             "default": false
+          },
+          "itinerary_source": {
+            "type": "string",
+            "enum": [
+              "manual",
+              "ctrip",
+              "umetrip",
+              "airline",
+              "calendar",
+              "other"
+            ],
+            "title": "Itinerary Source",
+            "default": "manual"
           },
           "user_disruption_notes": {
             "items": {

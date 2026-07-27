@@ -73,9 +73,7 @@ class DecisionEngineTests(unittest.TestCase):
             )
         )
         self.assertLess(assisted.recommended_leave_at, baseline.recommended_leave_at)
-        disruption = next(
-            item for item in assisted.components if item.key == "disruptions"
-        )
+        disruption = next(item for item in assisted.components if item.key == "disruptions")
         self.assertEqual(disruption.minutes, 16)
         self.assertEqual(len(context.disruptions), 3)
 
@@ -83,9 +81,7 @@ class DecisionEngineTests(unittest.TestCase):
         trip = self.trip()
         context, decision, _ = self.compute(trip)
         tampered = decision.model_copy(
-            update={
-                "recommended_leave_at": decision.recommended_leave_at.replace(minute=0)
-            }
+            update={"recommended_leave_at": decision.recommended_leave_at.replace(minute=0)}
         )
         with self.assertRaisesRegex(ValueError, "deterministic verification"):
             DecisionVerifier(self.engine).verify(trip, context, tampered)
@@ -120,6 +116,26 @@ class DecisionEngineTests(unittest.TestCase):
     def test_naive_departure_time_is_rejected(self) -> None:
         with self.assertRaises(ValueError):
             self.trip(scheduled_departure="2026-08-01T09:20:00")
+
+    def test_public_feed_evidence_is_labeled_live(self) -> None:
+        trip = self.trip()
+        context = self.builder.build(trip, observed_at=self.observed_at)
+        public_weather = context.weather.model_copy(
+            update={
+                "metadata": context.weather.metadata.model_copy(
+                    update={
+                        "source_type": "public_feed",
+                        "source_name": "公开天气测试源",
+                    }
+                )
+            }
+        )
+        _, evidence = self.engine.compute(
+            trip,
+            context.model_copy(update={"weather": public_weather}),
+        )
+        weather = next(item for item in evidence if item.evidence_id == "ev-weather")
+        self.assertEqual(weather.status, "live")
 
 
 if __name__ == "__main__":

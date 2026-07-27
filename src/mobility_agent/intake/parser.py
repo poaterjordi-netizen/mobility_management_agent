@@ -107,13 +107,12 @@ class TripParser:
             "terminal": 0.9 if terminal else 0.0,
             "scheduled_departure": 0.94 if scheduled else 0.0,
         }
-        digest = hashlib.sha256(
-            f"{source_type.value}:{redacted}".encode()
-        ).hexdigest()[:16]
+        digest = hashlib.sha256(f"{source_type.value}:{redacted}".encode()).hexdigest()[:16]
         return TripCandidate(
             candidate_id=f"cand-{digest}",
             source_type=source_type,
             source_summary=f"{source_type.value} 导入 · {len(content)} 字符",
+            itinerary_source=self._itinerary_source(searchable, source_type),
             flight_number=flight,
             departure_airport=airports[0] if airports else None,
             destination_airport=airports[1] if len(airports) > 1 else None,
@@ -127,6 +126,32 @@ class TripParser:
             warnings=warnings,
             redactions_applied=redactions,
         )
+
+    @staticmethod
+    def _itinerary_source(value: str, source_type: TripSourceType) -> str:
+        lowered = value.lower()
+        if "携程" in value or "ctrip" in lowered:
+            return "ctrip"
+        if "航旅纵横" in value or "umetrip" in lowered:
+            return "umetrip"
+        if any(
+            token in value
+            for token in (
+                "国航",
+                "东航",
+                "南航",
+                "海航",
+                "深航",
+                "厦航",
+                "川航",
+                "吉祥航空",
+                "春秋航空",
+            )
+        ):
+            return "airline"
+        if source_type is TripSourceType.ICS:
+            return "calendar"
+        return "other"
 
     @staticmethod
     def _flight_number(value: str) -> str | None:

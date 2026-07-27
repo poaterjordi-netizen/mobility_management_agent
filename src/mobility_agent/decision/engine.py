@@ -32,7 +32,7 @@ RISK_PARAMETERS = {
 class DecisionEngine:
     """Pure, replayable airport-access decision policy."""
 
-    policy_version = "decision-policy-0.3.0"
+    policy_version = "decision-policy-0.4.0"
 
     def compute(
         self,
@@ -65,9 +65,7 @@ class DecisionEngine:
             boarding_constraint,
             baseline_constraint,
         )
-        airport_process_minutes = round(
-            (scheduled - target_terminal_arrival).total_seconds() / 60
-        )
+        airport_process_minutes = round((scheduled - target_terminal_arrival).total_seconds() / 60)
 
         spread = max(context.route.p90_minutes - context.route.p50_minutes, 0)
         if parameters.route_quantile == "p50":
@@ -176,8 +174,7 @@ class DecisionEngine:
         ]
         if context.missing_sources:
             assumptions.append(
-                "部分实时来源缺失，已使用版本化保守规则："
-                + "、".join(context.missing_sources)
+                "部分实时来源缺失，已使用版本化保守规则：" + "、".join(context.missing_sources)
             )
 
         decision = DepartureDecision(
@@ -226,7 +223,15 @@ class DecisionEngine:
             if context.disruptions
             else "当前没有用户报告的事件信号"
         )
-        return [
+        itinerary_labels = {
+            "manual": "用户手工确认",
+            "ctrip": "用户从携程导入并确认",
+            "umetrip": "用户从航旅纵横导入并确认",
+            "airline": "用户从航空公司通知导入并确认",
+            "calendar": "用户从日历导入并确认",
+            "other": "用户从其他来源导入并确认",
+        }
+        evidence = [
             EvidenceItem(
                 evidence_id="ev-trip",
                 label="已确认行程",
@@ -234,7 +239,7 @@ class DecisionEngine:
                     f"{trip.flight_number} · {trip.departure_airport} "
                     f"{trip.terminal} · {trip.scheduled_departure:%m月%d日 %H:%M}"
                 ),
-                source="用户确认",
+                source=itinerary_labels[trip.itinerary_source],
                 source_type="user_confirmed",
                 observed_at=observed,
                 confidence=1.0,
@@ -314,6 +319,9 @@ class DecisionEngine:
                 status="derived",
                 scope=f"{trip.departure_airport}:possible-route",
                 completeness="partial" if context.disruptions else "complete",
+                source_url=(
+                    context.disruptions[0].metadata.source_url if context.disruptions else None
+                ),
             ),
             EvidenceItem(
                 evidence_id="ev-uncertainty",
@@ -327,6 +335,30 @@ class DecisionEngine:
                 scope=self.policy_version,
             ),
         ]
+        if context.flight_telemetry:
+            telemetry = context.flight_telemetry
+            evidence.append(
+                self._from_metadata(
+                    evidence_id="ev-flight-telemetry",
+                    label="实时航空器遥测",
+                    value=(
+                        f"{telemetry.callsign} · {telemetry.state} · "
+                        f"最近信号 {telemetry.last_contact_at:%H:%M:%S} UTC"
+                    ),
+                    metadata=telemetry.metadata,
+                )
+            )
+        if context.aviation_weather:
+            metar = context.aviation_weather
+            evidence.append(
+                self._from_metadata(
+                    evidence_id="ev-aviation-weather",
+                    label="机场 METAR 实况",
+                    value=(f"{metar.station_icao} · {metar.flight_category} · {metar.raw_metar}"),
+                    metadata=metar.metadata,
+                )
+            )
+        return evidence
 
     @staticmethod
     def _from_metadata(
@@ -338,7 +370,7 @@ class DecisionEngine:
     ) -> EvidenceItem:
         if metadata.freshness == "stale":
             status = "stale"
-        elif metadata.source_type in {"official_api", "official_public"}:
+        elif metadata.source_type in {"official_api", "official_public", "public_feed"}:
             status = "live"
         elif metadata.source_type == "configured_rule":
             status = "configured"
@@ -360,4 +392,5 @@ class DecisionEngine:
             status=status,
             scope=metadata.scope,
             completeness=metadata.completeness,
+            source_url=metadata.source_url,
         )

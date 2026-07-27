@@ -1,0 +1,22 @@
+{
+  "registry_version": "official-advisories-2026-07-27",
+  "updated_at": "2026-07-27T12:00:00+08:00",
+  "advisories": [
+    {
+      "id": "shanghai-yongshou-road-20260801",
+      "category": "closure",
+      "title": "永寿路（金陵东路—淮海东路）封闭施工",
+      "publisher": "上海市人民政府（来源：上海发布）",
+      "published_at": "2026-07-24T00:00:00+08:00",
+      "impact_start": "2026-08-01T00:00:00+08:00",
+      "impact_end": "2029-05-31T23:59:59+08:00",
+      "end_is_estimated": true,
+      "impact_minutes": 12,
+      "airport_codes": [],
+      "route_keywords": ["黄浦区", "永寿路", "金陵东路", "淮海东路", "云南南路", "浙江南路"],
+      "route_intersection_confirmed": false,
+      "confidence": 0.9,
+      "source_url": "https://www.shanghai.gov.cn/nw17239/20260725/06a2dc770dcb47f48105c51c78a0e35a.html"
+    }
+  ]
+}

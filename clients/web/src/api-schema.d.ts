@@ -308,6 +308,30 @@ export interface components {
             question: string;
             decision: components["schemas"]["DecisionResponse"];
         };
+        /** AviationWeatherSnapshot */
+        AviationWeatherSnapshot: {
+            /** Station Icao */
+            station_icao: string;
+            /** Raw Metar */
+            raw_metar: string;
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /**
+             * Flight Category
+             * @enum {string}
+             */
+            flight_category: "VFR" | "MVFR" | "IFR" | "LIFR" | "UNKNOWN";
+            /** Visibility Km */
+            visibility_km?: number | null;
+            /** Wind Speed Kph */
+            wind_speed_kph?: number | null;
+            /** Temperature C */
+            temperature_c?: number | null;
+            metadata: components["schemas"]["SourceMetadata"];
+        };
         /** Body_parse_trip_image_api_v1_trips_candidates_image_post */
         Body_parse_trip_image_api_v1_trips_candidates_image_post: {
             /** Image */
@@ -446,7 +470,7 @@ export interface components {
             missing_evidence: string[];
             /**
              * Policy Version
-             * @default decision-policy-0.3.0
+             * @default decision-policy-0.4.0
              */
             policy_version: string;
         };
@@ -494,7 +518,7 @@ export interface components {
              * Source Type
              * @enum {string}
              */
-            source_type: "user_confirmed" | "official_api" | "official_public" | "configured_rule" | "synthetic_rule" | "derived";
+            source_type: "user_confirmed" | "official_api" | "official_public" | "public_feed" | "configured_rule" | "synthetic_rule" | "derived";
             /**
              * Observed At
              * Format: date-time
@@ -520,6 +544,8 @@ export interface components {
              * @enum {string}
              */
             completeness: "complete" | "partial" | "unavailable";
+            /** Source Url */
+            source_url?: string | null;
         };
         /** FlightSnapshot */
         FlightSnapshot: {
@@ -565,6 +591,34 @@ export interface components {
             delay_probability: number;
             metadata: components["schemas"]["SourceMetadata"];
         };
+        /** FlightTelemetrySnapshot */
+        FlightTelemetrySnapshot: {
+            /** Callsign */
+            callsign: string;
+            /** Icao24 */
+            icao24: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "airborne" | "ground" | "unknown";
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Altitude Meters */
+            altitude_meters?: number | null;
+            /** Groundspeed Kph */
+            groundspeed_kph?: number | null;
+            /** Track Degrees */
+            track_degrees?: number | null;
+            /**
+             * Last Contact At
+             * Format: date-time
+             */
+            last_contact_at: string;
+            metadata: components["schemas"]["SourceMetadata"];
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
@@ -605,6 +659,8 @@ export interface components {
             airport: components["schemas"]["AirportProcessSnapshot"];
             route: components["schemas"]["RouteSnapshot"];
             weather: components["schemas"]["WeatherSnapshot"];
+            flight_telemetry?: components["schemas"]["FlightTelemetrySnapshot"] | null;
+            aviation_weather?: components["schemas"]["AviationWeatherSnapshot"] | null;
             /** Disruptions */
             disruptions: components["schemas"]["DisruptionSignal"][];
             /** Missing Sources */
@@ -738,7 +794,7 @@ export interface components {
              * Source Type
              * @enum {string}
              */
-            source_type: "user_confirmed" | "official_api" | "official_public" | "configured_rule" | "synthetic_rule" | "derived";
+            source_type: "user_confirmed" | "official_api" | "official_public" | "public_feed" | "configured_rule" | "synthetic_rule" | "derived";
             /**
              * Observed At
              * Format: date-time
@@ -760,6 +816,10 @@ export interface components {
             freshness: "fresh" | "stale" | "not_applicable";
             /** Confidence */
             confidence: number;
+            /** Source Url */
+            source_url?: string | null;
+            /** License Note */
+            license_note?: string | null;
             /** Warnings */
             warnings?: string[];
         };
@@ -795,6 +855,11 @@ export interface components {
             source_type: components["schemas"]["TripSourceType"];
             /** Source Summary */
             source_summary: string;
+            /**
+             * Itinerary Source
+             * @enum {string}
+             */
+            itinerary_source: "manual" | "ctrip" | "umetrip" | "airline" | "calendar" | "other";
             /** Flight Number */
             flight_number?: string | null;
             /** Departure Airport */
@@ -870,6 +935,12 @@ export interface components {
              * @default false
              */
             model_egress_consent: boolean;
+            /**
+             * Itinerary Source
+             * @default manual
+             * @enum {string}
+             */
+            itinerary_source: "manual" | "ctrip" | "umetrip" | "airline" | "calendar" | "other";
             /** User Disruption Notes */
             user_disruption_notes?: string[];
         };

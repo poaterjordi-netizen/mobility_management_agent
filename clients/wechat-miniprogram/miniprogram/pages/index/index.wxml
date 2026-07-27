@@ -10,7 +10,7 @@
         <view class="brand-en">AI MOBILITY CONCIERGE</view>
       </view>
     </view>
-    <view class="scope"><view class="scope-dot"></view>{{dataScope}} · v{{serviceVersion || "0.3.0"}}</view>
+    <view class="scope"><view class="scope-dot"></view>{{dataScope}} · v{{serviceVersion || "0.4.0"}}</view>
   </view>
 
   <view class="hero">
@@ -84,6 +84,7 @@
       </view>
       <view class="trip-place">{{trip.departure_place}}</view>
       <view class="route-label">{{trip.departure_airport}} {{trip.terminal}} → {{trip.destination_airport || "目的地待确认"}}</view>
+      <view class="route-label">来源：{{trip.itinerary_source || "manual"}}（用户确认）</view>
 
       <view class="control-row">
         <view>
@@ -123,8 +124,21 @@
           <view class="context-value">{{result.context.weather.summary}}</view>
           <view class="context-help">缓冲 {{result.context.weather.buffer_minutes}} 分钟</view>
         </view>
+        <view wx:if="{{telemetryLabel}}" class="context-card live-context-card">
+          <view class="context-label">ADS-B 实时遥测</view>
+          <view class="context-value">{{telemetryLabel}}</view>
+          <view class="context-help">最近信号 {{telemetryTime}}</view>
+        </view>
+        <view wx:if="{{metarLabel}}" class="context-card live-context-card">
+          <view class="context-label">机场 METAR 实况</view>
+          <view class="context-value">{{metarLabel}}</view>
+          <view class="context-help">观测 {{metarTime}}</view>
+        </view>
       </view>
     </scroll-view>
+    <view wx:if="{{sourceWarnings.length}}" class="source-warning-list">
+      <view wx:for="{{sourceWarnings}}" wx:key="*this">! {{item}}</view>
+    </view>
 
     <view class="evidence-title">每一分钟都有依据</view>
     <view class="component-list">
@@ -138,6 +152,7 @@
         <view class="evidence-value">{{evidence.value}}</view>
         <view class="evidence-source">{{evidence.source}}</view>
         <view class="evidence-meta">{{evidence.status}} · {{evidence.completeness}}</view>
+        <button wx:if="{{evidence.source_url}}" class="source-link" data-url="{{evidence.source_url}}" bindtap="copyEvidenceSource">复制来源链接</button>
       </view>
     </view>
 

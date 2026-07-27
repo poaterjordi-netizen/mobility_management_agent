@@ -22,6 +22,7 @@ const validTrip = {
   live_data_consent: true,
   model_egress_consent: false,
   user_disruption_notes: ["道路施工"],
+  itinerary_source: "ctrip",
 }
 
 test("normalizes and validates a complete synthetic trip", () => {
@@ -35,6 +36,7 @@ test("normalizes and validates a complete synthetic trip", () => {
     latitude: 39.9,
   })
   assert.equal(validation.trip.user_disruption_notes.length, 1)
+  assert.equal(validation.trip.itinerary_source, "ctrip")
 })
 
 test("rejects invalid decision inputs before network transmission", () => {

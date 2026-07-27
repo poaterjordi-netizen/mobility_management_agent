@@ -27,7 +27,7 @@ Page({
     error: "",
     intakeOptions: INTAKE_OPTIONS,
     intakeMode: "text",
-    intakeText: "【国航】CA1832 杭州萧山机场 T4 → 北京首都机场，2026/8/1 09:20 起飞",
+    intakeText: "【携程行程通知示例】CA1832 杭州萧山机场 T4 → 北京首都机场，2026/8/1 09:20 起飞",
     intakeImagePath: "",
     intakeImageName: "",
     candidate: null,
@@ -44,6 +44,7 @@ Page({
       risk_profile: "cautious",
       live_data_consent: false,
       model_egress_consent: false,
+      itinerary_source: "manual",
       user_disruption_notes: [],
     },
     departureDate: "",
@@ -214,6 +215,7 @@ Page({
       departure_place: candidate.departure_place,
       checked_baggage: candidate.checked_baggage,
       risk_profile: candidate.risk_profile,
+      itinerary_source: candidate.itinerary_source || "other",
     })
     getApp().globalData.tripCandidate = null
     this.setData({ candidate: null })

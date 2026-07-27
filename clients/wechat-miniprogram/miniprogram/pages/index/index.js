@@ -32,6 +32,11 @@ Page({
     question: "为什么建议这个时间出发？",
     answer: null,
     citedEvidence: "",
+    telemetryLabel: "",
+    telemetryTime: "",
+    metarLabel: "",
+    metarTime: "",
+    sourceWarnings: [],
   },
 
   onLoad() {
@@ -242,6 +247,17 @@ Page({
             wx.showToast({ title: "官方链接已复制", icon: "success" })
           },
         })
+      },
+    })
+  },
+
+  copyEvidenceSource(event) {
+    const url = event.currentTarget.dataset.url
+    if (!url) return
+    wx.setClipboardData({
+      data: url,
+      success() {
+        wx.showToast({ title: "来源链接已复制", icon: "success" })
       },
     })
   },
