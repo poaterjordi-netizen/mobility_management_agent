@@ -117,7 +117,7 @@
   letter-spacing: -3rpx;
 }
 
-.hero-title text {
+.hero-accent {
   display: block;
   color: #24d6c7;
 }
@@ -156,6 +156,88 @@
   color: #c2d0dd;
   border: 1rpx solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.045);
+}
+
+.quick-journey-card,
+.empty-result-card,
+.complete-journey-card {
+  padding: 32rpx;
+  border-radius: 28rpx;
+  box-sizing: border-box;
+}
+
+.quick-journey-card {
+  margin-bottom: 24rpx;
+  border: 1rpx solid rgba(36, 214, 199, 0.25);
+  background: linear-gradient(145deg, rgba(14, 53, 56, 0.95), rgba(12, 28, 44, 0.96));
+}
+
+.quick-kicker,
+.complete-kicker {
+  color: #24d6c7;
+  font-size: 17rpx;
+  font-weight: 650;
+  letter-spacing: 2rpx;
+}
+
+.quick-heading,
+.complete-title {
+  margin-top: 12rpx;
+  color: #eef6fc;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.quick-copy {
+  margin-top: 12rpx;
+  color: #8fa3b7;
+  font-size: 20rpx;
+  line-height: 1.65;
+}
+
+.quick-action,
+.route-copy-button {
+  min-height: 78rpx;
+  margin: 24rpx 0 0;
+  border-radius: 18rpx;
+  color: #07111f;
+  font-size: 21rpx;
+  font-weight: 650;
+  background: #24d6c7;
+}
+
+.empty-result-card {
+  border: 1rpx dashed rgba(255, 255, 255, 0.12);
+  text-align: center;
+  background: rgba(15, 31, 49, 0.7);
+}
+
+.empty-mark {
+  display: flex;
+  width: 62rpx;
+  height: 62rpx;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  border-radius: 18rpx;
+  color: #07111f;
+  font-size: 30rpx;
+  background: #24d6c7;
+}
+
+.empty-title {
+  margin-top: 22rpx;
+  color: #eef6fc;
+  font-size: 29rpx;
+  font-weight: 650;
+}
+
+.empty-copy {
+  margin-top: 12rpx;
+  color: #8296aa;
+  font-size: 21rpx;
+  line-height: 1.7;
 }
 
 .recommendation-card,
@@ -303,7 +385,7 @@
   margin-top: 22rpx;
 }
 
-.decision-meta text {
+.meta-pill {
   padding: 8rpx 12rpx;
   border-radius: 999rpx;
   color: #71879b;
@@ -317,6 +399,69 @@
 
 .trip-card {
   margin-top: 24rpx;
+}
+
+.complete-journey-card {
+  margin-top: 24rpx;
+  border: 1rpx solid rgba(36, 214, 199, 0.18);
+  background: linear-gradient(155deg, rgba(12, 41, 46, 0.97), rgba(12, 25, 40, 0.98));
+}
+
+.complete-title {
+  margin-bottom: 24rpx;
+}
+
+.complete-row {
+  display: flex;
+  align-items: center;
+  gap: 22rpx;
+  min-height: 70rpx;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.065);
+  color: #a5b6c5;
+  font-size: 21rpx;
+}
+
+.complete-time {
+  width: 154rpx;
+  flex: 0 0 auto;
+  color: #eff7fd;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.highlight-row {
+  color: #dce8f2;
+}
+
+.highlight-row .complete-time {
+  color: #24d6c7;
+  font-size: 25rpx;
+}
+
+.complete-warning,
+.complete-note {
+  margin-top: 20rpx;
+  padding: 20rpx 22rpx;
+  border-radius: 17rpx;
+  font-size: 19rpx;
+  line-height: 1.65;
+}
+
+.complete-warning {
+  color: #f0c99c;
+  background: rgba(255, 183, 101, 0.08);
+}
+
+.complete-note {
+  color: #8296aa;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.route-copy-button {
+  width: 100%;
+  color: #24d6c7;
+  border: 1rpx solid rgba(36, 214, 199, 0.2);
+  background: rgba(36, 214, 199, 0.08);
 }
 
 .flight-number {
@@ -483,7 +628,7 @@
   border-bottom: 0;
 }
 
-.component-row text:last-child {
+.component-minutes {
   color: #24d6c7;
 }
 
@@ -604,12 +749,12 @@
   border-bottom: 1rpx solid rgba(255, 255, 255, 0.055);
 }
 
-.action-row text:first-child {
+.action-label {
   flex: 0 0 auto;
   color: #667d91;
 }
 
-.action-row text:last-child {
+.action-value {
   color: #c2d0dd;
   text-align: right;
 }

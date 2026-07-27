@@ -2,6 +2,10 @@ const { request } = require("../../utils/request")
 const { buildDecisionView } = require("../../utils/decision-view")
 const { formatDate, formatTime } = require("../../utils/time")
 const { RISK_OPTIONS, riskIndexFor } = require("../../utils/trip")
+const {
+  BJTU_DUT_LAST_MILE,
+  buildBjtuDutTrip,
+} = require("../../utils/examples")
 
 Page({
   data: {
@@ -12,6 +16,7 @@ Page({
     trip: null,
     result: null,
     capabilities: null,
+    clientVersion: "0.4.2",
     serviceVersion: "",
     dataScope: "synthetic",
     riskOptions: RISK_OPTIONS,
@@ -37,6 +42,8 @@ Page({
     metarLabel: "",
     metarTime: "",
     sourceWarnings: [],
+    showBjtuDutJourney: false,
+    lastMile: BJTU_DUT_LAST_MILE,
   },
 
   onLoad() {
@@ -49,7 +56,16 @@ Page({
     if (!this._loaded) return
     const app = getApp()
     const trip = app.globalData.trip
-    if (!trip) return
+    if (!trip) {
+      this.setData({
+        loading: false,
+        calculating: false,
+        result: null,
+        trip: null,
+        showBjtuDutJourney: false,
+      })
+      return
+    }
     if (
       app.globalData.decision
       && app.globalData.decisionRevision === app.globalData.tripRevision
@@ -61,10 +77,10 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.bootstrap({ forceDemo: false }).finally(() => wx.stopPullDownRefresh())
+    this.bootstrap().finally(() => wx.stopPullDownRefresh())
   },
 
-  async bootstrap(options = {}) {
+  async bootstrap() {
     this.setData({ loading: true, error: "" })
     try {
       const app = getApp()
@@ -72,12 +88,7 @@ Page({
         request("/health"),
         request("/api/v1/capabilities"),
       ])
-      let trip = app.globalData.trip
-      if (!trip || options.forceDemo) {
-        trip = await request("/api/v1/demo/trip")
-        app.globalData.trip = trip
-        app.globalData.tripRevision += 1
-      }
+      const trip = app.globalData.trip
       app.globalData.capabilities = capabilities
       app.globalData.dataScope = capabilities.data_scope
       this.setData({
@@ -86,12 +97,21 @@ Page({
         dataScope: capabilities.data_scope || health.data_scope || "synthetic",
       })
       if (
-        app.globalData.decision
+        trip
+        && app.globalData.decision
         && app.globalData.decisionRevision === app.globalData.tripRevision
       ) {
         this.applyResult(app.globalData.decision)
-      } else {
+      } else if (trip) {
         await this.calculate(trip)
+      } else {
+        this.setData({
+          loading: false,
+          calculating: false,
+          result: null,
+          trip: null,
+          showBjtuDutJourney: false,
+        })
       }
     } catch (error) {
       this.setData({
@@ -146,7 +166,29 @@ Page({
       calculating: false,
       error: "",
       dataScope: result.context.data_scope,
+      showBjtuDutJourney: Boolean(getApp().globalData.showBjtuDutJourney),
       ...view,
+    })
+  },
+
+  loadBjtuDutExample() {
+    const app = getApp()
+    const trip = buildBjtuDutTrip()
+    app.globalData.trip = trip
+    app.globalData.tripRevision += 1
+    app.globalData.decision = null
+    app.globalData.decisionRevision = -1
+    app.globalData.tripCandidate = null
+    app.globalData.showBjtuDutJourney = true
+    this.calculate(trip)
+  },
+
+  copyDutRoute() {
+    wx.setClipboardData({
+      data: BJTU_DUT_LAST_MILE.amap_url,
+      success() {
+        wx.showToast({ title: "高德路线已复制", icon: "success" })
+      },
     })
   },
 
@@ -306,20 +348,23 @@ Page({
         app.globalData.decision = null
         app.globalData.decisionRevision = -1
         app.globalData.tripCandidate = null
+        app.globalData.showBjtuDutJourney = false
         this.setData({
+          loading: false,
+          calculating: false,
           result: null,
           trip: null,
           reminder: null,
           actionProposal: null,
           answer: null,
+          showBjtuDutJourney: false,
         })
-        this.bootstrap({ forceDemo: true })
       },
     })
   },
 
   retry() {
-    this.bootstrap({ forceDemo: false })
+    this.bootstrap()
   },
 
   goTrip() {

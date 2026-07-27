@@ -1,5 +1,5 @@
 {
-  "gate_version": "0.4.1",
+  "gate_version": "0.4.2",
   "status": "real-data-preview",
   "gates": [
     {
@@ -46,17 +46,23 @@
     },
     {
       "id": "wechat_experience",
-      "status": "upload-required",
+      "status": "uploaded-awaiting-device-acceptance",
       "implemented_baseline": [
         "independent AppID exists in ignored private configuration",
         "request legal domain is configured",
+        "three-step guided input without automatic stale demo loading",
+        "BJTU-PEK-DLC-DUT one-click full-journey acceptance example",
         "trip intake and confirmation",
         "decision/context/evidence",
         "reminder/action/question/privacy workflows",
         "strict request-domain validation"
       ],
+      "evidence": [
+        "v0.4.2 official CLI compile, preview and upload succeeded for the independent AppID",
+        "developer tools visual acceptance covered empty state, one-click journey and full journey card",
+        "developer tools final compile completed with 0 errors and 0 warnings"
+      ],
       "criteria": [
-        "v0.4.1 official CLI compile/preview/upload succeeds",
         "first-time experience version and tester configuration remain active for subsequent CLI uploads",
         "Android and iPhone cold-start checks pass"
       ]
