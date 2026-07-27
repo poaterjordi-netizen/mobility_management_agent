@@ -102,6 +102,7 @@ function formatDateTime(value: string) {
 
 function toLocalInput(value: string) {
   const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ""
   const chinaTime = new Date(date.getTime() + 8 * 60 * 60 * 1000)
   return chinaTime.toISOString().slice(0, 16)
 }
@@ -137,6 +138,29 @@ function LoadingCard() {
   )
 }
 
+const bjtuDutExample: TripInput = {
+  flight_number: "CA8908",
+  departure_airport: "PEK",
+  destination_airport: "DLC",
+  terminal: "T3",
+  scheduled_departure: "2026-07-27T21:50:00+08:00",
+  departure_place: "北京交通大学（海淀校区）",
+  departure_coordinates: {
+    longitude: 116.342757,
+    latitude: 39.952311,
+  },
+  checked_baggage: true,
+  accessibility_assistance: false,
+  risk_profile: "cautious",
+  live_data_consent: true,
+  model_egress_consent: false,
+  itinerary_source: "ctrip",
+  user_disruption_notes: [],
+}
+
+const bjtuDutIntake =
+  "【携程公开时刻测试】CA8908 北京首都国际机场 T3 → 大连周水子国际机场，2026/7/27 21:50 起飞。出发地：北京交通大学海淀校区。"
+
 export function App() {
   const decisionSectionId = useId()
   const intakeSectionId = useId()
@@ -152,13 +176,13 @@ export function App() {
   const [editing, setEditing] = useState(false)
 
   const [intakeMode, setIntakeMode] = useState<IntakeMode>("text")
-  const [intakeText, setIntakeText] = useState(
-    "【携程行程通知示例】CA1832 杭州萧山机场 T4 → 北京首都机场，2026/8/1 09:20 起飞",
-  )
+  const [intakeText, setIntakeText] = useState("")
+  const [departurePlace, setDeparturePlace] = useState("")
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [candidate, setCandidate] = useState<TripCandidate | null>(null)
   const [intakeBusy, setIntakeBusy] = useState(false)
   const [intakeError, setIntakeError] = useState("")
+  const [showBjtuDutJourney, setShowBjtuDutJourney] = useState(false)
 
   const [reminder, setReminder] = useState<ReminderPreview | null>(null)
   const [actionProposal, setActionProposal] = useState<ActionProposal | null>(null)
@@ -185,12 +209,12 @@ export function App() {
   useEffect(() => {
     let active = true
     Promise.all([getDemoTrip(), getCapabilities(), getSources()])
-      .then(async ([demoTrip, serviceCapabilities, sourceStatuses]) => {
+      .then(([demoTrip, serviceCapabilities, sourceStatuses]) => {
         if (!active) return
         setTrip(demoTrip)
         setCapabilities(serviceCapabilities)
         setSources(sourceStatuses)
-        await calculate(demoTrip)
+        setLoading(false)
       })
       .catch((requestError) => {
         if (!active) return
@@ -200,7 +224,7 @@ export function App() {
     return () => {
       active = false
     }
-  }, [calculate])
+  }, [])
 
   const decisionComponents = decision?.decision.components ?? []
   const totalPreparation = useMemo(
@@ -217,15 +241,21 @@ export function App() {
 
   async function handleParse() {
     if (!trip) return
+    if (!departurePlace.trim()) {
+      setIntakeError("请先填写“从哪里出发去机场”。")
+      return
+    }
     setIntakeBusy(true)
     setIntakeError("")
     setCandidate(null)
+    setDecision(null)
+    setShowBjtuDutJourney(false)
     try {
       const parsed =
         intakeMode === "image"
           ? imageFile
             ? await parseTripImage(imageFile, {
-                departure_place: trip.departure_place,
+                departure_place: departurePlace.trim(),
                 checked_baggage: trip.checked_baggage,
                 risk_profile: trip.risk_profile,
               })
@@ -233,7 +263,7 @@ export function App() {
           : await parseTripCandidate({
               source_type: intakeMode,
               content: intakeText,
-              departure_place: trip.departure_place,
+              departure_place: departurePlace.trim(),
               checked_baggage: trip.checked_baggage,
               risk_profile: trip.risk_profile,
             })
@@ -250,18 +280,31 @@ export function App() {
     if (!candidate || !trip) return
     setTrip({
       ...trip,
-      flight_number: candidate.flight_number ?? trip.flight_number,
-      departure_airport: candidate.departure_airport ?? trip.departure_airport,
-      destination_airport: candidate.destination_airport ?? trip.destination_airport,
-      terminal: candidate.terminal ?? trip.terminal,
-      scheduled_departure: candidate.scheduled_departure ?? trip.scheduled_departure,
+      flight_number: candidate.flight_number ?? "",
+      departure_airport: candidate.departure_airport ?? "",
+      destination_airport: candidate.destination_airport,
+      terminal: candidate.terminal ?? "",
+      scheduled_departure: candidate.scheduled_departure ?? "",
       departure_place: candidate.departure_place,
+      departure_coordinates: null,
       checked_baggage: candidate.checked_baggage,
       risk_profile: candidate.risk_profile,
       itinerary_source: candidate.itinerary_source,
+      user_disruption_notes: [],
     })
     setCandidate(null)
     setEditing(true)
+  }
+
+  async function loadBjtuDutExample() {
+    setDeparturePlace(bjtuDutExample.departure_place)
+    setIntakeMode("text")
+    setIntakeText(bjtuDutIntake)
+    setCandidate(null)
+    setIntakeError("")
+    setTrip(bjtuDutExample)
+    setShowBjtuDutJourney(true)
+    await calculate(bjtuDutExample)
   }
 
   async function buildReminder() {
@@ -325,6 +368,9 @@ export function App() {
       setDecision(null)
       setTrip(null)
       setCandidate(null)
+      setDeparturePlace("")
+      setIntakeText("")
+      setShowBjtuDutJourney(false)
       setReminder(null)
       setActionProposal(null)
       setAnswer(null)
@@ -386,11 +432,11 @@ export function App() {
             </p>
             <div className="hero-actions">
               <a className="primary-action" href={`#${intakeSectionId}`}>
-                导入我的行程
+                开始填写（3 步）
                 <ArrowRight size={17} />
               </a>
               <a className="text-action" href={`#${decisionSectionId}`}>
-                查看当前建议
+                建议显示在哪里
                 <ChevronRight size={16} />
               </a>
             </div>
@@ -411,14 +457,16 @@ export function App() {
             <div className="orbit-ring ring-one" />
             <div className="orbit-ring ring-two" />
             <div className="orbit-card">
-              <span>下一段旅程</span>
-              <strong>{trip?.flight_number ?? "待导入"}</strong>
+              <span>{decision ? "已确认旅程" : "等待填写"}</span>
+              <strong>{decision?.trip.flight_number ?? "待导入"}</strong>
               <div>
-                <b>{trip?.departure_airport ?? "—"}</b>
+                <b>{decision?.trip.departure_airport ?? "—"}</b>
                 <ArrowRight size={18} />
-                <b>{trip?.destination_airport ?? "—"}</b>
+                <b>{decision?.trip.destination_airport ?? "—"}</b>
               </div>
-              <small>{trip ? formatDate(trip.scheduled_departure) : "尚未确认"}</small>
+              <small>
+                {decision ? formatDate(decision.trip.scheduled_departure) : "尚未生成建议"}
+              </small>
             </div>
             <Plane className="orbit-plane" size={34} />
           </div>
@@ -428,14 +476,48 @@ export function App() {
           <div className="section-heading">
             <div>
               <SectionLabel>TRIP UNDERSTANDING</SectionLabel>
-              <h2>把行程交给 Agent 整理</h2>
+              <h2>用 3 步生成出发建议</h2>
             </div>
-            <p>
-              可直接粘贴你自己的携程、航旅纵横或航司通知；原文只用于本次解析，字段确认后才计算。
-            </p>
+            <p>先填写去机场的出发地，再粘贴已经订好的航班通知，最后确认系统识别出的字段。</p>
+          </div>
+          <div className="quick-example">
+            <div>
+              <strong>想直接看北京交大 → 首都机场 → 大连 → 大连理工测试？</strong>
+              <span>
+                一键载入已验证的 CA8908 测试数据；它代表“21:50 起飞”，不是“21:00 才离开学校”。
+              </span>
+            </div>
+            <button type="button" onClick={() => void loadBjtuDutExample()}>
+              直接查看这条测试建议
+              <ArrowRight size={16} />
+            </button>
           </div>
           <div className="intake-layout">
             <article className="intake-card">
+              <label className="simple-input">
+                <b>
+                  <span>1</span>
+                  从哪里出发去机场？
+                </b>
+                <input
+                  value={departurePlace}
+                  onChange={(event) => {
+                    setDeparturePlace(event.target.value)
+                    setCandidate(null)
+                    setIntakeError("")
+                  }}
+                  placeholder="例如：北京交通大学（海淀校区）"
+                />
+                <small>这是去机场的起点，不是航班出发机场。</small>
+              </label>
+
+              <div className="simple-step-title">
+                <span>2</span>
+                <div>
+                  <b>粘贴已经订好的航班通知</b>
+                  <small>必须包含航班号和计划起飞时间；“21:00”不要填写成希望离校的时间。</small>
+                </div>
+              </div>
               <div className="mode-tabs" role="tablist" aria-label="导入方式">
                 <button
                   className={intakeMode === "text" ? "active" : ""}
@@ -472,12 +554,16 @@ export function App() {
                   <span>{intakeMode === "ics" ? "粘贴 ICS 内容" : "粘贴短信、通知或邮件正文"}</span>
                   <textarea
                     value={intakeText}
-                    onChange={(event) => setIntakeText(event.target.value)}
+                    onChange={(event) => {
+                      setIntakeText(event.target.value)
+                      setCandidate(null)
+                      setIntakeError("")
+                    }}
                     rows={7}
                     placeholder={
                       intakeMode === "ics"
                         ? "BEGIN:VCALENDAR…"
-                        : "例如：CA1832，杭州萧山 T4，2026/8/1 09:20 起飞"
+                        : "例如：【国航】CA8908，北京首都 T3 → 大连周水子，2026/7/27 21:50 起飞"
                     }
                   />
                 </label>
@@ -489,13 +575,13 @@ export function App() {
                 onClick={() => void handleParse()}
               >
                 {intakeBusy ? <RefreshCw className="spin" size={17} /> : <Sparkles size={17} />}
-                解析为待确认行程
+                解析航班通知
               </button>
               {intakeError && <div className="inline-error">{intakeError}</div>}
             </article>
 
             <article className="candidate-card">
-              <SectionLabel>CONFIRMATION REQUIRED</SectionLabel>
+              <SectionLabel>STEP 3 · CONFIRM</SectionLabel>
               {candidate ? (
                 <>
                   <div className="candidate-head">
@@ -535,14 +621,14 @@ export function App() {
                     </p>
                   ))}
                   <button className="confirm-candidate" type="button" onClick={applyCandidate}>
-                    带入表单并逐项确认 <ArrowRight size={16} />
+                    确认识别结果并生成建议 <ArrowRight size={16} />
                   </button>
                 </>
               ) : (
                 <div className="candidate-empty">
                   <ShieldCheck size={30} />
-                  <strong>解析结果不会直接生效</strong>
-                  <span>航班号、日期、机场、航站楼和时间都要经过确认。</span>
+                  <strong>这里会显示航班识别结果</strong>
+                  <span>检查航班号、机场、航站楼和起飞时间后，才会生成你的建议。</span>
                 </div>
               )}
             </article>
@@ -574,8 +660,19 @@ export function App() {
                 <span>{error}</span>
               </div>
             </div>
-          ) : loading || !decision ? (
+          ) : loading ? (
             <LoadingCard />
+          ) : !decision ? (
+            <div className="decision-empty">
+              <MapPinned size={28} />
+              <div>
+                <strong>生成后，最重要的建议就在这里</strong>
+                <span>
+                  页面会首先显示“建议几点离开出发地”和“最晚参考时间”。现在还没有使用任何演示行程代替你的输入。
+                </span>
+              </div>
+              <a href={`#${intakeSectionId}`}>返回上方填写行程</a>
+            </div>
           ) : (
             <>
               <div className="decision-grid">
@@ -776,6 +873,58 @@ export function App() {
                     </span>
                   ))}
                 </output>
+              )}
+              {showBjtuDutJourney && decision.trip.flight_number === "CA8908" && (
+                <article className="complete-journey-card">
+                  <div className="complete-journey-head">
+                    <div>
+                      <SectionLabel>COMPLETE JOURNEY</SectionLabel>
+                      <h3>北京交通大学 → 大连理工大学完整旅程</h3>
+                    </div>
+                    <span>2026-07-27 已验证测试</span>
+                  </div>
+                  <div className="journey-steps">
+                    <div>
+                      <b>{formatTime(decision.decision.recommended_leave_at)}</b>
+                      <span>离开北京交通大学</span>
+                    </div>
+                    <div>
+                      <b>{formatTime(decision.decision.target_terminal_arrival)}</b>
+                      <span>到达首都机场 T3</span>
+                    </div>
+                    <div>
+                      <b>21:50</b>
+                      <span>CA8908 计划起飞</span>
+                    </div>
+                    <div>
+                      <b>23:05</b>
+                      <span>计划到达大连机场</span>
+                    </div>
+                    <div>
+                      <b>00:43–00:58</b>
+                      <span>预计到达大连理工大学凌水校区</span>
+                    </div>
+                  </div>
+                  <div className="journey-warning">
+                    <CircleAlert size={17} />
+                    <p>
+                      如果你的意思是“21:00 才离开北京交通大学”，本系统测试结论是高风险不可行；
+                      这里展示的是乘坐 21:50 航班所需的更早离校时间。
+                    </p>
+                  </div>
+                  <p className="journey-note">
+                    大连落地后按 23:35–23:50 完成下机和提取行李、12 分钟接驾、测试时道路 P90 56
+                    分钟估算。航班时刻与最后一段道路需在出发当天重新确认。
+                  </p>
+                  <a
+                    className="confirm-external"
+                    href="https://uri.amap.com/navigation?from=121.542585%2C38.964154%2C%E5%A4%A7%E8%BF%9E%E5%91%A8%E6%B0%B4%E5%AD%90%E5%9B%BD%E9%99%85%E6%9C%BA%E5%9C%BA&to=121.525200%2C38.883283%2C%E5%A4%A7%E8%BF%9E%E7%90%86%E5%B7%A5%E5%A4%A7%E5%AD%A6%E5%87%8C%E6%B0%B4%E6%A0%A1%E5%8C%BA&mode=car&policy=1&src=mobility-management-agent&coordinate=gaode&callnative=1"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    查看大连机场到大连理工高德路线 <ArrowRight size={15} />
+                  </a>
+                </article>
               )}
             </>
           )}
