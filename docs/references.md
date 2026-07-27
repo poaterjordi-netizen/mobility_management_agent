@@ -79,6 +79,7 @@ branch: main
 ## 4. 地图与出行数据
 
 - [高德路径规划 2.0](https://lbs.amap.com/api/webservice/guide/api/newroute)
+- [高德 URI 行程路线](https://lbs.amap.com/api/uri-api/guide/travel/route)
 - [高德 Web Service 概述](https://lbs.amap.com/api/webservice/summary)
 - [高德 MCP Server](https://lbs.amap.com/api/mcp-server/summary)
 - [高德 URI API](https://lbs.amap.com/api/uri-api/summary)
@@ -89,6 +90,13 @@ branch: main
 - 路线 API 产生可审计的距离/时长/路径证据；
 - URI/官方入口用于用户点击后跳转；
 - MCP 可做原型，但生产仍通过 ToolRegistry 和来源政策包装。
+
+天气：
+
+- [Open-Meteo Forecast API](https://open-meteo.com/en/docs)
+
+采用结论：仅向公开天气服务发送机场公开坐标，不发送用户出发地或精确住址；调用失败时
+显示来源缺口，不凭常识增加未经证实的天气分钟。
 
 ## 5. 移动平台
 

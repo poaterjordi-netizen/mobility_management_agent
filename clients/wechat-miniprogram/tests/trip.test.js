@@ -11,11 +11,17 @@ const {
 const validTrip = {
   flight_number: "ca1234",
   departure_airport: "pek",
+  destination_airport: "sha",
   terminal: "T3",
   scheduled_departure: "2026-08-01T09:20:00+08:00",
   departure_place: "北京市朝阳区望京（合成示例）",
   checked_baggage: true,
   risk_profile: "cautious",
+  departure_coordinates: { longitude: 116.4, latitude: 39.9 },
+  accessibility_assistance: true,
+  live_data_consent: true,
+  model_egress_consent: false,
+  user_disruption_notes: ["道路施工"],
 }
 
 test("normalizes and validates a complete synthetic trip", () => {
@@ -23,6 +29,12 @@ test("normalizes and validates a complete synthetic trip", () => {
   assert.equal(validation.valid, true)
   assert.equal(validation.trip.flight_number, "CA1234")
   assert.equal(validation.trip.departure_airport, "PEK")
+  assert.equal(validation.trip.destination_airport, "SHA")
+  assert.deepEqual(validation.trip.departure_coordinates, {
+    longitude: 116.4,
+    latitude: 39.9,
+  })
+  assert.equal(validation.trip.user_disruption_notes.length, 1)
 })
 
 test("rejects invalid decision inputs before network transmission", () => {
@@ -33,6 +45,10 @@ test("rejects invalid decision inputs before network transmission", () => {
   assert.match(
     validateTrip({ ...validTrip, departure_airport: "北京" }).message,
     /三个英文字母/,
+  )
+  assert.match(
+    validateTrip({ ...validTrip, destination_airport: "上海" }).message,
+    /目的机场/,
   )
   assert.match(
     validateTrip({ ...validTrip, scheduled_departure: "" }).message,

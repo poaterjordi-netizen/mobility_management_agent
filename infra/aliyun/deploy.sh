@@ -71,6 +71,8 @@ deploy_with_raw_docker() {
     --tmpfs /tmp:rw,noexec,nosuid,size=32m \
     --security-opt no-new-privileges:true \
     --env MOBILITY_ENV=staging \
+    --env MOBILITY_DATA_MODE=mixed \
+    --env MOBILITY_PUBLIC_DATA_ENABLED=true \
     --env MOBILITY_API_HOST=0.0.0.0 \
     --env MOBILITY_API_PORT=8000 \
     --health-cmd "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)\"" \
@@ -146,6 +148,8 @@ User=mobility-agent
 Group=mobility-agent
 WorkingDirectory=${checkout_root}
 Environment=MOBILITY_ENV=staging
+Environment=MOBILITY_DATA_MODE=mixed
+Environment=MOBILITY_PUBLIC_DATA_ENABLED=true
 Environment=MOBILITY_API_HOST=127.0.0.1
 Environment=MOBILITY_API_PORT=18082
 ExecStart=${venv_root}/bin/mobility-agent-api

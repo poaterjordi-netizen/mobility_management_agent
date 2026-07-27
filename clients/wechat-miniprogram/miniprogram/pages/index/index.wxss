@@ -336,6 +336,12 @@
   font-size: 22rpx;
 }
 
+.route-label {
+  margin-top: 10rpx;
+  color: #24d6c7;
+  font-size: 20rpx;
+}
+
 .control-row {
   margin-top: 30rpx;
   padding-top: 28rpx;
@@ -366,10 +372,89 @@
   background: rgba(36, 214, 199, 0.07);
 }
 
-.evidence-title {
+.evidence-title,
+.context-title,
+.workflow-title {
   margin: 56rpx 4rpx 22rpx;
   font-size: 33rpx;
   font-weight: 650;
+}
+
+.context-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.context-row {
+  display: flex;
+  gap: 16rpx;
+}
+
+.context-card {
+  display: inline-flex;
+  width: 310rpx;
+  min-height: 150rpx;
+  flex: 0 0 auto;
+  flex-direction: column;
+  padding: 25rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.075);
+  border-radius: 22rpx;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.035);
+  white-space: normal;
+}
+
+.context-label {
+  color: #24d6c7;
+  font-size: 18rpx;
+}
+
+.context-value {
+  margin-top: 14rpx;
+  color: #eef6fc;
+  font-size: 23rpx;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.context-help {
+  margin-top: auto;
+  padding-top: 10rpx;
+  color: #63798d;
+  font-size: 17rpx;
+  line-height: 1.4;
+}
+
+.component-list {
+  overflow: hidden;
+  margin-bottom: 18rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.075);
+  border-radius: 22rpx;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.component-row,
+.action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.component-row {
+  min-height: 68rpx;
+  padding: 0 24rpx;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.06);
+  color: #8499ad;
+  font-size: 20rpx;
+}
+
+.component-row:last-child {
+  border-bottom: 0;
+}
+
+.component-row text:last-child {
+  color: #24d6c7;
 }
 
 .evidence-grid {
@@ -405,16 +490,25 @@
   line-height: 1.4;
 }
 
-.reminder-preview {
+.evidence-meta {
+  margin-top: 12rpx;
+  color: #24d6c7;
+  font-size: 15rpx;
+}
+
+.workflow-card {
+  margin-top: 18rpx;
+  padding: 28rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.09);
+  border-radius: 24rpx;
+  background: rgba(15, 31, 49, 0.92);
+}
+
+.workflow-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 26rpx;
-  margin-top: 28rpx;
-  padding: 28rpx;
-  border: 1rpx dashed rgba(255, 255, 255, 0.12);
-  border-radius: 24rpx;
-  background: rgba(255, 255, 255, 0.025);
 }
 
 .reminder-title {
@@ -430,13 +524,76 @@
   line-height: 1.6;
 }
 
-.reminder-status {
+.workflow-mark {
   flex: 0 0 auto;
-  padding: 8rpx 13rpx;
-  border-radius: 999rpx;
-  color: #9aabbb;
-  font-size: 17rpx;
-  background: rgba(255, 255, 255, 0.06);
+  color: #24d6c7;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.workflow-button,
+.result-action {
+  min-height: 76rpx;
+  margin-top: 22rpx;
+  border: 1rpx solid rgba(36, 214, 199, 0.18);
+  border-radius: 18rpx;
+  color: #24d6c7;
+  font-size: 21rpx;
+  background: rgba(36, 214, 199, 0.07);
+}
+
+.workflow-result {
+  margin-top: 18rpx;
+  padding: 22rpx;
+  border-radius: 18rpx;
+  color: #8095a9;
+  font-size: 19rpx;
+  line-height: 1.6;
+  background: rgba(36, 214, 199, 0.045);
+}
+
+.result-strong {
+  margin-bottom: 8rpx;
+  color: #dce8f2;
+  font-size: 21rpx;
+  font-weight: 650;
+}
+
+.result-action {
+  width: 100%;
+  margin-top: 16rpx;
+}
+
+.primary-result {
+  color: #07111f;
+  background: #24d6c7;
+}
+
+.action-row {
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.055);
+}
+
+.action-row text:first-child {
+  flex: 0 0 auto;
+  color: #667d91;
+}
+
+.action-row text:last-child {
+  color: #c2d0dd;
+  text-align: right;
+}
+
+.question-input {
+  height: 76rpx;
+  margin-top: 20rpx;
+  padding: 0 22rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.09);
+  border-radius: 18rpx;
+  box-sizing: border-box;
+  color: #eef6fc;
+  font-size: 21rpx;
+  background: rgba(4, 13, 24, 0.45);
 }
 
 .boundary {
@@ -454,6 +611,17 @@
   color: #dbe8f2;
   font-size: 25rpx;
   font-weight: 650;
+}
+
+.clear-button {
+  width: 260rpx;
+  min-height: 70rpx;
+  margin: 20rpx 0 0;
+  border: 1rpx solid rgba(255, 145, 131, 0.16);
+  border-radius: 17rpx;
+  color: #e9a198;
+  font-size: 20rpx;
+  background: rgba(255, 145, 131, 0.045);
 }
 
 .error-title {

@@ -1,40 +1,42 @@
 # 行前微信小程序
 
-该目录是一个可直接导入微信开发者工具的原生小程序工程。当前公开配置使用
-`touristappid`；正式 AppID 只能写入 Git 已忽略的 `project.private.config.json`，不得提交到
-仓库。
+可直接导入微信开发者工具的原生小程序工程。公共配置使用 `touristappid`；正式 AppID 只写入
+Git 忽略的 `project.private.config.json`。
 
-## 已实现页面
+## v0.3.0 功能
 
-- **建议**：结论优先的时间线、证据卡片、风险偏好、托运行李和提醒预览；
-- **行程**：确认/修改合成航班、机场、航站楼、起飞时间、合成出发地和偏好；
-- **设置**：固定阿里云入口、本机调试入口、AppID/request 域名和能力契约诊断；
-- **隐私与边界**：说明数据最小化、运行内存、不开放的真实数据/提醒/预约能力。
+- 短信/通知、ICS 和截图 OCR 行程导入；
+- 候选字段、遮盖项、警告和强制用户确认；
+- 航班、机场、目的地、时间、出发地、坐标、行李、无障碍和风险偏好编辑；
+- 对实时地图与模型解释分别授权；
+- 可核验出发时间、道路/机场/天气上下文、分钟分项与 8 类证据；
+- T-24 提醒预览和复制；
+- 高德官方链接参数预览、二次确认和复制；
+- 证据受限问答；
+- 数据来源、能力、AppID 和 request 合法域名诊断；
+- 会话清除和完整隐私边界说明。
 
-小程序与 Web 共用 `/api/v1` 合约，生产 API 为
-`https://metro.9m-zx.com/mobility`。客户端不会计算权威出发时间，也不会保存模型密钥、
-AppSecret、数据库密码、令牌或真实行程。
+小程序与 Web 共用 `/api/v1`，生产 API 为
+`https://metro.9m-zx.com/mobility`。客户端不持有模型密钥、AppSecret、数据库密码或访问
+令牌；行程只存在于 `App.globalData`，Storage 只保存版本化的环境枚举。
 
-## 开发
+## 开发与发布前检查
 
 ```bash
 npm run check
 npm test
 ```
 
-用微信开发者工具导入本目录，点击“编译”。默认会直接调用阿里云合成 API。
+真机、体验版和正式版本必须：
 
-本机调试可以在“设置”页选择 `http://127.0.0.1:8000`，并只在未跟踪的开发者工具本地设置中
-临时关闭域名校验。真机、体验版和正式版本必须：
-
-1. 使用本项目独立 AppID，不能复用客流智能体 AppID；
-2. 把 `https://metro.9m-zx.com` 配置为 request 合法域名；
+1. 使用本项目独立 AppID；
+2. 将 `https://metro.9m-zx.com` 配置为 request 合法域名；
 3. 保持 `project.config.json` 的 `urlCheck: true`；
-4. 恢复“阿里云正式入口”并运行连接检查；
-5. 完成 Android/iPhone 冷启动、网络切换和失败路径验收。
+4. 恢复“阿里云正式入口”并运行连接/数据源检查；
+5. 完成短信、ICS、截图、提醒、地图二次确认、删除和失败路径验收；
+6. Android 与 iPhone 各完成一次冷启动。
 
-行程只保存在 `App.globalData`。Storage 只允许保存
-`{ configVersion, environment }`，退出小程序后不会保留航班或地址。
+微信订阅消息真实投递需要平台模板、AppSecret、一次性用户订阅授权和服务端幂等 Outbox；
+这些条件不齐备时，产品使用 T-24 日历/复制提醒，不声称已经发送订阅消息。
 
-正式上传流程及仍受门禁约束的内容见
-[`../../docs/wechat_miniprogram.md`](../../docs/wechat_miniprogram.md)。
+完整操作见 [`../../docs/wechat_miniprogram.md`](../../docs/wechat_miniprogram.md)。

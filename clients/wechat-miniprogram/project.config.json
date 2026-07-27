@@ -1,7 +1,7 @@
 {
   "appid": "touristappid",
   "compileType": "miniprogram",
-  "description": "Governed airport-access mobility concierge using synthetic data",
+  "description": "Governed, evidence-backed airport-access mobility concierge",
   "libVersion": "3.15.3",
   "miniprogramRoot": "miniprogram/",
   "projectname": "mobility-management-agent",

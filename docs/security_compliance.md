@@ -155,12 +155,13 @@ P4/P5：
 - 生成式 AI 服务、算法备案/安全评估适用性法律判断；
 - 原生 App 商店政策预审。
 
-### 合成小程序基线
+### v0.3.0 无状态客户端基线
 
 `clients/wechat-miniprogram` 当前实现不会调用 `wx.setStorageSync` 保存行程、地址或决策。
 唯一允许持久化的值是版本化的 `production`/`local` 环境枚举；API 地址由代码中的固定
-allowlist 映射，用户不能输入任意 URL、令牌或 AppSecret。正式身份、上传、提醒和真实数据
-仍受 `wechat_experience` 门禁约束。
+allowlist 映射，用户不能输入任意 URL、令牌或 AppSecret。截图 OCR 已实现为受尺寸/类型/
+超时约束的本地临时处理；提醒当前为 ICS/复制预览；地图为二次确认的官方 URI。正式身份、
+微信订阅投递和商业实时数据仍受各自门禁约束。
 
 ## 9. 事件响应
 

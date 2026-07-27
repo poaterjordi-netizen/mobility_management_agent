@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Mobility Management Agent API",
-    "summary": "Synthetic, governed airport-access decision framework",
-    "version": "0.2.0"
+    "summary": "Governed, evidence-backed airport-access mobility concierge",
+    "version": "0.3.0"
   },
   "paths": {
     "/health": {
@@ -20,6 +20,31 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/sources": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Sources",
+        "operationId": "sources_api_v1_sources_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SourceStatus"
+                  },
+                  "type": "array",
+                  "title": "Response Sources Api V1 Sources Get"
                 }
               }
             }
@@ -69,6 +94,88 @@
         }
       }
     },
+    "/api/v1/trips/candidates": {
+      "post": {
+        "tags": [
+          "trips"
+        ],
+        "summary": "Parse Trip Candidate",
+        "operationId": "parse_trip_candidate_api_v1_trips_candidates_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TripParseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripCandidate"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/trips/candidates/image": {
+      "post": {
+        "tags": [
+          "trips"
+        ],
+        "summary": "Parse Trip Image",
+        "operationId": "parse_trip_image_api_v1_trips_candidates_image_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_parse_trip_image_api_v1_trips_candidates_image_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TripCandidate"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/decisions/preview": {
       "post": {
         "tags": [
@@ -109,10 +216,421 @@
           }
         }
       }
+    },
+    "/api/v1/assistant/questions": {
+      "post": {
+        "tags": [
+          "assistant"
+        ],
+        "summary": "Answer Question",
+        "operationId": "answer_question_api_v1_assistant_questions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssistantQuestionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssistantAnswer"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/reminders/preview": {
+      "post": {
+        "tags": [
+          "reminders"
+        ],
+        "summary": "Preview Reminder",
+        "operationId": "preview_reminder_api_v1_reminders_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReminderPreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReminderPreview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/action-proposals": {
+      "post": {
+        "tags": [
+          "actions"
+        ],
+        "summary": "Propose Action",
+        "operationId": "propose_action_api_v1_action_proposals_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActionProposalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActionProposal"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/privacy/export": {
+      "get": {
+        "tags": [
+          "privacy"
+        ],
+        "summary": "Privacy Export",
+        "operationId": "privacy_export_api_v1_privacy_export_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivacyExport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/privacy/session": {
+      "delete": {
+        "tags": [
+          "privacy"
+        ],
+        "summary": "Delete Session",
+        "operationId": "delete_session_api_v1_privacy_session_delete",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "ActionProposal": {
+        "properties": {
+          "proposal_id": {
+            "type": "string",
+            "title": "Proposal Id"
+          },
+          "action_type": {
+            "type": "string",
+            "enum": [
+              "open_map",
+              "open_ride_hailing"
+            ],
+            "title": "Action Type"
+          },
+          "status": {
+            "type": "string",
+            "const": "awaiting_user_confirmation",
+            "title": "Status"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "parameters_preview": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Parameters Preview"
+          },
+          "deep_link": {
+            "type": "string",
+            "title": "Deep Link"
+          },
+          "fallback_url": {
+            "type": "string",
+            "title": "Fallback Url"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "idempotency_key": {
+            "type": "string",
+            "title": "Idempotency Key"
+          },
+          "requires_payment": {
+            "type": "boolean",
+            "const": false,
+            "title": "Requires Payment",
+            "default": false
+          },
+          "automatic_booking": {
+            "type": "boolean",
+            "const": false,
+            "title": "Automatic Booking",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "proposal_id",
+          "action_type",
+          "status",
+          "label",
+          "parameters_preview",
+          "deep_link",
+          "fallback_url",
+          "expires_at",
+          "idempotency_key"
+        ],
+        "title": "ActionProposal"
+      },
+      "ActionProposalRequest": {
+        "properties": {
+          "trip": {
+            "$ref": "#/components/schemas/TripInput"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/DepartureDecision"
+          },
+          "action_type": {
+            "type": "string",
+            "enum": [
+              "open_map",
+              "open_ride_hailing"
+            ],
+            "title": "Action Type"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "trip",
+          "decision",
+          "action_type"
+        ],
+        "title": "ActionProposalRequest"
+      },
+      "AirportProcessSnapshot": {
+        "properties": {
+          "airport": {
+            "type": "string",
+            "title": "Airport"
+          },
+          "terminal": {
+            "type": "string",
+            "title": "Terminal"
+          },
+          "checkin_minutes": {
+            "type": "integer",
+            "maximum": 180.0,
+            "minimum": 0.0,
+            "title": "Checkin Minutes"
+          },
+          "security_minutes": {
+            "type": "integer",
+            "maximum": 180.0,
+            "minimum": 0.0,
+            "title": "Security Minutes"
+          },
+          "walking_minutes": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 0.0,
+            "title": "Walking Minutes"
+          },
+          "gate_distance_meters": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 20000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gate Distance Meters"
+          },
+          "accessibility_extra_minutes": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 0.0,
+            "title": "Accessibility Extra Minutes",
+            "default": 0
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/SourceMetadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "airport",
+          "terminal",
+          "checkin_minutes",
+          "security_minutes",
+          "walking_minutes",
+          "metadata"
+        ],
+        "title": "AirportProcessSnapshot"
+      },
+      "AssistantAnswer": {
+        "properties": {
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          },
+          "cited_evidence_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Cited Evidence Ids"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "evidence_only": {
+            "type": "boolean",
+            "const": true,
+            "title": "Evidence Only",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "answer",
+          "cited_evidence_ids",
+          "provider"
+        ],
+        "title": "AssistantAnswer"
+      },
+      "AssistantQuestionRequest": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "maxLength": 300,
+            "minLength": 2,
+            "title": "Question"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/DecisionResponse"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "question",
+          "decision"
+        ],
+        "title": "AssistantQuestionRequest"
+      },
+      "Body_parse_trip_image_api_v1_trips_candidates_image_post": {
+        "properties": {
+          "image": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Image"
+          },
+          "departure_place": {
+            "type": "string",
+            "title": "Departure Place",
+            "default": "待确认出发地"
+          },
+          "checked_baggage": {
+            "type": "boolean",
+            "title": "Checked Baggage",
+            "default": false
+          },
+          "risk_profile": {
+            "$ref": "#/components/schemas/RiskProfile",
+            "default": "cautious"
+          }
+        },
+        "type": "object",
+        "required": [
+          "image"
+        ],
+        "title": "Body_parse_trip_image_api_v1_trips_candidates_image_post"
+      },
       "CapabilitiesResponse": {
         "properties": {
           "service": {
@@ -125,17 +643,19 @@
           },
           "data_scope": {
             "type": "string",
-            "const": "synthetic",
+            "enum": [
+              "synthetic",
+              "mixed",
+              "live"
+            ],
             "title": "Data Scope"
           },
           "provider": {
             "type": "string",
-            "const": "fake",
             "title": "Provider"
           },
           "planned_model": {
             "type": "string",
-            "const": "gpt-5.6-sol",
             "title": "Planned Model"
           },
           "features": {
@@ -145,12 +665,26 @@
             "type": "array",
             "title": "Features"
           },
+          "guarded_features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Guarded Features"
+          },
           "blocked_actions": {
             "items": {
               "type": "string"
             },
             "type": "array",
             "title": "Blocked Actions"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/SourceStatus"
+            },
+            "type": "array",
+            "title": "Sources"
           }
         },
         "additionalProperties": false,
@@ -162,9 +696,34 @@
           "provider",
           "planned_model",
           "features",
-          "blocked_actions"
+          "guarded_features",
+          "blocked_actions",
+          "sources"
         ],
         "title": "CapabilitiesResponse"
+      },
+      "Coordinates": {
+        "properties": {
+          "longitude": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Longitude"
+          },
+          "latitude": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Latitude"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "longitude",
+          "latitude"
+        ],
+        "title": "Coordinates"
       },
       "DecisionComponent": {
         "properties": {
@@ -178,7 +737,7 @@
           },
           "minutes": {
             "type": "integer",
-            "maximum": 360.0,
+            "maximum": 900.0,
             "minimum": 0.0,
             "title": "Minutes"
           },
@@ -204,6 +763,9 @@
         "properties": {
           "trip": {
             "$ref": "#/components/schemas/TripInput"
+          },
+          "context": {
+            "$ref": "#/components/schemas/JourneyContext"
           },
           "decision": {
             "$ref": "#/components/schemas/DepartureDecision"
@@ -231,6 +793,7 @@
         "type": "object",
         "required": [
           "trip",
+          "context",
           "decision",
           "evidence",
           "assistant_summary",
@@ -238,6 +801,31 @@
           "runtime"
         ],
         "title": "DecisionResponse"
+      },
+      "DeleteResponse": {
+        "properties": {
+          "deleted": {
+            "type": "boolean",
+            "const": true,
+            "title": "Deleted"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "deleted",
+          "scope",
+          "note"
+        ],
+        "title": "DeleteResponse"
       },
       "DepartureDecision": {
         "properties": {
@@ -255,6 +843,16 @@
             "type": "string",
             "format": "date-time",
             "title": "Target Terminal Arrival"
+          },
+          "boarding_start_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Boarding Start At"
+          },
+          "checkin_close_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Checkin Close At"
           },
           "scheduled_departure": {
             "type": "string",
@@ -279,6 +877,12 @@
             ],
             "title": "Confidence"
           },
+          "confidence_window_minutes": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 0.0,
+            "title": "Confidence Window Minutes"
+          },
           "components": {
             "items": {
               "$ref": "#/components/schemas/DecisionComponent"
@@ -300,11 +904,17 @@
             "type": "array",
             "title": "Assumptions"
           },
+          "missing_evidence": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Evidence"
+          },
           "policy_version": {
             "type": "string",
-            "const": "synthetic-demo-1.0.0",
             "title": "Policy Version",
-            "default": "synthetic-demo-1.0.0"
+            "default": "decision-policy-0.3.0"
           }
         },
         "additionalProperties": false,
@@ -313,14 +923,82 @@
           "recommended_leave_at",
           "latest_reasonable_leave_at",
           "target_terminal_arrival",
+          "boarding_start_at",
+          "checkin_close_at",
           "scheduled_departure",
           "risk_level",
           "confidence",
+          "confidence_window_minutes",
           "components",
           "binding_constraints",
-          "assumptions"
+          "assumptions",
+          "missing_evidence"
         ],
         "title": "DepartureDecision"
+      },
+      "DisruptionSignal": {
+        "properties": {
+          "signal_id": {
+            "type": "string",
+            "title": "Signal Id"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "event",
+              "construction",
+              "closure",
+              "accident",
+              "social_signal"
+            ],
+            "title": "Category"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "impact_start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Impact Start"
+          },
+          "impact_end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Impact End"
+          },
+          "impact_minutes": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 0.0,
+            "title": "Impact Minutes"
+          },
+          "route_intersection": {
+            "type": "string",
+            "enum": [
+              "confirmed",
+              "possible",
+              "unknown"
+            ],
+            "title": "Route Intersection"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/SourceMetadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "signal_id",
+          "category",
+          "label",
+          "impact_start",
+          "impact_end",
+          "impact_minutes",
+          "route_intersection",
+          "metadata"
+        ],
+        "title": "DisruptionSignal"
       },
       "EvidenceItem": {
         "properties": {
@@ -344,6 +1022,9 @@
             "type": "string",
             "enum": [
               "user_confirmed",
+              "official_api",
+              "official_public",
+              "configured_rule",
               "synthetic_rule",
               "derived"
             ],
@@ -376,10 +1057,28 @@
             "type": "string",
             "enum": [
               "confirmed",
+              "live",
+              "configured",
               "synthetic",
-              "derived"
+              "derived",
+              "stale"
             ],
             "title": "Status"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "completeness": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "partial",
+              "unavailable"
+            ],
+            "title": "Completeness",
+            "default": "complete"
           }
         },
         "additionalProperties": false,
@@ -395,6 +1094,100 @@
           "status"
         ],
         "title": "EvidenceItem"
+      },
+      "FlightSnapshot": {
+        "properties": {
+          "flight_number": {
+            "type": "string",
+            "title": "Flight Number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "scheduled",
+              "delayed",
+              "cancelled",
+              "unknown"
+            ],
+            "title": "Status"
+          },
+          "scheduled_departure": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Scheduled Departure"
+          },
+          "estimated_departure": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Departure"
+          },
+          "terminal": {
+            "type": "string",
+            "title": "Terminal"
+          },
+          "gate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gate"
+          },
+          "checkin_open_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Checkin Open At"
+          },
+          "checkin_close_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Checkin Close At"
+          },
+          "boarding_start_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Boarding Start At"
+          },
+          "boarding_close_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Boarding Close At"
+          },
+          "delay_probability": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Delay Probability"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/SourceMetadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "flight_number",
+          "status",
+          "scheduled_departure",
+          "terminal",
+          "checkin_open_at",
+          "checkin_close_at",
+          "boarding_start_at",
+          "boarding_close_at",
+          "delay_probability",
+          "metadata"
+        ],
+        "title": "FlightSnapshot"
       },
       "HTTPValidationError": {
         "properties": {
@@ -430,7 +1223,11 @@
           },
           "data_scope": {
             "type": "string",
-            "const": "synthetic",
+            "enum": [
+              "synthetic",
+              "mixed",
+              "live"
+            ],
             "title": "Data Scope"
           }
         },
@@ -445,6 +1242,195 @@
         ],
         "title": "HealthResponse"
       },
+      "JourneyContext": {
+        "properties": {
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          },
+          "data_scope": {
+            "type": "string",
+            "enum": [
+              "synthetic",
+              "mixed",
+              "live"
+            ],
+            "title": "Data Scope"
+          },
+          "flight": {
+            "$ref": "#/components/schemas/FlightSnapshot"
+          },
+          "airport": {
+            "$ref": "#/components/schemas/AirportProcessSnapshot"
+          },
+          "route": {
+            "$ref": "#/components/schemas/RouteSnapshot"
+          },
+          "weather": {
+            "$ref": "#/components/schemas/WeatherSnapshot"
+          },
+          "disruptions": {
+            "items": {
+              "$ref": "#/components/schemas/DisruptionSignal"
+            },
+            "type": "array",
+            "title": "Disruptions"
+          },
+          "missing_sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Sources"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "observed_at",
+          "data_scope",
+          "flight",
+          "airport",
+          "route",
+          "weather",
+          "disruptions",
+          "missing_sources",
+          "warnings"
+        ],
+        "title": "JourneyContext"
+      },
+      "PrivacyExport": {
+        "properties": {
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "persistence": {
+            "type": "string",
+            "enum": [
+              "none",
+              "ephemeral"
+            ],
+            "title": "Persistence"
+          },
+          "stored_personal_data": {
+            "items": {},
+            "type": "array",
+            "title": "Stored Personal Data"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "generated_at",
+          "persistence",
+          "stored_personal_data",
+          "note"
+        ],
+        "title": "PrivacyExport"
+      },
+      "ReminderPreview": {
+        "properties": {
+          "reminder_id": {
+            "type": "string",
+            "title": "Reminder Id"
+          },
+          "remind_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Remind At"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "status": {
+            "type": "string",
+            "const": "preview",
+            "title": "Status"
+          },
+          "channel_options": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "calendar",
+                "web_notification",
+                "wechat_subscription"
+              ]
+            },
+            "type": "array",
+            "title": "Channel Options"
+          },
+          "requires_user_consent": {
+            "type": "boolean",
+            "const": true,
+            "title": "Requires User Consent",
+            "default": true
+          },
+          "idempotency_key": {
+            "type": "string",
+            "title": "Idempotency Key"
+          },
+          "calendar_ics": {
+            "type": "string",
+            "title": "Calendar Ics"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "reminder_id",
+          "remind_at",
+          "title",
+          "message",
+          "status",
+          "channel_options",
+          "idempotency_key",
+          "calendar_ics"
+        ],
+        "title": "ReminderPreview"
+      },
+      "ReminderPreviewRequest": {
+        "properties": {
+          "trip": {
+            "$ref": "#/components/schemas/TripInput"
+          },
+          "decision": {
+            "$ref": "#/components/schemas/DepartureDecision"
+          },
+          "lead_hours": {
+            "type": "integer",
+            "maximum": 168.0,
+            "minimum": 1.0,
+            "title": "Lead Hours",
+            "default": 24
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "trip",
+          "decision"
+        ],
+        "title": "ReminderPreviewRequest"
+      },
       "RiskProfile": {
         "type": "string",
         "enum": [
@@ -454,32 +1440,127 @@
         ],
         "title": "RiskProfile"
       },
+      "RouteSnapshot": {
+        "properties": {
+          "origin_label": {
+            "type": "string",
+            "title": "Origin Label"
+          },
+          "destination_label": {
+            "type": "string",
+            "title": "Destination Label"
+          },
+          "distance_km": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 2000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Km"
+          },
+          "p50_minutes": {
+            "type": "integer",
+            "maximum": 720.0,
+            "minimum": 1.0,
+            "title": "P50 Minutes"
+          },
+          "p90_minutes": {
+            "type": "integer",
+            "maximum": 900.0,
+            "minimum": 1.0,
+            "title": "P90 Minutes"
+          },
+          "pickup_minutes": {
+            "type": "integer",
+            "maximum": 120.0,
+            "minimum": 0.0,
+            "title": "Pickup Minutes"
+          },
+          "congestion_level": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "unknown"
+            ],
+            "title": "Congestion Level"
+          },
+          "incident_delay_minutes": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 0.0,
+            "title": "Incident Delay Minutes",
+            "default": 0
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/SourceMetadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "origin_label",
+          "destination_label",
+          "p50_minutes",
+          "p90_minutes",
+          "pickup_minutes",
+          "congestion_level",
+          "metadata"
+        ],
+        "title": "RouteSnapshot"
+      },
       "RuntimeBoundary": {
         "properties": {
           "data_scope": {
             "type": "string",
-            "const": "synthetic",
+            "enum": [
+              "synthetic",
+              "mixed",
+              "live"
+            ],
             "title": "Data Scope"
           },
           "provider": {
             "type": "string",
-            "const": "fake",
             "title": "Provider"
           },
-          "planned_model": {
-            "type": "string",
-            "const": "gpt-5.6-sol",
-            "title": "Planned Model"
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
           },
           "persistence": {
             "type": "string",
-            "const": "none",
+            "enum": [
+              "none",
+              "ephemeral"
+            ],
             "title": "Persistence"
           },
           "automatic_booking": {
             "type": "boolean",
             "const": false,
             "title": "Automatic Booking"
+          },
+          "reminder_delivery": {
+            "type": "string",
+            "enum": [
+              "preview_only",
+              "configured"
+            ],
+            "title": "Reminder Delivery"
           }
         },
         "additionalProperties": false,
@@ -487,11 +1568,302 @@
         "required": [
           "data_scope",
           "provider",
-          "planned_model",
           "persistence",
-          "automatic_booking"
+          "automatic_booking",
+          "reminder_delivery"
         ],
         "title": "RuntimeBoundary"
+      },
+      "SourceMetadata": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "source_name": {
+            "type": "string",
+            "title": "Source Name"
+          },
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "user_confirmed",
+              "official_api",
+              "official_public",
+              "configured_rule",
+              "synthetic_rule",
+              "derived"
+            ],
+            "title": "Source Type"
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Observed At"
+          },
+          "fresh_until": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fresh Until"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope"
+          },
+          "completeness": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "partial",
+              "unavailable"
+            ],
+            "title": "Completeness"
+          },
+          "freshness": {
+            "type": "string",
+            "enum": [
+              "fresh",
+              "stale",
+              "not_applicable"
+            ],
+            "title": "Freshness"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_id",
+          "source_name",
+          "source_type",
+          "observed_at",
+          "scope",
+          "completeness",
+          "freshness",
+          "confidence"
+        ],
+        "title": "SourceMetadata"
+      },
+      "SourceStatus": {
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "title": "Source Id"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "flight",
+              "airport",
+              "route",
+              "weather",
+              "events",
+              "model",
+              "ocr"
+            ],
+            "title": "Category"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "synthetic",
+              "configured",
+              "available",
+              "blocked",
+              "unavailable"
+            ],
+            "title": "Mode"
+          },
+          "freshness_minutes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Freshness Minutes"
+          },
+          "requires_secret": {
+            "type": "boolean",
+            "title": "Requires Secret"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "source_id",
+          "label",
+          "category",
+          "mode",
+          "requires_secret",
+          "enabled",
+          "detail"
+        ],
+        "title": "SourceStatus"
+      },
+      "TripCandidate": {
+        "properties": {
+          "candidate_id": {
+            "type": "string",
+            "title": "Candidate Id"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/TripSourceType"
+          },
+          "source_summary": {
+            "type": "string",
+            "title": "Source Summary"
+          },
+          "flight_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flight Number"
+          },
+          "departure_airport": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Departure Airport"
+          },
+          "destination_airport": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Destination Airport"
+          },
+          "terminal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Terminal"
+          },
+          "scheduled_departure": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scheduled Departure"
+          },
+          "departure_place": {
+            "type": "string",
+            "title": "Departure Place"
+          },
+          "checked_baggage": {
+            "type": "boolean",
+            "title": "Checked Baggage"
+          },
+          "risk_profile": {
+            "$ref": "#/components/schemas/RiskProfile"
+          },
+          "field_confidence": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Field Confidence"
+          },
+          "missing_fields": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Missing Fields"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "redactions_applied": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Redactions Applied"
+          },
+          "needs_user_confirmation": {
+            "type": "boolean",
+            "const": true,
+            "title": "Needs User Confirmation",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "source_type",
+          "source_summary",
+          "departure_place",
+          "checked_baggage",
+          "risk_profile",
+          "field_confidence",
+          "missing_fields",
+          "warnings",
+          "redactions_applied"
+        ],
+        "title": "TripCandidate"
       },
       "TripInput": {
         "properties": {
@@ -504,7 +1876,22 @@
             "type": "string",
             "maxLength": 3,
             "minLength": 3,
+            "pattern": "^[A-Z]{3}$",
             "title": "Departure Airport"
+          },
+          "destination_airport": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 3,
+                "minLength": 3,
+                "pattern": "^[A-Z]{3}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Destination Airport"
           },
           "terminal": {
             "type": "string",
@@ -524,6 +1911,82 @@
             "minLength": 2,
             "title": "Departure Place"
           },
+          "departure_coordinates": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Coordinates"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "checked_baggage": {
+            "type": "boolean",
+            "title": "Checked Baggage",
+            "default": false
+          },
+          "accessibility_assistance": {
+            "type": "boolean",
+            "title": "Accessibility Assistance",
+            "default": false
+          },
+          "risk_profile": {
+            "$ref": "#/components/schemas/RiskProfile",
+            "default": "cautious"
+          },
+          "live_data_consent": {
+            "type": "boolean",
+            "title": "Live Data Consent",
+            "default": false
+          },
+          "model_egress_consent": {
+            "type": "boolean",
+            "title": "Model Egress Consent",
+            "default": false
+          },
+          "user_disruption_notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "User Disruption Notes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "flight_number",
+          "departure_airport",
+          "scheduled_departure",
+          "departure_place"
+        ],
+        "title": "TripInput"
+      },
+      "TripParseRequest": {
+        "properties": {
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "text",
+              "ics"
+            ],
+            "title": "Source Type"
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 50000,
+            "minLength": 3,
+            "title": "Content"
+          },
+          "departure_place": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Departure Place",
+            "default": "待确认出发地"
+          },
           "checked_baggage": {
             "type": "boolean",
             "title": "Checked Baggage",
@@ -537,12 +2000,20 @@
         "additionalProperties": false,
         "type": "object",
         "required": [
-          "flight_number",
-          "departure_airport",
-          "scheduled_departure",
-          "departure_place"
+          "source_type",
+          "content"
         ],
-        "title": "TripInput"
+        "title": "TripParseRequest"
+      },
+      "TripSourceType": {
+        "type": "string",
+        "enum": [
+          "manual",
+          "text",
+          "ics",
+          "image"
+        ],
+        "title": "TripSourceType"
       },
       "ValidationError": {
         "properties": {
@@ -583,6 +2054,69 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "WeatherSnapshot": {
+        "properties": {
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "none",
+              "minor",
+              "moderate",
+              "severe",
+              "unknown"
+            ],
+            "title": "Severity"
+          },
+          "precipitation_probability": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precipitation Probability"
+          },
+          "wind_speed_kph": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 300.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wind Speed Kph"
+          },
+          "buffer_minutes": {
+            "type": "integer",
+            "maximum": 180.0,
+            "minimum": 0.0,
+            "title": "Buffer Minutes"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/SourceMetadata"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "summary",
+          "severity",
+          "buffer_minutes",
+          "metadata"
+        ],
+        "title": "WeatherSnapshot"
       }
     }
   }

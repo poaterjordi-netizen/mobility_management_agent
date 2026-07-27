@@ -52,8 +52,8 @@ const configSource = fs.readFileSync(path.join(sourceRoot, "config.js"), "utf8")
 if (!configSource.includes("https://metro.9m-zx.com/mobility")) {
   throw new Error("Production API must use the fixed Alibaba Cloud HTTPS ingress")
 }
-if (!configSource.includes('dataScope: "synthetic"')) {
-  throw new Error("Runtime config must preserve the synthetic data-scope declaration")
+if (!configSource.includes('dataScope: "mixed"')) {
+  throw new Error("Runtime config must declare the mixed-source capability boundary")
 }
 
 const forbidden = [
@@ -82,5 +82,5 @@ if (storageWriters.join(",") !== "config.js") {
 }
 
 console.log(
-  `Mini Program structure OK: ${app.pages.length} pages, strict domains, synthetic boundary`,
+  `Mini Program structure OK: ${app.pages.length} pages, strict domains, governed mixed-source boundary`,
 )

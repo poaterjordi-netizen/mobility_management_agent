@@ -1,21 +1,21 @@
 <view class="page-shell about-page">
   <view class="section-kicker">GOVERNED BY DESIGN</view>
   <view class="page-heading">隐私与产品边界</view>
-  <view class="page-copy">框架版本用于验证小程序交互、共享 API 和确定性决策链路，不代表真实出行服务已经开放。</view>
+  <view class="page-copy">当前版本已打通导入、确认、决策、证据、提醒预览、地图提案和隐私控制；实时商业数据按来源逐项配置。</view>
 
   <view class="panel boundary-card">
     <view class="boundary-item">
       <view class="item-mark allowed">✓</view>
       <view>
         <view class="item-title">当前可以做</view>
-        <view class="item-copy">确认合成行程、计算出发建议、查看证据、调整风险偏好、诊断阿里云 API。</view>
+        <view class="item-copy">导入短信/ICS/截图、确认行程、融合机场/路线/天气/事件上下文、计算出发建议、预览提醒并生成官方地图提案。</view>
       </view>
     </view>
     <view class="boundary-item">
       <view class="item-mark blocked">×</view>
       <view>
         <view class="item-title">当前不会做</view>
-        <view class="item-copy">读取其他 App、保存真实行程、调用真实航班或地图、发送提醒、自动预约或付款。</view>
+        <view class="item-copy">逆向读取其他 App、绕过用户同意发送精确位置、把模型输出当作事实、自动预约或付款。</view>
       </view>
     </view>
   </view>
@@ -26,14 +26,14 @@
       <view class="policy-index">01</view>
       <view>
         <view class="item-title">最小必要</view>
-        <view class="item-copy">本版无需姓名、手机号、票号、订单号、身份证件或精确位置。</view>
+        <view class="item-copy">解析前遮盖姓名、手机号、票号、订单号和证件信息；精确坐标仅在用户明确同意后用于本次算路。</view>
       </view>
     </view>
     <view class="policy-item">
       <view class="policy-index">02</view>
       <view>
         <view class="item-title">不持久化行程</view>
-        <view class="item-copy">编辑内容只保留在小程序运行内存；退出后不会写入本地存储或云端数据库。</view>
+        <view class="item-copy">编辑内容只保留在小程序运行内存；服务端为无状态预览，不写入业务数据库。</view>
       </view>
     </view>
     <view class="policy-item">
@@ -47,7 +47,7 @@
       <view class="policy-index">04</view>
       <view>
         <view class="item-title">逐项授权</view>
-        <view class="item-copy">未来的行程、位置、提醒和预约能力必须分别说明目的，并由用户明确授权。</view>
+        <view class="item-copy">位置、模型解释、微信订阅和外部地图操作分别说明目的，并由用户明确授权或再次确认。</view>
       </view>
     </view>
   </view>

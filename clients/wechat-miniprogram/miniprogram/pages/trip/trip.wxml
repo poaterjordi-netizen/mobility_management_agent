@@ -1,7 +1,52 @@
 <view class="page-shell trip-page">
-  <view class="section-kicker">CONFIRM BEFORE COMPUTE</view>
-  <view class="page-heading">确认合成行程</view>
-  <view class="page-copy">这一页只用于验证交互和决策链路。请勿输入真实住址、票号、订单号或证件信息。</view>
+  <view class="section-kicker">IMPORT &amp; CONFIRM</view>
+  <view class="page-heading">导入并确认行程</view>
+  <view class="page-copy">可粘贴短信、ICS 日历，或选择行程截图。本地 OCR 结果只形成候选，确认前不会参与计算。</view>
+
+  <view class="panel intake-card">
+    <view class="intake-tabs">
+      <button
+        wx:for="{{intakeOptions}}"
+        wx:key="value"
+        class="intake-tab {{intakeMode === item.value ? 'active' : ''}}"
+        data-mode="{{item.value}}"
+        bindtap="handleIntakeMode"
+      >{{item.label}}</button>
+    </view>
+
+    <textarea
+      wx:if="{{intakeMode !== 'image'}}"
+      class="intake-textarea"
+      maxlength="50000"
+      value="{{intakeText}}"
+      placeholder="{{intakeMode === 'ics' ? '粘贴 BEGIN:VCALENDAR…' : '粘贴航司短信、通知或邮件正文'}}"
+      bindinput="handleIntakeText"
+    ></textarea>
+    <view wx:else class="image-picker" bindtap="chooseImage">
+      <view class="image-mark">＋</view>
+      <view class="image-title">{{intakeImageName || "选择 PNG / JPEG 行程截图"}}</view>
+      <view class="image-help">最大 5 MB；服务端临时文件在识别后删除</view>
+    </view>
+    <button class="primary-button parse-button" loading="{{parsing}}" disabled="{{parsing}}" bindtap="parseIntake">
+      解析为待确认行程
+    </button>
+  </view>
+
+  <view wx:if="{{candidate}}" class="panel candidate-card">
+    <view class="candidate-top">
+      <view>
+        <view class="section-kicker">CONFIRMATION REQUIRED</view>
+        <view class="candidate-flight">{{candidate.flight_number || "航班号待确认"}}</view>
+      </view>
+      <view class="candidate-source">{{candidate.source_type}}</view>
+    </view>
+    <view class="candidate-row"><text>机场</text><text>{{candidate.departure_airport || "待确认"}} → {{candidate.destination_airport || "待确认"}}</text></view>
+    <view class="candidate-row"><text>航站楼</text><text>{{candidate.terminal || "待确认"}}</text></view>
+    <view class="candidate-row"><text>起飞</text><text>{{candidateTime}}</text></view>
+    <view class="candidate-row"><text>已遮盖</text><text>{{candidateRedactions}}</text></view>
+    <view wx:for="{{candidate.warnings}}" wx:key="*this" class="candidate-warning">! {{item}}</view>
+    <button class="ghost-button candidate-button" bindtap="applyCandidate">带入表单并逐项确认</button>
+  </view>
 
   <view wx:if="{{error}}" class="form-error">{{error}}</view>
 
@@ -12,44 +57,26 @@
   </view>
 
   <form wx:else class="panel trip-form" bindsubmit="saveTrip">
+    <view class="form-title">确认后用于本次计算</view>
     <view class="field">
       <view class="field-label">航班号</view>
-      <input
-        class="field-input"
-        data-field="flight_number"
-        maxlength="6"
-        placeholder="例如 CA1234"
-        placeholder-class="field-placeholder"
-        value="{{draft.flight_number}}"
-        bindinput="handleTextInput"
-      />
+      <input class="field-input" data-field="flight_number" maxlength="6" placeholder="例如 CA1234" placeholder-class="field-placeholder" value="{{draft.flight_number}}" bindinput="handleTextInput" />
     </view>
 
     <view class="field-grid">
       <view class="field compact-field">
         <view class="field-label">出发机场</view>
-        <input
-          class="field-input"
-          data-field="departure_airport"
-          maxlength="3"
-          placeholder="PEK"
-          placeholder-class="field-placeholder"
-          value="{{draft.departure_airport}}"
-          bindinput="handleTextInput"
-        />
+        <input class="field-input" data-field="departure_airport" maxlength="3" placeholder="PEK" placeholder-class="field-placeholder" value="{{draft.departure_airport}}" bindinput="handleTextInput" />
       </view>
       <view class="field compact-field">
-        <view class="field-label">航站楼</view>
-        <input
-          class="field-input"
-          data-field="terminal"
-          maxlength="12"
-          placeholder="T3"
-          placeholder-class="field-placeholder"
-          value="{{draft.terminal}}"
-          bindinput="handleTextInput"
-        />
+        <view class="field-label">目的机场（可选）</view>
+        <input class="field-input" data-field="destination_airport" maxlength="3" placeholder="SHA" placeholder-class="field-placeholder" value="{{draft.destination_airport}}" bindinput="handleTextInput" />
       </view>
+    </view>
+
+    <view class="field">
+      <view class="field-label">航站楼</view>
+      <input class="field-input" data-field="terminal" maxlength="12" placeholder="T3" placeholder-class="field-placeholder" value="{{draft.terminal}}" bindinput="handleTextInput" />
     </view>
 
     <view class="field-grid">
@@ -66,50 +93,65 @@
         </picker>
       </view>
     </view>
-
-    <view class="timezone-note">时间按中国标准时间（UTC+8）生成合成决策。</view>
+    <view class="timezone-note">时间按中国标准时间（UTC+8）提交。</view>
 
     <view class="field">
       <view class="field-label">出发地</view>
-      <input
-        class="field-input"
-        data-field="departure_place"
-        maxlength="80"
-        placeholder="请继续使用合成地点"
-        placeholder-class="field-placeholder"
-        value="{{draft.departure_place}}"
-        bindinput="handleTextInput"
-      />
-      <view class="field-help">运行期间只保存在内存中，退出小程序即清除。</view>
+      <input class="field-input" data-field="departure_place" maxlength="80" placeholder="例如：北京市朝阳区望京" placeholder-class="field-placeholder" value="{{draft.departure_place}}" bindinput="handleTextInput" />
+      <view class="field-help">只保存在本次运行内存；服务端默认不持久化。</view>
     </view>
 
-    <view class="choice-row">
-      <view>
-        <view class="field-label">风险偏好</view>
-        <picker mode="selector" range="{{riskOptions}}" range-key="label" value="{{riskIndex}}" bindchange="handleRiskChange">
-          <view class="picker-field choice-picker">{{riskOptions[riskIndex].label}} 〉</view>
-        </picker>
+    <view class="field-grid">
+      <view class="field compact-field">
+        <view class="field-label">经度（可选）</view>
+        <input class="field-input" data-field="longitude" type="digit" placeholder="116.400000" value="{{longitude}}" bindinput="handleCoordinateInput" />
+      </view>
+      <view class="field compact-field">
+        <view class="field-label">纬度（可选）</view>
+        <input class="field-input" data-field="latitude" type="digit" placeholder="39.900000" value="{{latitude}}" bindinput="handleCoordinateInput" />
+      </view>
+    </view>
+
+    <view class="field">
+      <view class="field-label">已知活动、施工、封路或事故（每行一条）</view>
+      <textarea class="notes-textarea" maxlength="600" value="{{disruptionNotes}}" placeholder="最多 5 条；低可信信号只增加有限缓冲" bindinput="handleNotesInput"></textarea>
+    </view>
+
+    <view class="field">
+      <view class="field-label">风险偏好</view>
+      <picker mode="selector" range="{{riskOptions}}" range-key="label" value="{{riskIndex}}" bindchange="handleRiskChange">
+        <view class="picker-field">{{riskOptions[riskIndex].label}} 〉</view>
+      </picker>
+    </view>
+
+    <view class="switch-list">
+      <view class="switch-field">
+        <view><view class="field-label">托运行李</view><view class="field-help">增加值机流程预算</view></view>
+        <switch checked="{{draft.checked_baggage}}" color="#24D6C7" data-field="checked_baggage" bindchange="handleBooleanChange"></switch>
       </view>
       <view class="switch-field">
-        <view>
-          <view class="field-label">托运行李</view>
-          <view class="field-help">增加机场流程预算</view>
-        </view>
-        <switch checked="{{draft.checked_baggage}}" color="#24D6C7" bindchange="handleBaggageChange"></switch>
+        <view><view class="field-label">需要无障碍协助</view><view class="field-help">增加流程与步行缓冲</view></view>
+        <switch checked="{{draft.accessibility_assistance}}" color="#24D6C7" data-field="accessibility_assistance" bindchange="handleBooleanChange"></switch>
+      </view>
+      <view class="switch-field consent-field">
+        <view><view class="field-label">允许本次实时航班与地图查询</view><view class="field-help">仅在服务端来源获权时查询；地图需经纬度完整</view></view>
+        <switch checked="{{draft.live_data_consent}}" color="#24D6C7" data-field="live_data_consent" bindchange="handleBooleanChange"></switch>
+      </view>
+      <view class="switch-field consent-field">
+        <view><view class="field-label">允许模型解释本次派生证据</view><view class="field-help">不发送住址、票号、姓名或原始截图</view></view>
+        <switch checked="{{draft.model_egress_consent}}" color="#24D6C7" data-field="model_egress_consent" bindchange="handleBooleanChange"></switch>
       </view>
     </view>
 
-    <button class="primary-button submit-button" form-type="submit" loading="{{saving}}" disabled="{{saving}}">
-      生成可核验建议
-    </button>
-    <button class="ghost-button reset-button" bindtap="loadDemo">恢复合成示例</button>
+    <button class="primary-button submit-button" form-type="submit" loading="{{saving}}" disabled="{{saving}}">确认并生成建议</button>
+    <button class="ghost-button reset-button" bindtap="loadDemo">恢复示例</button>
   </form>
 
   <view class="privacy-note">
     <view class="privacy-mark">!</view>
     <view>
-      <view class="privacy-title">当前没有真实数据接口</view>
-      <view class="privacy-copy">携程、航旅纵横、航空公司、地图和网约车连接将在授权、数据许可和验收门禁通过后单独开放。</view>
+      <view class="privacy-title">不抓取第三方 App 私有页面</view>
+      <view class="privacy-copy">携程、航旅纵横等内容只接受用户主动导入或未来经官方授权的接口；地图、模型与提醒分别受同意门禁保护。</view>
     </view>
   </view>
 </view>

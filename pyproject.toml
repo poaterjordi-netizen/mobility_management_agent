@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mobility-management-agent"
-version = "0.2.0"
+version = "0.3.0"
 description = "Governed airport-access mobility agent framework"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -13,6 +13,7 @@ authors = [{ name = "Mobility Management Agent team" }]
 dependencies = [
   "fastapi>=0.115,<1",
   "pydantic>=2.10,<3",
+  "python-multipart>=0.0.20,<1",
   "uvicorn>=0.34,<1",
 ]
 

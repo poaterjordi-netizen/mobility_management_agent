@@ -1,89 +1,91 @@
 {
-  "registry_version": "plan-0.2.0",
-  "status": "planning-only",
+  "registry_version": "0.3.0",
+  "status": "functional-preview",
   "capabilities": [
     {
       "id": "create_trip_candidate",
-      "phase": "P1",
-      "tools": ["trip.parse_manual", "trip.parse_image", "trip.parse_ics"],
-      "requires_user_confirmation": true
+      "status": "implemented",
+      "clients": ["web", "wechat-miniprogram"],
+      "tools": ["trip.parse_text", "trip.parse_ics", "trip.parse_image_local_ocr"],
+      "requires_user_confirmation": true,
+      "persistence": "none"
     },
     {
       "id": "confirm_trip",
-      "phase": "P1",
+      "status": "implemented",
+      "clients": ["web", "wechat-miniprogram"],
       "tools": ["trip.confirm"],
       "requires_user_confirmation": true
     },
     {
-      "id": "compute_departure_decision",
-      "phase": "P1",
+      "id": "build_journey_context",
+      "status": "implemented-with-provider-gates",
       "tools": [
         "flight.get_snapshot",
         "airport.get_process_snapshot",
         "route.get_snapshot",
         "weather.get_snapshot",
-        "events.get_signals",
-        "decision.compute",
-        "decision.verify"
+        "events.get_user_signals"
       ],
-      "requires_complete_evidence": true
+      "fallback": "versioned conservative rules",
+      "source_status_visible": true
+    },
+    {
+      "id": "compute_departure_decision",
+      "status": "implemented",
+      "tools": ["decision.compute", "decision.verify"],
+      "requires_complete_evidence": true,
+      "policy_version": "decision-policy-0.3.0",
+      "model_can_override": false
     },
     {
       "id": "explain_decision",
-      "phase": "P1",
-      "tools": ["decision.get", "evidence.get"],
-      "model_policy": "evidence-only"
+      "status": "implemented",
+      "tools": ["decision.explain", "decision.answer_evidence_question"],
+      "model_policy": "evidence-only",
+      "default_provider": "deterministic-template",
+      "optional_model": "gpt-5.6-sol"
     },
     {
-      "id": "schedule_reminder",
-      "phase": "P3",
-      "tools": ["reminder.preview", "reminder.schedule", "reminder.cancel"],
-      "requires_user_consent": true
+      "id": "preview_reminder",
+      "status": "implemented",
+      "tools": ["reminder.preview", "reminder.export_ics"],
+      "requires_user_consent": true,
+      "channels": ["calendar", "web-preview", "wechat-copy"]
+    },
+    {
+      "id": "wechat_subscription_delivery",
+      "status": "guarded",
+      "requires": [
+        "template-id",
+        "server-side-appsecret",
+        "user-subscription-consent",
+        "idempotent-outbox"
+      ]
     },
     {
       "id": "open_ride_hailing",
-      "phase": "P1",
-      "tools": ["action.build_deep_link"],
+      "status": "implemented",
+      "tools": ["action.build_amap_official_uri"],
       "requires_user_confirmation": true,
-      "automatic_booking": false
+      "automatic_booking": false,
+      "automatic_payment": false
+    },
+    {
+      "id": "privacy_controls",
+      "status": "implemented-stateless",
+      "tools": ["privacy.export", "privacy.delete_session"],
+      "stored_personal_data": false
     },
     {
       "id": "book_ride",
-      "phase": "future",
-      "tools": [],
-      "status": "blocked"
+      "status": "blocked",
+      "tools": []
     },
     {
       "id": "read_other_apps",
-      "phase": "future-native-app",
-      "tools": [],
-      "status": "blocked"
-    },
-    {
-      "id": "wechat_confirm_synthetic_trip",
-      "phase": "P4",
-      "status": "implemented-synthetic",
-      "tools": ["trip.confirm", "decision.compute", "decision.verify"],
-      "persistence": "runtime-memory-only",
-      "requires_user_confirmation": true
-    },
-    {
-      "id": "wechat_explain_decision",
-      "phase": "P4",
-      "status": "implemented-synthetic",
-      "tools": ["decision.get", "evidence.get"],
-      "model_policy": "evidence-only"
-    },
-    {
-      "id": "wechat_runtime_diagnostics",
-      "phase": "P4",
-      "status": "implemented",
-      "tools": ["system.health", "system.capabilities"],
-      "allowed_endpoints": [
-        "https://metro.9m-zx.com/mobility",
-        "http://127.0.0.1:8000"
-      ],
-      "stores_secrets": false
+      "status": "blocked",
+      "tools": []
     }
   ]
 }

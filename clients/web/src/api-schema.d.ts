@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sources */
+        get: operations["sources_api_v1_sources_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/capabilities": {
         parameters: {
             query?: never;
@@ -55,6 +72,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/trips/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Parse Trip Candidate */
+        post: operations["parse_trip_candidate_api_v1_trips_candidates_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/trips/candidates/image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Parse Trip Image */
+        post: operations["parse_trip_image_api_v1_trips_candidates_image_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/decisions/preview": {
         parameters: {
             query?: never;
@@ -72,10 +123,208 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/assistant/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Answer Question */
+        post: operations["answer_question_api_v1_assistant_questions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reminders/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview Reminder */
+        post: operations["preview_reminder_api_v1_reminders_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/action-proposals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Propose Action */
+        post: operations["propose_action_api_v1_action_proposals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/privacy/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Privacy Export */
+        get: operations["privacy_export_api_v1_privacy_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/privacy/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Session */
+        delete: operations["delete_session_api_v1_privacy_session_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ActionProposal */
+        ActionProposal: {
+            /** Proposal Id */
+            proposal_id: string;
+            /**
+             * Action Type
+             * @enum {string}
+             */
+            action_type: "open_map" | "open_ride_hailing";
+            /**
+             * Status
+             * @constant
+             */
+            status: "awaiting_user_confirmation";
+            /** Label */
+            label: string;
+            /** Parameters Preview */
+            parameters_preview: {
+                [key: string]: string;
+            };
+            /** Deep Link */
+            deep_link: string;
+            /** Fallback Url */
+            fallback_url: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Idempotency Key */
+            idempotency_key: string;
+            /**
+             * Requires Payment
+             * @default false
+             * @constant
+             */
+            requires_payment: false;
+            /**
+             * Automatic Booking
+             * @default false
+             * @constant
+             */
+            automatic_booking: false;
+        };
+        /** ActionProposalRequest */
+        ActionProposalRequest: {
+            trip: components["schemas"]["TripInput"];
+            decision: components["schemas"]["DepartureDecision"];
+            /**
+             * Action Type
+             * @enum {string}
+             */
+            action_type: "open_map" | "open_ride_hailing";
+        };
+        /** AirportProcessSnapshot */
+        AirportProcessSnapshot: {
+            /** Airport */
+            airport: string;
+            /** Terminal */
+            terminal: string;
+            /** Checkin Minutes */
+            checkin_minutes: number;
+            /** Security Minutes */
+            security_minutes: number;
+            /** Walking Minutes */
+            walking_minutes: number;
+            /** Gate Distance Meters */
+            gate_distance_meters?: number | null;
+            /**
+             * Accessibility Extra Minutes
+             * @default 0
+             */
+            accessibility_extra_minutes: number;
+            metadata: components["schemas"]["SourceMetadata"];
+        };
+        /** AssistantAnswer */
+        AssistantAnswer: {
+            /** Answer */
+            answer: string;
+            /** Cited Evidence Ids */
+            cited_evidence_ids: string[];
+            /** Provider */
+            provider: string;
+            /**
+             * Evidence Only
+             * @default true
+             * @constant
+             */
+            evidence_only: true;
+        };
+        /** AssistantQuestionRequest */
+        AssistantQuestionRequest: {
+            /** Question */
+            question: string;
+            decision: components["schemas"]["DecisionResponse"];
+        };
+        /** Body_parse_trip_image_api_v1_trips_candidates_image_post */
+        Body_parse_trip_image_api_v1_trips_candidates_image_post: {
+            /** Image */
+            image: string;
+            /**
+             * Departure Place
+             * @default 待确认出发地
+             */
+            departure_place: string;
+            /**
+             * Checked Baggage
+             * @default false
+             */
+            checked_baggage: boolean;
+            /** @default cautious */
+            risk_profile: components["schemas"]["RiskProfile"];
+        };
         /** CapabilitiesResponse */
         CapabilitiesResponse: {
             /** Service */
@@ -84,23 +333,28 @@ export interface components {
             version: string;
             /**
              * Data Scope
-             * @constant
+             * @enum {string}
              */
-            data_scope: "synthetic";
-            /**
-             * Provider
-             * @constant
-             */
-            provider: "fake";
-            /**
-             * Planned Model
-             * @constant
-             */
-            planned_model: "gpt-5.6-sol";
+            data_scope: "synthetic" | "mixed" | "live";
+            /** Provider */
+            provider: string;
+            /** Planned Model */
+            planned_model: string;
             /** Features */
             features: string[];
+            /** Guarded Features */
+            guarded_features: string[];
             /** Blocked Actions */
             blocked_actions: string[];
+            /** Sources */
+            sources: components["schemas"]["SourceStatus"][];
+        };
+        /** Coordinates */
+        Coordinates: {
+            /** Longitude */
+            longitude: number;
+            /** Latitude */
+            latitude: number;
         };
         /** DecisionComponent */
         DecisionComponent: {
@@ -116,6 +370,7 @@ export interface components {
         /** DecisionResponse */
         DecisionResponse: {
             trip: components["schemas"]["TripInput"];
+            context: components["schemas"]["JourneyContext"];
             decision: components["schemas"]["DepartureDecision"];
             /** Evidence */
             evidence: components["schemas"]["EvidenceItem"][];
@@ -124,6 +379,18 @@ export interface components {
             /** Verified */
             verified: boolean;
             runtime: components["schemas"]["RuntimeBoundary"];
+        };
+        /** DeleteResponse */
+        DeleteResponse: {
+            /**
+             * Deleted
+             * @constant
+             */
+            deleted: true;
+            /** Scope */
+            scope: string;
+            /** Note */
+            note: string;
         };
         /** DepartureDecision */
         DepartureDecision: {
@@ -143,6 +410,16 @@ export interface components {
              */
             target_terminal_arrival: string;
             /**
+             * Boarding Start At
+             * Format: date-time
+             */
+            boarding_start_at: string;
+            /**
+             * Checkin Close At
+             * Format: date-time
+             */
+            checkin_close_at: string;
+            /**
              * Scheduled Departure
              * Format: date-time
              */
@@ -157,18 +434,51 @@ export interface components {
              * @enum {string}
              */
             confidence: "low" | "medium" | "high";
+            /** Confidence Window Minutes */
+            confidence_window_minutes: number;
             /** Components */
             components: components["schemas"]["DecisionComponent"][];
             /** Binding Constraints */
             binding_constraints: string[];
             /** Assumptions */
             assumptions: string[];
+            /** Missing Evidence */
+            missing_evidence: string[];
             /**
              * Policy Version
-             * @default synthetic-demo-1.0.0
-             * @constant
+             * @default decision-policy-0.3.0
              */
-            policy_version: "synthetic-demo-1.0.0";
+            policy_version: string;
+        };
+        /** DisruptionSignal */
+        DisruptionSignal: {
+            /** Signal Id */
+            signal_id: string;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "event" | "construction" | "closure" | "accident" | "social_signal";
+            /** Label */
+            label: string;
+            /**
+             * Impact Start
+             * Format: date-time
+             */
+            impact_start: string;
+            /**
+             * Impact End
+             * Format: date-time
+             */
+            impact_end: string;
+            /** Impact Minutes */
+            impact_minutes: number;
+            /**
+             * Route Intersection
+             * @enum {string}
+             */
+            route_intersection: "confirmed" | "possible" | "unknown";
+            metadata: components["schemas"]["SourceMetadata"];
         };
         /** EvidenceItem */
         EvidenceItem: {
@@ -184,7 +494,7 @@ export interface components {
              * Source Type
              * @enum {string}
              */
-            source_type: "user_confirmed" | "synthetic_rule" | "derived";
+            source_type: "user_confirmed" | "official_api" | "official_public" | "configured_rule" | "synthetic_rule" | "derived";
             /**
              * Observed At
              * Format: date-time
@@ -198,7 +508,62 @@ export interface components {
              * Status
              * @enum {string}
              */
-            status: "confirmed" | "synthetic" | "derived";
+            status: "confirmed" | "live" | "configured" | "synthetic" | "derived" | "stale";
+            /**
+             * Scope
+             * @default
+             */
+            scope: string;
+            /**
+             * Completeness
+             * @default complete
+             * @enum {string}
+             */
+            completeness: "complete" | "partial" | "unavailable";
+        };
+        /** FlightSnapshot */
+        FlightSnapshot: {
+            /** Flight Number */
+            flight_number: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "scheduled" | "delayed" | "cancelled" | "unknown";
+            /**
+             * Scheduled Departure
+             * Format: date-time
+             */
+            scheduled_departure: string;
+            /** Estimated Departure */
+            estimated_departure?: string | null;
+            /** Terminal */
+            terminal: string;
+            /** Gate */
+            gate?: string | null;
+            /**
+             * Checkin Open At
+             * Format: date-time
+             */
+            checkin_open_at: string;
+            /**
+             * Checkin Close At
+             * Format: date-time
+             */
+            checkin_close_at: string;
+            /**
+             * Boarding Start At
+             * Format: date-time
+             */
+            boarding_start_at: string;
+            /**
+             * Boarding Close At
+             * Format: date-time
+             */
+            boarding_close_at: string;
+            /** Delay Probability */
+            delay_probability: number;
+            metadata: components["schemas"]["SourceMetadata"];
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -220,42 +585,247 @@ export interface components {
             environment: string;
             /**
              * Data Scope
+             * @enum {string}
+             */
+            data_scope: "synthetic" | "mixed" | "live";
+        };
+        /** JourneyContext */
+        JourneyContext: {
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /**
+             * Data Scope
+             * @enum {string}
+             */
+            data_scope: "synthetic" | "mixed" | "live";
+            flight: components["schemas"]["FlightSnapshot"];
+            airport: components["schemas"]["AirportProcessSnapshot"];
+            route: components["schemas"]["RouteSnapshot"];
+            weather: components["schemas"]["WeatherSnapshot"];
+            /** Disruptions */
+            disruptions: components["schemas"]["DisruptionSignal"][];
+            /** Missing Sources */
+            missing_sources: string[];
+            /** Warnings */
+            warnings: string[];
+        };
+        /** PrivacyExport */
+        PrivacyExport: {
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            /**
+             * Persistence
+             * @enum {string}
+             */
+            persistence: "none" | "ephemeral";
+            /** Stored Personal Data */
+            stored_personal_data: unknown[];
+            /** Note */
+            note: string;
+        };
+        /** ReminderPreview */
+        ReminderPreview: {
+            /** Reminder Id */
+            reminder_id: string;
+            /**
+             * Remind At
+             * Format: date-time
+             */
+            remind_at: string;
+            /** Title */
+            title: string;
+            /** Message */
+            message: string;
+            /**
+             * Status
              * @constant
              */
-            data_scope: "synthetic";
+            status: "preview";
+            /** Channel Options */
+            channel_options: ("calendar" | "web_notification" | "wechat_subscription")[];
+            /**
+             * Requires User Consent
+             * @default true
+             * @constant
+             */
+            requires_user_consent: true;
+            /** Idempotency Key */
+            idempotency_key: string;
+            /** Calendar Ics */
+            calendar_ics: string;
+        };
+        /** ReminderPreviewRequest */
+        ReminderPreviewRequest: {
+            trip: components["schemas"]["TripInput"];
+            decision: components["schemas"]["DepartureDecision"];
+            /**
+             * Lead Hours
+             * @default 24
+             */
+            lead_hours: number;
         };
         /**
          * RiskProfile
          * @enum {string}
          */
         RiskProfile: "standard" | "cautious" | "very_cautious";
+        /** RouteSnapshot */
+        RouteSnapshot: {
+            /** Origin Label */
+            origin_label: string;
+            /** Destination Label */
+            destination_label: string;
+            /** Distance Km */
+            distance_km?: number | null;
+            /** P50 Minutes */
+            p50_minutes: number;
+            /** P90 Minutes */
+            p90_minutes: number;
+            /** Pickup Minutes */
+            pickup_minutes: number;
+            /**
+             * Congestion Level
+             * @enum {string}
+             */
+            congestion_level: "low" | "medium" | "high" | "unknown";
+            /**
+             * Incident Delay Minutes
+             * @default 0
+             */
+            incident_delay_minutes: number;
+            metadata: components["schemas"]["SourceMetadata"];
+        };
         /** RuntimeBoundary */
         RuntimeBoundary: {
             /**
              * Data Scope
-             * @constant
+             * @enum {string}
              */
-            data_scope: "synthetic";
-            /**
-             * Provider
-             * @constant
-             */
-            provider: "fake";
-            /**
-             * Planned Model
-             * @constant
-             */
-            planned_model: "gpt-5.6-sol";
+            data_scope: "synthetic" | "mixed" | "live";
+            /** Provider */
+            provider: string;
+            /** Model */
+            model?: string | null;
             /**
              * Persistence
-             * @constant
+             * @enum {string}
              */
-            persistence: "none";
+            persistence: "none" | "ephemeral";
             /**
              * Automatic Booking
              * @constant
              */
             automatic_booking: false;
+            /**
+             * Reminder Delivery
+             * @enum {string}
+             */
+            reminder_delivery: "preview_only" | "configured";
+        };
+        /** SourceMetadata */
+        SourceMetadata: {
+            /** Source Id */
+            source_id: string;
+            /** Source Name */
+            source_name: string;
+            /**
+             * Source Type
+             * @enum {string}
+             */
+            source_type: "user_confirmed" | "official_api" | "official_public" | "configured_rule" | "synthetic_rule" | "derived";
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /** Fresh Until */
+            fresh_until?: string | null;
+            /** Scope */
+            scope: string;
+            /**
+             * Completeness
+             * @enum {string}
+             */
+            completeness: "complete" | "partial" | "unavailable";
+            /**
+             * Freshness
+             * @enum {string}
+             */
+            freshness: "fresh" | "stale" | "not_applicable";
+            /** Confidence */
+            confidence: number;
+            /** Warnings */
+            warnings?: string[];
+        };
+        /** SourceStatus */
+        SourceStatus: {
+            /** Source Id */
+            source_id: string;
+            /** Label */
+            label: string;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "flight" | "airport" | "route" | "weather" | "events" | "model" | "ocr";
+            /**
+             * Mode
+             * @enum {string}
+             */
+            mode: "synthetic" | "configured" | "available" | "blocked" | "unavailable";
+            /** Freshness Minutes */
+            freshness_minutes?: number | null;
+            /** Requires Secret */
+            requires_secret: boolean;
+            /** Enabled */
+            enabled: boolean;
+            /** Detail */
+            detail: string;
+        };
+        /** TripCandidate */
+        TripCandidate: {
+            /** Candidate Id */
+            candidate_id: string;
+            source_type: components["schemas"]["TripSourceType"];
+            /** Source Summary */
+            source_summary: string;
+            /** Flight Number */
+            flight_number?: string | null;
+            /** Departure Airport */
+            departure_airport?: string | null;
+            /** Destination Airport */
+            destination_airport?: string | null;
+            /** Terminal */
+            terminal?: string | null;
+            /** Scheduled Departure */
+            scheduled_departure?: string | null;
+            /** Departure Place */
+            departure_place: string;
+            /** Checked Baggage */
+            checked_baggage: boolean;
+            risk_profile: components["schemas"]["RiskProfile"];
+            /** Field Confidence */
+            field_confidence: {
+                [key: string]: number;
+            };
+            /** Missing Fields */
+            missing_fields: string[];
+            /** Warnings */
+            warnings: string[];
+            /** Redactions Applied */
+            redactions_applied: string[];
+            /**
+             * Needs User Confirmation
+             * @default true
+             * @constant
+             */
+            needs_user_confirmation: true;
         };
         /** TripInput */
         TripInput: {
@@ -263,6 +833,8 @@ export interface components {
             flight_number: string;
             /** Departure Airport */
             departure_airport: string;
+            /** Destination Airport */
+            destination_airport?: string | null;
             /**
              * Terminal
              * @default 待确认
@@ -275,6 +847,46 @@ export interface components {
             scheduled_departure: string;
             /** Departure Place */
             departure_place: string;
+            departure_coordinates?: components["schemas"]["Coordinates"] | null;
+            /**
+             * Checked Baggage
+             * @default false
+             */
+            checked_baggage: boolean;
+            /**
+             * Accessibility Assistance
+             * @default false
+             */
+            accessibility_assistance: boolean;
+            /** @default cautious */
+            risk_profile: components["schemas"]["RiskProfile"];
+            /**
+             * Live Data Consent
+             * @default false
+             */
+            live_data_consent: boolean;
+            /**
+             * Model Egress Consent
+             * @default false
+             */
+            model_egress_consent: boolean;
+            /** User Disruption Notes */
+            user_disruption_notes?: string[];
+        };
+        /** TripParseRequest */
+        TripParseRequest: {
+            /**
+             * Source Type
+             * @enum {string}
+             */
+            source_type: "text" | "ics";
+            /** Content */
+            content: string;
+            /**
+             * Departure Place
+             * @default 待确认出发地
+             */
+            departure_place: string;
             /**
              * Checked Baggage
              * @default false
@@ -283,6 +895,11 @@ export interface components {
             /** @default cautious */
             risk_profile: components["schemas"]["RiskProfile"];
         };
+        /**
+         * TripSourceType
+         * @enum {string}
+         */
+        TripSourceType: "manual" | "text" | "ics" | "image";
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -295,6 +912,23 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** WeatherSnapshot */
+        WeatherSnapshot: {
+            /** Summary */
+            summary: string;
+            /**
+             * Severity
+             * @enum {string}
+             */
+            severity: "none" | "minor" | "moderate" | "severe" | "unknown";
+            /** Precipitation Probability */
+            precipitation_probability?: number | null;
+            /** Wind Speed Kph */
+            wind_speed_kph?: number | null;
+            /** Buffer Minutes */
+            buffer_minutes: number;
+            metadata: components["schemas"]["SourceMetadata"];
         };
     };
     responses: never;
@@ -321,6 +955,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+        };
+    };
+    sources_api_v1_sources_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceStatus"][];
                 };
             };
         };
@@ -365,6 +1019,72 @@ export interface operations {
             };
         };
     };
+    parse_trip_candidate_api_v1_trips_candidates_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TripParseRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TripCandidate"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    parse_trip_image_api_v1_trips_candidates_image_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_parse_trip_image_api_v1_trips_candidates_image_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TripCandidate"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     preview_decision_api_v1_decisions_preview_post: {
         parameters: {
             query?: never;
@@ -394,6 +1114,145 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    answer_question_api_v1_assistant_questions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssistantQuestionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssistantAnswer"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_reminder_api_v1_reminders_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReminderPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReminderPreview"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    propose_action_api_v1_action_proposals_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActionProposalRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActionProposal"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    privacy_export_api_v1_privacy_export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyExport"];
+                };
+            };
+        };
+    };
+    delete_session_api_v1_privacy_session_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeleteResponse"];
                 };
             };
         };

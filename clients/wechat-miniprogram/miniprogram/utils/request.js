@@ -53,9 +53,44 @@ function request(path, options = {}) {
   })
 }
 
+function upload(path, filePath, formData = {}, options = {}) {
+  const config = getRuntimeConfig()
+  const url = `${config.apiBaseUrl}${path}`
+  return new Promise((resolve, reject) => {
+    wx.uploadFile({
+      url,
+      filePath,
+      name: "image",
+      formData,
+      timeout: Number(options.timeout || 30000),
+      success(response) {
+        let body
+        try {
+          body = typeof response.data === "string"
+            ? JSON.parse(response.data)
+            : response.data
+        } catch (_) {
+          reject(new Error("服务返回了无法识别的 OCR 响应"))
+          return
+        }
+        const normalized = { ...response, data: body }
+        if (response.statusCode >= 200 && response.statusCode < 300) {
+          resolve(body)
+          return
+        }
+        reject(new Error(responseMessage(normalized)))
+      },
+      fail(error) {
+        reject(new Error(networkFailureMessage(url, error)))
+      },
+    })
+  })
+}
+
 module.exports = {
   accountAppId,
   networkFailureMessage,
   request,
   responseMessage,
+  upload,
 }
