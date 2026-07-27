@@ -5,6 +5,7 @@
 .venv/
 __pycache__/
 *.py[cod]
+*.egg-info/
 .pytest_cache/
 .ruff_cache/
 .coverage
@@ -29,3 +30,5 @@ runtime/
 uploads/
 traces/
 audits/
+clients/web/test-results/
+clients/web/playwright-report/

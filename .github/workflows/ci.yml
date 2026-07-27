@@ -1,0 +1,103 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]"
+      - run: ruff check .
+      - run: pytest
+      - name: Verify committed OpenAPI
+        run: |
+          python scripts/export_openapi.py
+          git diff --exit-code -- clients/web/openapi.json
+      - name: Validate planning JSON
+        run: |
+          python -m json.tool config/capabilities.plan.json >/dev/null
+          python -m json.tool config/promotion_gates.plan.json >/dev/null
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: clients/web/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install -e ".[dev]"
+      - working-directory: clients/web
+        run: npm ci
+      - name: Verify generated API client
+        working-directory: clients/web
+        run: |
+          npm run generate-client
+          git diff --exit-code -- src/api-schema.d.ts
+      - working-directory: clients/web
+        run: npm run lint
+      - working-directory: clients/web
+        run: npm run build
+      - working-directory: clients/web
+        run: npx playwright install --with-deps chromium
+      - working-directory: clients/web
+        run: npm run test:e2e
+
+  miniprogram:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - working-directory: clients/wechat-miniprogram
+        run: npm run check
+      - working-directory: clients/wechat-miniprogram
+        run: npm test
+
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose build
+      - run: docker compose up --detach
+      - name: Smoke test containers
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:18081/health >/dev/null; then
+              curl --fail --silent http://127.0.0.1:18081/api/v1/demo/trip >/dev/null
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - if: always()
+        run: docker compose down --volumes
+
+  repository-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reject common secrets and personal-data files
+        run: |
+          test ! -e .env
+          ! find . -type f \( -name '*.pem' -o -name '*.key' -o -name '*.p12' -o -name 'project.private.config.json' \) -print -quit | grep .
+          ! git grep -I -E '(sk-[A-Za-z0-9]{20,}|AKID[A-Za-z0-9]{16,}|LTAI[A-Za-z0-9]{12,})'
+      - run: git diff --check

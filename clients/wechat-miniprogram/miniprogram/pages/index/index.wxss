@@ -1,0 +1,399 @@
+.page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 32rpx 28rpx 80rpx;
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at 86% 8%, rgba(36, 214, 199, 0.14), transparent 28%),
+    linear-gradient(160deg, #07111f 0%, #0b1727 55%, #08121e 100%);
+}
+
+.glow {
+  position: absolute;
+  border-radius: 999rpx;
+  filter: blur(70rpx);
+  pointer-events: none;
+}
+
+.glow-one {
+  width: 260rpx;
+  height: 260rpx;
+  top: 200rpx;
+  right: -120rpx;
+  background: rgba(36, 214, 199, 0.12);
+}
+
+.glow-two {
+  width: 200rpx;
+  height: 200rpx;
+  top: 700rpx;
+  left: -120rpx;
+  background: rgba(75, 105, 255, 0.12);
+}
+
+.brand-row,
+.brand,
+.scope,
+.card-top,
+.flight-row,
+.control-row,
+.baggage-control {
+  display: flex;
+  align-items: center;
+}
+
+.brand-row,
+.card-top,
+.flight-row,
+.control-row {
+  justify-content: space-between;
+}
+
+.brand {
+  gap: 16rpx;
+}
+
+.brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 18rpx;
+  color: #07111f;
+  font-weight: 700;
+  background: #24d6c7;
+  box-shadow: 0 0 36rpx rgba(36, 214, 199, 0.24);
+}
+
+.brand-name {
+  font-size: 31rpx;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.brand-en,
+.section-label {
+  margin-top: 4rpx;
+  color: #7f94a9;
+  font-size: 16rpx;
+  letter-spacing: 2.5rpx;
+}
+
+.scope {
+  gap: 10rpx;
+  padding: 10rpx 16rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.09);
+  border-radius: 999rpx;
+  color: #aebdcc;
+  font-size: 20rpx;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.scope-dot {
+  width: 9rpx;
+  height: 9rpx;
+  border-radius: 50%;
+  background: #24d6c7;
+}
+
+.hero {
+  padding: 94rpx 4rpx 52rpx;
+}
+
+.eyebrow {
+  color: #24d6c7;
+  font-size: 20rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+}
+
+.hero-title {
+  margin-top: 22rpx;
+  font-size: 68rpx;
+  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: -3rpx;
+}
+
+.hero-title text {
+  display: block;
+  color: #24d6c7;
+}
+
+.hero-copy {
+  max-width: 620rpx;
+  margin-top: 24rpx;
+  color: #9badbe;
+  font-size: 26rpx;
+  line-height: 1.75;
+}
+
+.recommendation-card,
+.trip-card,
+.error-card,
+.loading-card {
+  position: relative;
+  padding: 34rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.09);
+  border-radius: 30rpx;
+  background: rgba(15, 31, 49, 0.92);
+  box-shadow: 0 26rpx 80rpx rgba(0, 0, 0, 0.22);
+}
+
+.verified,
+.risk {
+  padding: 10rpx 16rpx;
+  border-radius: 999rpx;
+  font-size: 20rpx;
+}
+
+.verified {
+  color: #63eadc;
+  background: rgba(36, 214, 199, 0.1);
+}
+
+.risk {
+  color: #b8c6d4;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.leave-label {
+  margin-top: 42rpx;
+  color: #8fa3b7;
+  font-size: 23rpx;
+}
+
+.leave-time {
+  margin-top: 4rpx;
+  color: #f8fbff;
+  font-size: 120rpx;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -6rpx;
+}
+
+.latest {
+  color: #7f94a9;
+  font-size: 22rpx;
+}
+
+.timeline {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 52rpx;
+}
+
+.line {
+  position: absolute;
+  top: 12rpx;
+  right: 10%;
+  left: 10%;
+  height: 2rpx;
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.timeline-item {
+  position: relative;
+  width: 31%;
+  padding-top: 32rpx;
+}
+
+.timeline-item:nth-child(3) {
+  text-align: center;
+}
+
+.timeline-item:last-child {
+  text-align: right;
+}
+
+.point {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 16rpx;
+  height: 16rpx;
+  border: 4rpx solid #597085;
+  border-radius: 50%;
+  background: #0f1f31;
+}
+
+.timeline-item:nth-child(3) .point {
+  left: calc(50% - 10rpx);
+}
+
+.timeline-item:last-child .point {
+  right: 0;
+  left: auto;
+}
+
+.point-active {
+  border-color: #24d6c7;
+  box-shadow: 0 0 20rpx rgba(36, 214, 199, 0.5);
+}
+
+.timeline-time {
+  font-size: 27rpx;
+  font-weight: 650;
+}
+
+.timeline-label {
+  margin-top: 5rpx;
+  color: #8296aa;
+  font-size: 18rpx;
+  line-height: 1.4;
+}
+
+.assistant-note {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 40rpx;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  color: #b7c6d4;
+  font-size: 23rpx;
+  line-height: 1.65;
+  background: rgba(36, 214, 199, 0.06);
+}
+
+.note-mark {
+  color: #24d6c7;
+}
+
+.trip-card {
+  margin-top: 24rpx;
+}
+
+.flight-number {
+  margin-top: 12rpx;
+  font-size: 48rpx;
+  font-weight: 700;
+}
+
+.flight-date {
+  color: #a7b7c6;
+  font-size: 22rpx;
+}
+
+.trip-place {
+  margin-top: 8rpx;
+  color: #7f94a9;
+  font-size: 22rpx;
+}
+
+.control-row {
+  margin-top: 30rpx;
+  padding-top: 28rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.08);
+}
+
+.control-label {
+  color: #7f94a9;
+  font-size: 19rpx;
+}
+
+.picker-value {
+  margin-top: 9rpx;
+  color: #e8f0f7;
+  font-size: 25rpx;
+}
+
+.baggage-control {
+  gap: 18rpx;
+}
+
+.evidence-title {
+  margin: 56rpx 4rpx 22rpx;
+  font-size: 33rpx;
+  font-weight: 650;
+}
+
+.evidence-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18rpx;
+}
+
+.evidence-card {
+  min-height: 150rpx;
+  padding: 25rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.075);
+  border-radius: 22rpx;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.evidence-label {
+  color: #8296aa;
+  font-size: 18rpx;
+}
+
+.evidence-value {
+  margin-top: 12rpx;
+  color: #eff7fd;
+  font-size: 29rpx;
+  font-weight: 650;
+}
+
+.evidence-source {
+  margin-top: 9rpx;
+  color: #63798d;
+  font-size: 16rpx;
+  line-height: 1.4;
+}
+
+.boundary {
+  margin-top: 48rpx;
+  padding: 28rpx;
+  border-left: 4rpx solid #24d6c7;
+  color: #8296aa;
+  font-size: 21rpx;
+  line-height: 1.7;
+  background: rgba(36, 214, 199, 0.04);
+}
+
+.boundary-title {
+  margin-bottom: 6rpx;
+  color: #dbe8f2;
+  font-size: 25rpx;
+  font-weight: 650;
+}
+
+.error-title {
+  color: #ffb6b6;
+  font-size: 28rpx;
+  font-weight: 650;
+}
+
+.error-copy {
+  margin-top: 12rpx;
+  color: #aebdcc;
+  font-size: 22rpx;
+}
+
+.retry-button {
+  margin: 26rpx 0 0;
+  width: 220rpx;
+  color: #07111f;
+  font-size: 22rpx;
+  background: #24d6c7;
+}
+
+.skeleton {
+  width: 66%;
+  height: 28rpx;
+  margin-top: 22rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.skeleton-wide {
+  width: 90%;
+  height: 70rpx;
+}
+
+.skeleton-short {
+  width: 40%;
+}

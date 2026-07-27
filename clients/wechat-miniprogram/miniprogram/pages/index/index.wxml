@@ -1,0 +1,105 @@
+<view class="page">
+  <view class="glow glow-one"></view>
+  <view class="glow glow-two"></view>
+
+  <view class="brand-row">
+    <view class="brand">
+      <view class="brand-mark">↗</view>
+      <view>
+        <view class="brand-name">行前</view>
+        <view class="brand-en">AI MOBILITY CONCIERGE</view>
+      </view>
+    </view>
+    <view class="scope"><view class="scope-dot"></view>合成数据</view>
+  </view>
+
+  <view class="hero">
+    <view class="eyebrow">下一段旅程 · 框架版</view>
+    <view class="hero-title">明天去机场，<text>几点出发？</text></view>
+    <view class="hero-copy">把航班、机场流程和道路风险放进一条可核验的时间线。</view>
+  </view>
+
+  <view wx:if="{{error}}" class="error-card">
+    <view class="error-title">暂时无法生成建议</view>
+    <view class="error-copy">{{error}}</view>
+    <button class="retry-button" bindtap="retry">重新连接</button>
+  </view>
+
+  <view wx:elif="{{loading}}" class="loading-card">
+    <view class="skeleton skeleton-wide"></view>
+    <view class="skeleton"></view>
+    <view class="skeleton skeleton-short"></view>
+  </view>
+
+  <block wx:elif="{{result}}">
+    <view class="recommendation-card">
+      <view class="card-top">
+        <view class="verified">✓ 确定性核验通过</view>
+        <view class="risk">{{riskOptions[riskIndex].label}}方案</view>
+      </view>
+      <view class="leave-label">建议离开出发地</view>
+      <view class="leave-time">{{leaveTime}}</view>
+      <view class="latest">最晚参考时间 {{latestTime}}</view>
+
+      <view class="timeline">
+        <view class="line"></view>
+        <view class="timeline-item">
+          <view class="point point-active"></view>
+          <view class="timeline-time">{{leaveTime}}</view>
+          <view class="timeline-label">离开出发地</view>
+        </view>
+        <view class="timeline-item">
+          <view class="point"></view>
+          <view class="timeline-time">{{terminalTime}}</view>
+          <view class="timeline-label">到达 {{trip.departure_airport}} {{trip.terminal}}</view>
+        </view>
+        <view class="timeline-item">
+          <view class="point"></view>
+          <view class="timeline-time">{{departureTime}}</view>
+          <view class="timeline-label">计划起飞</view>
+        </view>
+      </view>
+
+      <view class="assistant-note">
+        <view class="note-mark">✦</view>
+        <view>{{result.assistant_summary}}</view>
+      </view>
+    </view>
+
+    <view class="trip-card">
+      <view class="section-label">CONFIRMED INPUT</view>
+      <view class="flight-row">
+        <view class="flight-number">{{trip.flight_number}}</view>
+        <view class="flight-date">{{departureDate}}</view>
+      </view>
+      <view class="trip-place">{{trip.departure_place}}</view>
+
+      <view class="control-row">
+        <view>
+          <view class="control-label">风险偏好</view>
+          <picker mode="selector" range="{{riskOptions}}" range-key="label" value="{{riskIndex}}" bindchange="handleRiskChange">
+            <view class="picker-value">{{riskOptions[riskIndex].label}} 〉</view>
+          </picker>
+        </view>
+        <view class="baggage-control">
+          <view class="control-label">托运行李</view>
+          <switch checked="{{trip.checked_baggage}}" color="#24D6C7" bindchange="handleBaggageChange"></switch>
+        </view>
+      </view>
+    </view>
+
+    <view class="evidence-title">每一分钟都有依据</view>
+    <view class="evidence-grid">
+      <view wx:for="{{result.evidence}}" wx:for-item="evidence" wx:key="evidence_id" class="evidence-card">
+        <view class="evidence-label">{{evidence.label}}</view>
+        <view class="evidence-value">{{evidence.value}}</view>
+        <view class="evidence-source">{{evidence.source}}</view>
+      </view>
+    </view>
+  </block>
+
+  <view class="boundary">
+    <view class="boundary-title">模型负责理解，代码负责决定</view>
+    <view>当前不读取其他 App，不保存行程，也不会自动叫车或付款。</view>
+  </view>
+</view>

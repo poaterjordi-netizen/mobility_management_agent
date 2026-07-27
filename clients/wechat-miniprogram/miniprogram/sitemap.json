@@ -1,0 +1,9 @@
+{
+  "desc": "行前框架版本仅包含合成出行决策演示",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "pages/index/index"
+    }
+  ]
+}
