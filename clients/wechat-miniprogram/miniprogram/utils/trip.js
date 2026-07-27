@@ -33,6 +33,16 @@ function normalizeTrip(trip) {
       : "cautious",
     live_data_consent: Boolean(source.live_data_consent),
     model_egress_consent: Boolean(source.model_egress_consent),
+    itinerary_source: [
+      "manual",
+      "ctrip",
+      "umetrip",
+      "airline",
+      "calendar",
+      "other",
+    ].includes(source.itinerary_source)
+      ? source.itinerary_source
+      : "manual",
     user_disruption_notes: Array.isArray(source.user_disruption_notes)
       ? source.user_disruption_notes
         .map((item) => String(item).trim())

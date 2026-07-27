@@ -1,6 +1,6 @@
 {
-  "registry_version": "0.3.0",
-  "status": "functional-preview",
+  "registry_version": "0.4.0",
+  "status": "real-data-preview",
   "capabilities": [
     {
       "id": "create_trip_candidate",
@@ -22,10 +22,13 @@
       "status": "implemented-with-provider-gates",
       "tools": [
         "flight.get_snapshot",
+        "flight.get_public_adsb_telemetry",
         "airport.get_process_snapshot",
         "route.get_snapshot",
         "weather.get_snapshot",
-        "events.get_user_signals"
+        "weather.get_official_metar",
+        "events.get_user_signals",
+        "events.match_official_advisories"
       ],
       "fallback": "versioned conservative rules",
       "source_status_visible": true
@@ -35,7 +38,7 @@
       "status": "implemented",
       "tools": ["decision.compute", "decision.verify"],
       "requires_complete_evidence": true,
-      "policy_version": "decision-policy-0.3.0",
+      "policy_version": "decision-policy-0.4.0",
       "model_can_override": false
     },
     {

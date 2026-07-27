@@ -65,15 +65,11 @@ class FakeProvider:
             selected = [item for item in evidence if item.evidence_id == "ev-weather"]
         elif any(token in lowered for token in ("路", "堵", "交通", "事故", "活动", "施工")):
             selected = [
-                item
-                for item in evidence
-                if item.evidence_id in {"ev-route", "ev-disruptions"}
+                item for item in evidence if item.evidence_id in {"ev-route", "ev-disruptions"}
             ]
         elif any(token in lowered for token in ("机场", "安检", "登机", "值机", "步行")):
             selected = [
-                item
-                for item in evidence
-                if item.evidence_id in {"ev-flight", "ev-airport"}
+                item for item in evidence if item.evidence_id in {"ev-flight", "ev-airport"}
             ]
         else:
             selected = evidence[:4]

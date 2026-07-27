@@ -28,6 +28,14 @@ def _default_airport_registry() -> Path:
     return next((path.resolve() for path in candidates if path.is_file()), candidates[0])
 
 
+def _default_config_path(filename: str) -> Path:
+    candidates = (
+        _repository_root() / "config" / filename,
+        Path.cwd() / "config" / filename,
+    )
+    return next((path.resolve() for path in candidates if path.is_file()), candidates[0])
+
+
 @dataclass(frozen=True)
 class ApiSettings:
     environment: str = "development"
@@ -53,6 +61,11 @@ class ApiSettings:
     wechat_subscription_template_id: str | None = None
     ride_hailing_actions_enabled: bool = True
     airport_registry_path: Path = _default_airport_registry()
+    airline_registry_path: Path = _default_config_path("airlines.json")
+    advisory_registry_path: Path = _default_config_path("public_advisories.json")
+    public_http_timeout_seconds: float = 6.0
+    public_http_retries: int = 1
+    public_http_cache_seconds: int = 60
 
     @classmethod
     def from_env(cls, environment: Mapping[str, str] | None = None) -> ApiSettings:
@@ -83,8 +96,19 @@ class ApiSettings:
             raise ValueError("MOBILITY_FLIGHT_API_BASE must use HTTPS")
 
         registry = env.get("MOBILITY_AIRPORT_REGISTRY_PATH", "").strip()
+        airline_registry = env.get("MOBILITY_AIRLINE_REGISTRY_PATH", "").strip()
+        advisory_registry = env.get("MOBILITY_ADVISORY_REGISTRY_PATH", "").strip()
         configured_ocr = env.get("MOBILITY_OCR_COMMAND", "").strip() or None
         detected_ocr = configured_ocr or shutil.which("tesseract")
+        public_timeout = float(env.get("MOBILITY_PUBLIC_HTTP_TIMEOUT_SECONDS", "6"))
+        public_retries = int(env.get("MOBILITY_PUBLIC_HTTP_RETRIES", "1"))
+        public_cache = int(env.get("MOBILITY_PUBLIC_HTTP_CACHE_SECONDS", "60"))
+        if not 1 <= public_timeout <= 30:
+            raise ValueError("MOBILITY_PUBLIC_HTTP_TIMEOUT_SECONDS must be between 1 and 30")
+        if not 0 <= public_retries <= 3:
+            raise ValueError("MOBILITY_PUBLIC_HTTP_RETRIES must be between 0 and 3")
+        if not 1 <= public_cache <= 3_600:
+            raise ValueError("MOBILITY_PUBLIC_HTTP_CACHE_SECONDS must be between 1 and 3600")
         return cls(
             environment=env.get("MOBILITY_ENV", "development").strip() or "development",
             host=env.get("MOBILITY_API_HOST", "127.0.0.1").strip() or "127.0.0.1",
@@ -98,8 +122,7 @@ class ApiSettings:
             flight_api_key=env.get("MOBILITY_FLIGHT_API_KEY", "").strip() or None,
             assistant_provider=provider,  # type: ignore[arg-type]
             assistant_model=(
-                env.get("MOBILITY_ASSISTANT_MODEL", "gpt-5.6-sol").strip()
-                or "gpt-5.6-sol"
+                env.get("MOBILITY_ASSISTANT_MODEL", "gpt-5.6-sol").strip() or "gpt-5.6-sol"
             ),
             assistant_reasoning_effort=(
                 env.get("MOBILITY_ASSISTANT_REASONING_EFFORT", "medium").strip() or "medium"
@@ -112,8 +135,7 @@ class ApiSettings:
                 or "https://api.openai.com/v1"
             ),
             ocr_command=detected_ocr,
-            ocr_languages=env.get("MOBILITY_OCR_LANGUAGES", "chi_sim+eng").strip()
-            or "chi_sim+eng",
+            ocr_languages=env.get("MOBILITY_OCR_LANGUAGES", "chi_sim+eng").strip() or "chi_sim+eng",
             reminder_delivery_enabled=_bool(env.get("MOBILITY_REMINDER_DELIVERY_ENABLED")),
             wechat_subscription_template_id=(
                 env.get("MOBILITY_WECHAT_SUBSCRIPTION_TEMPLATE_ID", "").strip() or None
@@ -123,8 +145,19 @@ class ApiSettings:
                 default=True,
             ),
             airport_registry_path=(
-                Path(registry).expanduser().resolve()
-                if registry
-                else _default_airport_registry()
+                Path(registry).expanduser().resolve() if registry else _default_airport_registry()
             ),
+            airline_registry_path=(
+                Path(airline_registry).expanduser().resolve()
+                if airline_registry
+                else _default_config_path("airlines.json")
+            ),
+            advisory_registry_path=(
+                Path(advisory_registry).expanduser().resolve()
+                if advisory_registry
+                else _default_config_path("public_advisories.json")
+            ),
+            public_http_timeout_seconds=public_timeout,
+            public_http_retries=public_retries,
+            public_http_cache_seconds=public_cache,
         )

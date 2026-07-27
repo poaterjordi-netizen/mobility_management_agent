@@ -125,7 +125,9 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
             "planned_model": runtime.assistant_model,
             "features": [
                 "手工、文本、ICS 与截图行程导入",
-                "航班/机场/路线/天气/事件上下文",
+                "公开 ADS-B 航空器遥测与获权航班接口",
+                "Open-Meteo 预报与 AviationWeather.gov METAR 实况",
+                "机场/路线/官方交通通告上下文",
                 "确定性出发时刻计算与完整重算核验",
                 "证据受限解释与问答",
                 "T-24 提醒预览与日历文件",
@@ -135,7 +137,8 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
             ],
             "guarded_features": [
                 "实时高德路线需要服务端 Key、坐标和用户同意",
-                "实时航班需要获权规范化 HTTPS 接口",
+                "公开 ADS-B 仅在用户同意且航班临近时查询，不替代航司动态",
+                "值机、登机口与航班计划仍需获权规范化 HTTPS 接口或用户确认",
                 "模型解释需要运行时密钥、出域策略和用户同意",
                 "微信订阅投递需要模板、AppSecret、用户授权和幂等 Outbox",
             ],
@@ -232,10 +235,7 @@ def create_app(settings: ApiSettings | None = None) -> FastAPI:
         tags=["actions"],
     )
     def propose_action(request: ActionProposalRequest) -> ActionProposal:
-        if (
-            request.action_type == "open_ride_hailing"
-            and not runtime.ride_hailing_actions_enabled
-        ):
+        if request.action_type == "open_ride_hailing" and not runtime.ride_hailing_actions_enabled:
             raise HTTPException(status_code=403, detail="地图/叫车入口当前未启用")
         try:
             return application.state.actions.propose(

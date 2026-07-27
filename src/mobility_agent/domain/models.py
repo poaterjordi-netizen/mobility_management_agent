@@ -47,6 +47,14 @@ class TripInput(StrictModel):
     risk_profile: RiskProfile = RiskProfile.CAUTIOUS
     live_data_consent: bool = False
     model_egress_consent: bool = False
+    itinerary_source: Literal[
+        "manual",
+        "ctrip",
+        "umetrip",
+        "airline",
+        "calendar",
+        "other",
+    ] = "manual"
     user_disruption_notes: list[str] = Field(default_factory=list, max_length=5)
 
     @field_validator("flight_number", "departure_airport", "destination_airport", mode="before")
@@ -82,6 +90,14 @@ class TripCandidate(StrictModel):
     candidate_id: str
     source_type: TripSourceType
     source_summary: str
+    itinerary_source: Literal[
+        "manual",
+        "ctrip",
+        "umetrip",
+        "airline",
+        "calendar",
+        "other",
+    ]
     flight_number: str | None = None
     departure_airport: str | None = None
     destination_airport: str | None = None
@@ -101,6 +117,7 @@ SourceType = Literal[
     "user_confirmed",
     "official_api",
     "official_public",
+    "public_feed",
     "configured_rule",
     "synthetic_rule",
     "derived",
@@ -119,6 +136,8 @@ class SourceMetadata(StrictModel):
     completeness: Completeness
     freshness: Freshness
     confidence: float = Field(ge=0, le=1)
+    source_url: str | None = None
+    license_note: str | None = None
     warnings: list[str] = Field(default_factory=list)
 
 
@@ -169,6 +188,30 @@ class WeatherSnapshot(StrictModel):
     metadata: SourceMetadata
 
 
+class FlightTelemetrySnapshot(StrictModel):
+    callsign: str
+    icao24: str
+    state: Literal["airborne", "ground", "unknown"]
+    latitude: float | None = Field(default=None, ge=-90, le=90)
+    longitude: float | None = Field(default=None, ge=-180, le=180)
+    altitude_meters: float | None = Field(default=None, ge=-1_000, le=30_000)
+    groundspeed_kph: float | None = Field(default=None, ge=0, le=2_000)
+    track_degrees: float | None = Field(default=None, ge=0, le=360)
+    last_contact_at: datetime
+    metadata: SourceMetadata
+
+
+class AviationWeatherSnapshot(StrictModel):
+    station_icao: str
+    raw_metar: str
+    observed_at: datetime
+    flight_category: Literal["VFR", "MVFR", "IFR", "LIFR", "UNKNOWN"]
+    visibility_km: float | None = Field(default=None, ge=0, le=100)
+    wind_speed_kph: float | None = Field(default=None, ge=0, le=300)
+    temperature_c: float | None = Field(default=None, ge=-100, le=70)
+    metadata: SourceMetadata
+
+
 class DisruptionSignal(StrictModel):
     signal_id: str
     category: Literal["event", "construction", "closure", "accident", "social_signal"]
@@ -187,6 +230,8 @@ class JourneyContext(StrictModel):
     airport: AirportProcessSnapshot
     route: RouteSnapshot
     weather: WeatherSnapshot
+    flight_telemetry: FlightTelemetrySnapshot | None = None
+    aviation_weather: AviationWeatherSnapshot | None = None
     disruptions: list[DisruptionSignal]
     missing_sources: list[str]
     warnings: list[str]
@@ -204,6 +249,7 @@ class EvidenceItem(StrictModel):
     status: Literal["confirmed", "live", "configured", "synthetic", "derived", "stale"]
     scope: str = ""
     completeness: Completeness = "complete"
+    source_url: str | None = None
 
 
 class DecisionComponent(StrictModel):
@@ -227,7 +273,7 @@ class DepartureDecision(StrictModel):
     binding_constraints: list[str]
     assumptions: list[str]
     missing_evidence: list[str]
-    policy_version: str = "decision-policy-0.3.0"
+    policy_version: str = "decision-policy-0.4.0"
 
 
 class RuntimeBoundary(StrictModel):

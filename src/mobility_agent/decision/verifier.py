@@ -41,10 +41,7 @@ class DecisionVerifier:
             if component.key != "airport_process"
         )
         expected_minutes = round(
-            (
-                decision.target_terminal_arrival - decision.recommended_leave_at
-            ).total_seconds()
-            / 60
+            (decision.target_terminal_arrival - decision.recommended_leave_at).total_seconds() / 60
         )
         if component_total != expected_minutes:
             raise ValueError("departure components do not add up to the recommended leave time")

@@ -56,9 +56,7 @@ class AssistantService:
                 "persistence": "none",
                 "automatic_booking": False,
                 "reminder_delivery": (
-                    "configured"
-                    if self.settings.reminder_delivery_enabled
-                    else "preview_only"
+                    "configured" if self.settings.reminder_delivery_enabled else "preview_only"
                 ),
             },
         )

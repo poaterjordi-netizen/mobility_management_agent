@@ -1,6 +1,6 @@
 {
-  "gate_version": "0.3.0",
-  "status": "functional-preview",
+  "gate_version": "0.4.0",
+  "status": "real-data-preview",
   "gates": [
     {
       "id": "local_web_functional",
@@ -15,9 +15,17 @@
     },
     {
       "id": "real_data_shadow",
-      "status": "guarded",
+      "status": "partially-passed",
+      "passed": [
+        "credential-free official METAR adapter",
+        "credential-free public ADS-B telemetry adapter",
+        "Open-Meteo forecast adapter",
+        "official advisory registry",
+        "TTL cache, retry, circuit-breaker and fixed-host SSRF controls",
+        "success/no-data/malformed-boundary unit tests and live read-only diagnostics"
+      ],
       "criteria": [
-        "each commercial source has approved credentials and license",
+        "commercial schedule/gate and traffic providers have approved credentials and license",
         "runtime consent and source status remain visible",
         "source TTL and fallback contract tests pass",
         "supervised trip replays produce calibration evidence"
@@ -45,7 +53,7 @@
         "strict request-domain validation"
       ],
       "criteria": [
-        "v0.3.0 official CLI compile/preview/upload succeeds",
+        "v0.4.0 official CLI compile/preview/upload succeeds",
         "platform development version is selected as experience version",
         "Android and iPhone cold-start checks pass"
       ]

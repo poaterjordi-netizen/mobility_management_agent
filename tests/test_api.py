@@ -10,15 +10,13 @@ from mobility_agent.api.settings import ApiSettings
 
 class ApiTests(unittest.TestCase):
     def setUp(self) -> None:
-        self.client = TestClient(
-            create_app(ApiSettings(environment="test", ocr_command=None))
-        )
+        self.client = TestClient(create_app(ApiSettings(environment="test", ocr_command=None)))
 
     def test_health_capabilities_and_source_registry(self) -> None:
         health = self.client.get("/health")
         self.assertEqual(health.status_code, 200)
         self.assertEqual(health.json()["data_scope"], "synthetic")
-        self.assertEqual(health.json()["version"], "0.3.0")
+        self.assertEqual(health.json()["version"], "0.4.0")
         self.assertEqual(health.headers["cache-control"], "no-store")
         self.assertEqual(health.headers["x-frame-options"], "DENY")
 
@@ -32,6 +30,8 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(sources.status_code, 200)
         by_id = {item["source_id"]: item for item in sources.json()}
         self.assertFalse(by_id["flight-normalized-api"]["enabled"])
+        self.assertFalse(by_id["adsb-lol-live"]["enabled"])
+        self.assertEqual(by_id["aviationweather-metar"]["mode"], "blocked")
         self.assertEqual(by_id["local-tesseract"]["mode"], "unavailable")
 
     def test_demo_decision_preview_is_verified_and_evidence_complete(self) -> None:
@@ -58,7 +58,7 @@ class ApiTests(unittest.TestCase):
             json={
                 "source_type": "text",
                 "content": (
-                    "【国航】CA1832 杭州萧山机场 T4 → 北京首都机场，"
+                    "【携程】CA1832 杭州萧山机场 T4 → 北京首都机场，"
                     "2026/8/1 09:20，手机 13800138000"
                 ),
                 "departure_place": "杭州市滨江区",
@@ -70,6 +70,7 @@ class ApiTests(unittest.TestCase):
         candidate = text_response.json()
         self.assertTrue(candidate["needs_user_confirmation"])
         self.assertEqual(candidate["flight_number"], "CA1832")
+        self.assertEqual(candidate["itinerary_source"], "ctrip")
         self.assertEqual(candidate["departure_airport"], "HGH")
         self.assertEqual(candidate["destination_airport"], "PEK")
         self.assertEqual(candidate["terminal"], "T4")

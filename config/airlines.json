@@ -1,0 +1,17 @@
+{
+  "registry_version": "airline-callsign-registry-0.4.0",
+  "updated_at": "2026-07-27T00:00:00+08:00",
+  "airlines": {
+    "CA": {"icao": "CCA", "name": "中国国际航空"},
+    "MU": {"icao": "CES", "name": "中国东方航空"},
+    "CZ": {"icao": "CSN", "name": "中国南方航空"},
+    "HO": {"icao": "DKH", "name": "吉祥航空"},
+    "HU": {"icao": "CHH", "name": "海南航空"},
+    "ZH": {"icao": "CSZ", "name": "深圳航空"},
+    "MF": {"icao": "CXA", "name": "厦门航空"},
+    "3U": {"icao": "CSC", "name": "四川航空"},
+    "FM": {"icao": "CSH", "name": "上海航空"},
+    "SC": {"icao": "CDG", "name": "山东航空"},
+    "9C": {"icao": "CQH", "name": "春秋航空"}
+  }
+}

@@ -1,9 +1,10 @@
 {
-  "registry_version": "airport-registry-0.3.0",
+  "registry_version": "airport-registry-0.4.0",
   "updated_at": "2026-07-27T00:00:00+08:00",
   "airports": {
     "PEK": {
       "name": "北京首都国际机场",
+      "icao": "ZBAA",
       "city": "北京",
       "coordinates": {
         "longitude": 116.5975,
@@ -31,6 +32,7 @@
     },
     "PKX": {
       "name": "北京大兴国际机场",
+      "icao": "ZBAD",
       "city": "北京",
       "coordinates": {
         "longitude": 116.4109,
@@ -52,6 +54,7 @@
     },
     "PVG": {
       "name": "上海浦东国际机场",
+      "icao": "ZSPD",
       "city": "上海",
       "coordinates": {
         "longitude": 121.8052,
@@ -79,6 +82,7 @@
     },
     "SHA": {
       "name": "上海虹桥国际机场",
+      "icao": "ZSSS",
       "city": "上海",
       "coordinates": {
         "longitude": 121.3363,
@@ -106,6 +110,7 @@
     },
     "HGH": {
       "name": "杭州萧山国际机场",
+      "icao": "ZSHC",
       "city": "杭州",
       "coordinates": {
         "longitude": 120.4345,
@@ -133,6 +138,7 @@
     },
     "TNA": {
       "name": "济南遥墙国际机场",
+      "icao": "ZSJN",
       "city": "济南",
       "coordinates": {
         "longitude": 117.2160,

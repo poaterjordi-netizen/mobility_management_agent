@@ -1,7 +1,7 @@
 <view class="page-shell trip-page">
   <view class="section-kicker">IMPORT &amp; CONFIRM</view>
   <view class="page-heading">导入并确认行程</view>
-  <view class="page-copy">可粘贴短信、ICS 日历，或选择行程截图。本地 OCR 结果只形成候选，确认前不会参与计算。</view>
+  <view class="page-copy">可粘贴你自己的携程、航旅纵横、航司通知或 ICS，也可选择截图。解析结果只形成候选，确认前不会参与计算。</view>
 
   <view class="panel intake-card">
     <view class="intake-tabs">
@@ -38,7 +38,7 @@
         <view class="section-kicker">CONFIRMATION REQUIRED</view>
         <view class="candidate-flight">{{candidate.flight_number || "航班号待确认"}}</view>
       </view>
-      <view class="candidate-source">{{candidate.source_type}}</view>
+      <view class="candidate-source">{{candidate.itinerary_source}} · {{candidate.source_type}}</view>
     </view>
     <view class="candidate-row"><text>机场</text><text>{{candidate.departure_airport || "待确认"}} → {{candidate.destination_airport || "待确认"}}</text></view>
     <view class="candidate-row"><text>航站楼</text><text>{{candidate.terminal || "待确认"}}</text></view>
@@ -134,7 +134,7 @@
         <switch checked="{{draft.accessibility_assistance}}" color="#24D6C7" data-field="accessibility_assistance" bindchange="handleBooleanChange"></switch>
       </view>
       <view class="switch-field consent-field">
-        <view><view class="field-label">允许本次实时航班与地图查询</view><view class="field-help">仅在服务端来源获权时查询；地图需经纬度完整</view></view>
+        <view><view class="field-label">允许本次实时航班与地图查询</view><view class="field-help">查询公开 ADS-B/获权航班来源；地图需经纬度完整</view></view>
         <switch checked="{{draft.live_data_consent}}" color="#24D6C7" data-field="live_data_consent" bindchange="handleBooleanChange"></switch>
       </view>
       <view class="switch-field consent-field">

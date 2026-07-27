@@ -34,9 +34,7 @@ class ActionService:
         destination = ""
         if airport:
             coordinates = airport["coordinates"]
-            destination = (
-                f"{coordinates['longitude']},{coordinates['latitude']},{destination_name}"
-            )
+            destination = f"{coordinates['longitude']},{coordinates['latitude']},{destination_name}"
         origin = ""
         if trip.departure_coordinates:
             origin = (
@@ -67,8 +65,7 @@ class ActionService:
         current = now or datetime.now(UTC)
         fingerprint = hashlib.sha256(
             (
-                f"{action_type}:{trip.flight_number}:"
-                f"{decision.recommended_leave_at.isoformat()}"
+                f"{action_type}:{trip.flight_number}:{decision.recommended_leave_at.isoformat()}"
             ).encode()
         ).hexdigest()[:24]
         return ActionProposal(
@@ -76,9 +73,7 @@ class ActionService:
             action_type=action_type,
             status="awaiting_user_confirmation",
             label=(
-                "打开地图并查看叫车"
-                if action_type == "open_ride_hailing"
-                else "打开地图查看路线"
+                "打开地图并查看叫车" if action_type == "open_ride_hailing" else "打开地图查看路线"
             ),
             parameters_preview={
                 "出发时间": decision.recommended_leave_at.strftime("%m月%d日 %H:%M"),

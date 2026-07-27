@@ -1042,6 +1042,38 @@ footer p {
   font-size: 10px;
 }
 
+.context-grid .live-context {
+  border-color: rgba(53, 190, 146, 0.32);
+  background: linear-gradient(145deg, rgba(14, 55, 58, 0.92), rgba(8, 32, 39, 0.96));
+}
+
+.source-warnings {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.source-warnings span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--amber);
+  font-size: 0.82rem;
+}
+
+.evidence-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--cyan);
+  font-size: 0.76rem;
+  text-decoration: none;
+}
+
+.evidence-link:hover {
+  text-decoration: underline;
+}
+
 .component-strip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
