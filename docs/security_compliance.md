@@ -80,6 +80,7 @@ evidence egress = deny
 | IDOR | 猜 trip/run/evidence ID | 每对象授权和不可枚举 ID |
 | 上传攻击 | 恶意图片/压缩炸弹 | 类型/尺寸限制、隔离解析、超时 |
 | 位置泄露 | 日志或 Trace 暴露住址 | 字段加密、脱敏、日志 lint |
+| 小程序本地缓存泄露 | 行程或精确地址进入 Storage/备份 | 合成版只用运行内存；Storage 仅保存非敏感环境枚举 |
 | 秘密泄露 | Key 进入 Git/客户端 | Secret Manager、push protection、构建检查 |
 | SSRF | 模型或用户控制外部 URL | 固定供应商主机和 allowlist |
 | 供应链 | 依赖/镜像漏洞 | lockfile、SBOM、CodeQL、扫描 |
@@ -153,6 +154,13 @@ P4/P5：
 - 用户投诉/举报和客服流程；
 - 生成式 AI 服务、算法备案/安全评估适用性法律判断；
 - 原生 App 商店政策预审。
+
+### 合成小程序基线
+
+`clients/wechat-miniprogram` 当前实现不会调用 `wx.setStorageSync` 保存行程、地址或决策。
+唯一允许持久化的值是版本化的 `production`/`local` 环境枚举；API 地址由代码中的固定
+allowlist 映射，用户不能输入任意 URL、令牌或 AppSecret。正式身份、上传、提醒和真实数据
+仍受 `wechat_experience` 门禁约束。
 
 ## 9. 事件响应
 

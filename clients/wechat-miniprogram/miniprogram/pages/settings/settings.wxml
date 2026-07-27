@@ -1,0 +1,76 @@
+<view class="page-shell settings-page">
+  <view class="section-kicker">RUNTIME &amp; SAFETY</view>
+  <view class="page-heading">设置与诊断</view>
+  <view class="page-copy">生产环境固定使用阿里云 HTTPS。此处不接受 AppSecret、数据库密码、模型密钥或访问令牌。</view>
+
+  <view class="panel settings-card">
+    <view class="setting-label">API 环境</view>
+    <picker mode="selector" range="{{environmentOptions}}" range-key="label" value="{{environmentIndex}}" bindchange="handleEnvironmentChange">
+      <view class="environment-picker">
+        <view>
+          <view class="environment-label">{{config.label}}</view>
+          <view class="environment-url">{{config.apiBaseUrl}}</view>
+        </view>
+        <view class="chevron">〉</view>
+      </view>
+    </picker>
+    <view wx:if="{{config.environment === 'local'}}" class="local-warning">
+      本机调试仅适用于开发者工具。需要在未跟踪的本地设置中关闭域名校验；真机和体验版必须恢复生产入口并开启校验。
+    </view>
+  </view>
+
+  <view class="panel settings-card">
+    <view class="setting-label">微信运行身份</view>
+    <view class="identity-row">
+      <view>
+        <view class="identity-value">{{appId}}</view>
+        <view class="identity-help">当前小程序 AppID</view>
+      </view>
+      <view class="scope-badge">synthetic</view>
+    </view>
+    <view class="domain-box">
+      <view class="domain-label">request 合法域名</view>
+      <view class="domain-value">{{config.requestDomain}}</view>
+    </view>
+  </view>
+
+  <button class="primary-button test-button" loading="{{testing}}" disabled="{{testing}}" bindtap="testConnection">
+    运行连接与能力检查
+  </button>
+
+  <view wx:if="{{testMessage}}" class="test-result {{testStatus === 'error' ? 'test-error' : ''}}">
+    <view class="result-dot"></view>
+    <view>
+      <view class="result-title">{{testStatus === "success" ? "检查通过" : testStatus === "error" ? "检查失败" : "提示"}}</view>
+      <view class="result-copy">{{testMessage}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{health && capabilities}}" class="panel diagnostics">
+    <view class="diagnostic-row">
+      <text>服务版本</text>
+      <text>{{health.version}}</text>
+    </view>
+    <view class="diagnostic-row">
+      <text>部署环境</text>
+      <text>{{health.environment}}</text>
+    </view>
+    <view class="diagnostic-row">
+      <text>数据范围</text>
+      <text>{{capabilities.data_scope}}</text>
+    </view>
+    <view class="diagnostic-row">
+      <text>当前 Provider</text>
+      <text>{{capabilities.provider}}</text>
+    </view>
+    <view class="diagnostic-row">
+      <text>计划模型</text>
+      <text>{{capabilities.planned_model}}</text>
+    </view>
+  </view>
+
+  <view class="settings-actions">
+    <button class="secondary-button action-button" bindtap="openAbout">隐私与产品边界</button>
+    <button class="ghost-button action-button" bindtap="resetEnvironment">恢复默认环境</button>
+  </view>
+</view>

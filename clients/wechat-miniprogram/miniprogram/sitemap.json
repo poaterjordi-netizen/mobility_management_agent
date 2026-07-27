@@ -1,9 +1,9 @@
 {
-  "desc": "行前框架版本仅包含合成出行决策演示",
+  "desc": "行前小程序使用合成数据演示可核验的出发决策",
   "rules": [
     {
       "action": "allow",
-      "page": "pages/index/index"
+      "page": "*"
     }
   ]
 }

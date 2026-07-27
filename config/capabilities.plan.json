@@ -1,5 +1,5 @@
 {
-  "registry_version": "plan-0.1.0",
+  "registry_version": "plan-0.2.0",
   "status": "planning-only",
   "capabilities": [
     {
@@ -58,6 +58,32 @@
       "phase": "future-native-app",
       "tools": [],
       "status": "blocked"
+    },
+    {
+      "id": "wechat_confirm_synthetic_trip",
+      "phase": "P4",
+      "status": "implemented-synthetic",
+      "tools": ["trip.confirm", "decision.compute", "decision.verify"],
+      "persistence": "runtime-memory-only",
+      "requires_user_confirmation": true
+    },
+    {
+      "id": "wechat_explain_decision",
+      "phase": "P4",
+      "status": "implemented-synthetic",
+      "tools": ["decision.get", "evidence.get"],
+      "model_policy": "evidence-only"
+    },
+    {
+      "id": "wechat_runtime_diagnostics",
+      "phase": "P4",
+      "status": "implemented",
+      "tools": ["system.health", "system.capabilities"],
+      "allowed_endpoints": [
+        "https://metro.9m-zx.com/mobility",
+        "http://127.0.0.1:8000"
+      ],
+      "stores_secrets": false
     }
   ]
 }

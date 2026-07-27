@@ -1,0 +1,115 @@
+<view class="page-shell trip-page">
+  <view class="section-kicker">CONFIRM BEFORE COMPUTE</view>
+  <view class="page-heading">确认合成行程</view>
+  <view class="page-copy">这一页只用于验证交互和决策链路。请勿输入真实住址、票号、订单号或证件信息。</view>
+
+  <view wx:if="{{error}}" class="form-error">{{error}}</view>
+
+  <view wx:if="{{loading}}" class="panel loading-panel">
+    <view class="loading-line loading-wide"></view>
+    <view class="loading-line"></view>
+    <view class="loading-line loading-short"></view>
+  </view>
+
+  <form wx:else class="panel trip-form" bindsubmit="saveTrip">
+    <view class="field">
+      <view class="field-label">航班号</view>
+      <input
+        class="field-input"
+        data-field="flight_number"
+        maxlength="6"
+        placeholder="例如 CA1234"
+        placeholder-class="field-placeholder"
+        value="{{draft.flight_number}}"
+        bindinput="handleTextInput"
+      />
+    </view>
+
+    <view class="field-grid">
+      <view class="field compact-field">
+        <view class="field-label">出发机场</view>
+        <input
+          class="field-input"
+          data-field="departure_airport"
+          maxlength="3"
+          placeholder="PEK"
+          placeholder-class="field-placeholder"
+          value="{{draft.departure_airport}}"
+          bindinput="handleTextInput"
+        />
+      </view>
+      <view class="field compact-field">
+        <view class="field-label">航站楼</view>
+        <input
+          class="field-input"
+          data-field="terminal"
+          maxlength="12"
+          placeholder="T3"
+          placeholder-class="field-placeholder"
+          value="{{draft.terminal}}"
+          bindinput="handleTextInput"
+        />
+      </view>
+    </view>
+
+    <view class="field-grid">
+      <view class="field compact-field">
+        <view class="field-label">起飞日期</view>
+        <picker mode="date" start="{{minimumDate}}" value="{{departureDate}}" bindchange="handleDateChange">
+          <view class="picker-field">{{departureDate || "请选择"}} 〉</view>
+        </picker>
+      </view>
+      <view class="field compact-field">
+        <view class="field-label">起飞时间</view>
+        <picker mode="time" value="{{departureTime}}" bindchange="handleTimeChange">
+          <view class="picker-field">{{departureTime || "请选择"}} 〉</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="timezone-note">时间按中国标准时间（UTC+8）生成合成决策。</view>
+
+    <view class="field">
+      <view class="field-label">出发地</view>
+      <input
+        class="field-input"
+        data-field="departure_place"
+        maxlength="80"
+        placeholder="请继续使用合成地点"
+        placeholder-class="field-placeholder"
+        value="{{draft.departure_place}}"
+        bindinput="handleTextInput"
+      />
+      <view class="field-help">运行期间只保存在内存中，退出小程序即清除。</view>
+    </view>
+
+    <view class="choice-row">
+      <view>
+        <view class="field-label">风险偏好</view>
+        <picker mode="selector" range="{{riskOptions}}" range-key="label" value="{{riskIndex}}" bindchange="handleRiskChange">
+          <view class="picker-field choice-picker">{{riskOptions[riskIndex].label}} 〉</view>
+        </picker>
+      </view>
+      <view class="switch-field">
+        <view>
+          <view class="field-label">托运行李</view>
+          <view class="field-help">增加机场流程预算</view>
+        </view>
+        <switch checked="{{draft.checked_baggage}}" color="#24D6C7" bindchange="handleBaggageChange"></switch>
+      </view>
+    </view>
+
+    <button class="primary-button submit-button" form-type="submit" loading="{{saving}}" disabled="{{saving}}">
+      生成可核验建议
+    </button>
+    <button class="ghost-button reset-button" bindtap="loadDemo">恢复合成示例</button>
+  </form>
+
+  <view class="privacy-note">
+    <view class="privacy-mark">!</view>
+    <view>
+      <view class="privacy-title">当前没有真实数据接口</view>
+      <view class="privacy-copy">携程、航旅纵横、航空公司、地图和网约车连接将在授权、数据许可和验收门禁通过后单独开放。</view>
+    </view>
+  </view>
+</view>

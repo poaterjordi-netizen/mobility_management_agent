@@ -8,3 +8,74 @@ page {
 button::after {
   border: 0;
 }
+
+.page-shell {
+  min-height: 100vh;
+  padding: 32rpx 28rpx 80rpx;
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at 86% 8%, rgba(36, 214, 199, 0.14), transparent 28%),
+    linear-gradient(160deg, #07111f 0%, #0b1727 55%, #08121e 100%);
+}
+
+.section-kicker {
+  color: #24d6c7;
+  font-size: 19rpx;
+  font-weight: 650;
+  letter-spacing: 2.2rpx;
+}
+
+.page-heading {
+  margin-top: 16rpx;
+  font-size: 52rpx;
+  font-weight: 720;
+  line-height: 1.2;
+  letter-spacing: -2rpx;
+}
+
+.page-copy {
+  margin-top: 16rpx;
+  color: #91a5b9;
+  font-size: 24rpx;
+  line-height: 1.7;
+}
+
+.panel {
+  border: 1rpx solid rgba(255, 255, 255, 0.09);
+  border-radius: 28rpx;
+  background: rgba(15, 31, 49, 0.92);
+  box-shadow: 0 26rpx 80rpx rgba(0, 0, 0, 0.2);
+}
+
+.primary-button,
+.secondary-button,
+.ghost-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  border-radius: 22rpx;
+  font-size: 25rpx;
+  font-weight: 650;
+}
+
+.primary-button {
+  color: #07111f;
+  background: #24d6c7;
+}
+
+.secondary-button {
+  color: #dce8f2;
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.ghost-button {
+  color: #24d6c7;
+  background: rgba(36, 214, 199, 0.08);
+}
+
+.status-error {
+  color: #ffc2c2;
+  background: rgba(255, 102, 102, 0.08);
+}

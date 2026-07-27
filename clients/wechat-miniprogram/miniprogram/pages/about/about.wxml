@@ -1,0 +1,62 @@
+<view class="page-shell about-page">
+  <view class="section-kicker">GOVERNED BY DESIGN</view>
+  <view class="page-heading">隐私与产品边界</view>
+  <view class="page-copy">框架版本用于验证小程序交互、共享 API 和确定性决策链路，不代表真实出行服务已经开放。</view>
+
+  <view class="panel boundary-card">
+    <view class="boundary-item">
+      <view class="item-mark allowed">✓</view>
+      <view>
+        <view class="item-title">当前可以做</view>
+        <view class="item-copy">确认合成行程、计算出发建议、查看证据、调整风险偏好、诊断阿里云 API。</view>
+      </view>
+    </view>
+    <view class="boundary-item">
+      <view class="item-mark blocked">×</view>
+      <view>
+        <view class="item-title">当前不会做</view>
+        <view class="item-copy">读取其他 App、保存真实行程、调用真实航班或地图、发送提醒、自动预约或付款。</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="policy-title">数据处理原则</view>
+  <view class="policy-list">
+    <view class="policy-item">
+      <view class="policy-index">01</view>
+      <view>
+        <view class="item-title">最小必要</view>
+        <view class="item-copy">本版无需姓名、手机号、票号、订单号、身份证件或精确位置。</view>
+      </view>
+    </view>
+    <view class="policy-item">
+      <view class="policy-index">02</view>
+      <view>
+        <view class="item-title">不持久化行程</view>
+        <view class="item-copy">编辑内容只保留在小程序运行内存；退出后不会写入本地存储或云端数据库。</view>
+      </view>
+    </view>
+    <view class="policy-item">
+      <view class="policy-index">03</view>
+      <view>
+        <view class="item-title">确定性决策</view>
+        <view class="item-copy">出发时间由版本化规则计算并经 Verifier 核验，模型不能自由改写时间。</view>
+      </view>
+    </view>
+    <view class="policy-item">
+      <view class="policy-index">04</view>
+      <view>
+        <view class="item-title">逐项授权</view>
+        <view class="item-copy">未来的行程、位置、提醒和预约能力必须分别说明目的，并由用户明确授权。</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="website-card">
+    <view class="website-label">网页版与项目说明</view>
+    <view class="website-url">{{website}}</view>
+    <button class="ghost-button copy-button" bindtap="copyWebsite">复制网站地址</button>
+  </view>
+
+  <view class="legal-note">本页面是工程隐私说明，不替代正式上线前的微信小程序隐私保护指引、用户协议或法律评估。</view>
+</view>

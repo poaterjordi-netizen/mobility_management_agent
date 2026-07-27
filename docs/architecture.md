@@ -56,7 +56,7 @@ React Web / 微信小程序 / 未来原生 App
 mobility-management-agent/
 ├── clients/
 │   ├── web/
-│   └── wechat-miniprogram/       # P4 才创建
+│   └── wechat-miniprogram/       # P4 合成闭环与运行诊断已实现
 ├── config/
 │   ├── capabilities.json
 │   ├── source_policies.json
@@ -90,6 +90,10 @@ mobility-management-agent/
 ```
 
 首版保持模块化单体，不拆微服务。只有当独立伸缩、团队边界或故障隔离有实证需要时才拆。
+
+微信小程序当前包含建议、行程确认、设置/连通性诊断和隐私边界四个页面。行程状态只存在于
+`App.globalData`，退出运行后清除；客户端不计算权威时间，只向同一 FastAPI 合约提交经校验的
+`TripInput`，再展示服务端 `DecisionResponse`。
 
 ## 4. 稳定数据契约
 

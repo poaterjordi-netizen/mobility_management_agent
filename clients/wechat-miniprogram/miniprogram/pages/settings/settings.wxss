@@ -1,0 +1,145 @@
+.settings-page {
+  padding-top: 54rpx;
+}
+
+.settings-card {
+  margin-top: 28rpx;
+  padding: 30rpx;
+}
+
+.setting-label,
+.domain-label {
+  color: #7f94a9;
+  font-size: 19rpx;
+}
+
+.environment-picker,
+.identity-row,
+.diagnostic-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.environment-picker {
+  margin-top: 14rpx;
+  padding: 22rpx;
+  border-radius: 18rpx;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.environment-label,
+.identity-value {
+  color: #eef6fc;
+  font-size: 27rpx;
+  font-weight: 650;
+}
+
+.environment-url,
+.identity-help,
+.domain-value {
+  margin-top: 6rpx;
+  color: #71869a;
+  font-size: 18rpx;
+  word-break: break-all;
+}
+
+.chevron {
+  color: #24d6c7;
+  font-size: 30rpx;
+}
+
+.local-warning {
+  margin-top: 18rpx;
+  padding: 18rpx;
+  border-radius: 16rpx;
+  color: #e9c98f;
+  font-size: 19rpx;
+  line-height: 1.55;
+  background: rgba(213, 164, 74, 0.08);
+}
+
+.identity-row {
+  margin-top: 17rpx;
+}
+
+.scope-badge {
+  padding: 9rpx 14rpx;
+  border-radius: 999rpx;
+  color: #65e7da;
+  font-size: 17rpx;
+  background: rgba(36, 214, 199, 0.08);
+}
+
+.domain-box {
+  margin-top: 24rpx;
+  padding-top: 22rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.075);
+}
+
+.test-button {
+  margin-top: 28rpx;
+}
+
+.test-result {
+  display: flex;
+  gap: 15rpx;
+  margin-top: 18rpx;
+  padding: 22rpx;
+  border-radius: 18rpx;
+  color: #b7eee8;
+  background: rgba(36, 214, 199, 0.07);
+}
+
+.test-error {
+  color: #ffc2c2;
+  background: rgba(255, 102, 102, 0.08);
+}
+
+.result-dot {
+  flex: 0 0 auto;
+  width: 12rpx;
+  height: 12rpx;
+  margin-top: 10rpx;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.result-title {
+  font-size: 22rpx;
+  font-weight: 650;
+}
+
+.result-copy {
+  margin-top: 6rpx;
+  font-size: 19rpx;
+  line-height: 1.55;
+}
+
+.diagnostics {
+  margin-top: 20rpx;
+  padding: 12rpx 28rpx;
+}
+
+.diagnostic-row {
+  min-height: 72rpx;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.07);
+  color: #8297aa;
+  font-size: 20rpx;
+}
+
+.diagnostic-row:last-child {
+  border-bottom: 0;
+}
+
+.diagnostic-row text:last-child {
+  color: #d9e6ef;
+}
+
+.settings-actions {
+  margin-top: 28rpx;
+}
+
+.action-button {
+  margin-top: 15rpx;
+}
