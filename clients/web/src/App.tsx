@@ -400,7 +400,7 @@ export function App() {
             <small>MOBILITY MANAGEMENT AGENT</small>
           </span>
         </div>
-        <p>框架版本 0.1 · Synthetic data only · 结果不用于真实出行</p>
+        <p>框架版本 0.2.0 · Synthetic data only · 结果不用于真实出行</p>
       </footer>
 
       {editing && trip && (
