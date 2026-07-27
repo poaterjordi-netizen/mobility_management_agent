@@ -12,6 +12,7 @@ services:
       MOBILITY_PUBLIC_DATA_ENABLED: "true"
       MOBILITY_API_HOST: 0.0.0.0
       MOBILITY_API_PORT: "8000"
+      AMAP_WEB_SERVICE_KEY: "${AMAP_WEB_SERVICE_KEY:-}"
     ports:
       - "127.0.0.1:18082:8000"
     healthcheck:

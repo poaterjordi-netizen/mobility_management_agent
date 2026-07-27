@@ -134,7 +134,7 @@
         <switch checked="{{draft.accessibility_assistance}}" color="#24D6C7" data-field="accessibility_assistance" bindchange="handleBooleanChange"></switch>
       </view>
       <view class="switch-field consent-field">
-        <view><view class="field-label">允许本次实时航班与地图查询</view><view class="field-help">查询公开 ADS-B/获权航班来源；地图需经纬度完整</view></view>
+        <view><view class="field-label">允许本次实时航班与地图查询</view><view class="field-help">查询公开 ADS-B/获权航班来源；坐标完整且在预计离家前 3 小时内时查询高德实时路线</view></view>
         <switch checked="{{draft.live_data_consent}}" color="#24D6C7" data-field="live_data_consent" bindchange="handleBooleanChange"></switch>
       </view>
       <view class="switch-field consent-field">

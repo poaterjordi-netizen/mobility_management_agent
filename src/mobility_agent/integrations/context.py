@@ -39,6 +39,7 @@ PICKUP_MINUTES = {
     RiskProfile.CAUTIOUS: 12,
     RiskProfile.VERY_CAUTIOUS: 18,
 }
+AMAP_LIVE_ROUTE_WINDOW = timedelta(hours=3)
 
 
 def _metadata(
@@ -94,8 +95,9 @@ class JourneyContextBuilder:
                 "api.adsb.lol",
                 "aviationweather.gov",
                 "api.open-meteo.com",
+                "restapi.amap.com",
             },
-            user_agent="mobility-management-agent/0.4 (+https://metro.9m-zx.com/mobility/)",
+            user_agent="mobility-management-agent/0.4.1 (+https://metro.9m-zx.com/mobility/)",
             timeout_seconds=settings.public_http_timeout_seconds,
             retries=settings.public_http_retries,
             cache_ttl_seconds=settings.public_http_cache_seconds,
@@ -236,14 +238,24 @@ class JourneyContextBuilder:
                 label="高德路线",
                 category="route",
                 mode="configured" if self.settings.amap_web_service_key else "synthetic",
-                freshness_minutes=15,
+                freshness_minutes=5,
                 requires_secret=True,
                 enabled=bool(self.settings.amap_web_service_key),
                 detail=(
-                    "用户同意并提供坐标时由服务端调用"
+                    "用户同意、提供坐标且进入预计离家前 3 小时时，由服务端调用当前驾车路线"
                     if self.settings.amap_web_service_key
                     else "未配置服务端 Key，使用机场路线分位数基线"
                 ),
+            ),
+            SourceStatus(
+                source_id="amap-future-driving-v4",
+                label="高德未来路径规划",
+                category="route",
+                mode="blocked",
+                freshness_minutes=None,
+                requires_secret=True,
+                enabled=False,
+                detail="未来 7 天 ETD 属于企业高级服务，当前账号未获权；更早阶段使用路线基线",
             ),
             SourceStatus(
                 source_id="open-meteo-airport",
@@ -483,33 +495,62 @@ class JourneyContextBuilder:
         missing: list[str],
     ) -> RouteSnapshot:
         airport = self.registry.airport(trip.departure_airport)
+        baseline = (
+            airport["route_baseline"]
+            if airport
+            else {"p50_minutes": 60, "p90_minutes": 85, "distance_km": None}
+        )
+        estimated_leave_at = trip.scheduled_departure.astimezone(UTC) - timedelta(
+            minutes=(
+                120
+                + int(baseline["p90_minutes"])
+                + PICKUP_MINUTES[trip.risk_profile]
+                + 10
+            )
+        )
+        until_estimated_leave = estimated_leave_at - observed.astimezone(UTC)
+        within_live_window = (
+            -timedelta(minutes=30) <= until_estimated_leave <= AMAP_LIVE_ROUTE_WINDOW
+        )
         if (
             trip.live_data_consent
             and trip.departure_coordinates
             and airport
             and self.settings.amap_web_service_key
+            and within_live_window
         ):
+            terminal = airport.get("terminals", {}).get(trip.terminal, {})
+            destination_coordinates = terminal.get("coordinates", airport["coordinates"])
             try:
                 return self._amap_route(
                     trip,
                     trip.departure_coordinates,
-                    Coordinates(**airport["coordinates"]),
-                    airport["name"],
+                    Coordinates(**destination_coordinates),
+                    f"{airport['name']} {trip.terminal}",
                     observed,
                 )
-            except (ValueError, KeyError, TypeError, urllib.error.URLError, TimeoutError):
+            except (
+                UpstreamError,
+                ValueError,
+                KeyError,
+                TypeError,
+                urllib.error.URLError,
+                TimeoutError,
+            ):
                 warnings.append("实时路线调用失败，已回退到版本化路线分位数。")
                 missing.append("route_live")
         else:
             missing.append("route_live")
             if trip.live_data_consent and not trip.departure_coordinates:
                 warnings.append("已同意实时数据，但未提供坐标；未向地图发送文字住址。")
-
-        baseline = (
-            airport["route_baseline"]
-            if airport
-            else {"p50_minutes": 60, "p90_minutes": 85, "distance_km": None}
-        )
+            elif (
+                trip.live_data_consent
+                and trip.departure_coordinates
+                and airport
+                and self.settings.amap_web_service_key
+                and not within_live_window
+            ):
+                warnings.append("高德当前路况仅在预计离家前 3 小时内使用；现阶段采用路线基线。")
         return RouteSnapshot(
             origin_label=trip.departure_place,
             destination_label=(airport["name"] if airport else f"{trip.departure_airport} 机场"),
@@ -544,23 +585,27 @@ class JourneyContextBuilder:
                 "origin": f"{origin.longitude},{origin.latitude}",
                 "destination": f"{destination.longitude},{destination.latitude}",
                 "strategy": "32",
-                "show_fields": "cost",
+                "show_fields": "cost,tmcs",
+                "alternative_route": "3",
             }
         )
-        request = urllib.request.Request(
+        payload = self.public_http.get(
             f"https://restapi.amap.com/v5/direction/driving?{query}",
-            headers={"Accept": "application/json"},
+            cache_ttl_seconds=120,
         )
-        with urllib.request.urlopen(request, timeout=6) as response:
-            payload = json.loads(response.read().decode("utf-8"))
+        if payload.get("status") != "1" or payload.get("infocode") != "10000":
+            raise UpstreamError("Amap rejected the route request")
         paths = payload["route"]["paths"]
         if not paths:
             raise ValueError("Amap returned no path")
         selected = paths[0]
-        duration_seconds = int(selected.get("cost", {}).get("duration") or selected["duration"])
+        duration_seconds = int(selected["cost"]["duration"])
         p50 = max(1, math.ceil(duration_seconds / 60))
         distance = float(selected["distance"]) / 1000
-        p90 = max(p50 + 8, math.ceil(p50 * 1.25))
+        congestion_level, congestion_summary = _amap_congestion(selected.get("steps", []))
+        p90_factor = {"low": 1.15, "medium": 1.25, "high": 1.4}[congestion_level]
+        minimum_spread = {"low": 8, "medium": 10, "high": 15}[congestion_level]
+        p90 = max(p50 + minimum_spread, math.ceil(p50 * p90_factor))
         return RouteSnapshot(
             origin_label=trip.departure_place,
             destination_label=destination_name,
@@ -568,19 +613,22 @@ class JourneyContextBuilder:
             p50_minutes=p50,
             p90_minutes=p90,
             pickup_minutes=PICKUP_MINUTES[trip.risk_profile],
-            congestion_level=(
-                "high" if p90 >= p50 * 1.4 else "medium" if p90 >= p50 * 1.2 else "low"
-            ),
+            congestion_level=congestion_level,
             metadata=_metadata(
                 source_id="amap-driving-v5",
-                source_name="高德地图 Web 服务",
+                source_name="高德地图实时驾车路线",
                 source_type="official_api",
                 observed_at=observed,
-                fresh_minutes=15,
-                scope=f"origin-token:{trip.departure_airport}",
-                confidence=0.9,
+                fresh_minutes=5,
+                scope=f"origin-token:{trip.departure_airport}:{trip.terminal}",
+                confidence=0.92,
                 source_url="https://lbs.amap.com/api/webservice/guide/api/newroute",
-                license_note="高德地图 Web 服务；仅服务端持有 Key",
+                license_note="高德地图 Web 服务测试 Key；仅服务端持有并限制服务器出口 IP",
+                warnings=[
+                    congestion_summary,
+                    "P50 是高德当前推荐路线 ETA；P90 是确定性保守上界，不是供应商统计分位数",
+                    "当前路况只用于预计离家前 3 小时内的临近决策",
+                ],
             ),
         )
 
@@ -873,3 +921,40 @@ def _distance_km(
         * math.sin(longitude_delta / 2) ** 2
     )
     return radius_km * 2 * math.atan2(math.sqrt(value), math.sqrt(1 - value))
+
+
+def _amap_congestion(steps: list[dict[str, Any]]) -> tuple[str, str]:
+    distances = {
+        "畅通": 0,
+        "缓行": 0,
+        "拥堵": 0,
+        "严重拥堵": 0,
+        "未知": 0,
+    }
+    for step in steps:
+        for segment in step.get("tmcs", []):
+            status = str(segment.get("tmc_status") or "未知")
+            distance = max(0, int(float(segment.get("tmc_distance") or 0)))
+            distances[status if status in distances else "未知"] += distance
+
+    known_distance = sum(distances[name] for name in ("畅通", "缓行", "拥堵", "严重拥堵"))
+    if known_distance == 0:
+        return "medium", "高德未返回可用路况分段，采用中等拥堵缓冲"
+
+    slow_ratio = (
+        distances["缓行"] + distances["拥堵"] + distances["严重拥堵"]
+    ) / known_distance
+    congested_ratio = (distances["拥堵"] + distances["严重拥堵"]) / known_distance
+    if distances["严重拥堵"] > 0 or congested_ratio >= 0.2:
+        level = "high"
+    elif slow_ratio >= 0.1:
+        level = "medium"
+    else:
+        level = "low"
+
+    summary = "高德路况分段：" + "、".join(
+        f"{name}{round(distance / 1000, 1)}km"
+        for name, distance in distances.items()
+        if distance > 0
+    )
+    return level, summary

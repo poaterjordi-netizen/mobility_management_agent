@@ -4,6 +4,13 @@ function buildDecisionView(result) {
   if (!result || !result.decision || !result.trip) return null
   const telemetry = result.context && result.context.flight_telemetry
   const metar = result.context && result.context.aviation_weather
+  const route = result.context && result.context.route
+  const congestionLabels = {
+    low: "畅通",
+    medium: "缓行",
+    high: "拥堵",
+    unknown: "路况未知",
+  }
   return {
     leaveTime: formatTime(result.decision.recommended_leave_at),
     latestTime: formatTime(result.decision.latest_reasonable_leave_at),
@@ -22,6 +29,9 @@ function buildDecisionView(result) {
     telemetryTime: telemetry ? formatTime(telemetry.last_contact_at) : "",
     metarLabel: metar ? `${metar.station_icao} · ${metar.flight_category}` : "",
     metarTime: metar ? formatTime(metar.observed_at) : "",
+    routeDetail: route
+      ? `${route.distance_km || "—"} km · ${congestionLabels[route.congestion_level] || "路况未知"}`
+      : "",
     sourceWarnings: result.context && Array.isArray(result.context.warnings)
       ? result.context.warnings
       : [],

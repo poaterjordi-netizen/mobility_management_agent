@@ -32,7 +32,7 @@ RISK_PARAMETERS = {
 class DecisionEngine:
     """Pure, replayable airport-access decision policy."""
 
-    policy_version = "decision-policy-0.4.0"
+    policy_version = "decision-policy-0.4.1"
 
     def compute(
         self,

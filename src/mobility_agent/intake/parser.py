@@ -25,6 +25,8 @@ AIRPORT_ALIASES = {
     "杭州萧山": "HGH",
     "遥墙机场": "TNA",
     "济南遥墙": "TNA",
+    "周水子机场": "DLC",
+    "大连周水子": "DLC",
 }
 KNOWN_AIRPORTS = set(AIRPORT_ALIASES.values())
 

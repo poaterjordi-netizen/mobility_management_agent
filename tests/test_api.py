@@ -16,7 +16,7 @@ class ApiTests(unittest.TestCase):
         health = self.client.get("/health")
         self.assertEqual(health.status_code, 200)
         self.assertEqual(health.json()["data_scope"], "synthetic")
-        self.assertEqual(health.json()["version"], "0.4.0")
+        self.assertEqual(health.json()["version"], "0.4.1")
         self.assertEqual(health.headers["cache-control"], "no-store")
         self.assertEqual(health.headers["x-frame-options"], "DENY")
 
@@ -31,6 +31,9 @@ class ApiTests(unittest.TestCase):
         by_id = {item["source_id"]: item for item in sources.json()}
         self.assertFalse(by_id["flight-normalized-api"]["enabled"])
         self.assertFalse(by_id["adsb-lol-live"]["enabled"])
+        self.assertEqual(by_id["amap-driving-v5"]["freshness_minutes"], 5)
+        self.assertEqual(by_id["amap-future-driving-v4"]["mode"], "blocked")
+        self.assertFalse(by_id["amap-future-driving-v4"]["enabled"])
         self.assertEqual(by_id["aviationweather-metar"]["mode"], "blocked")
         self.assertEqual(by_id["local-tesseract"]["mode"], "unavailable")
 
@@ -94,6 +97,24 @@ class ApiTests(unittest.TestCase):
             ics_response.json()["scheduled_departure"],
             "2026-08-01T09:20:00+08:00",
         )
+
+        evening_response = self.client.post(
+            "/api/v1/trips/candidates",
+            json={
+                "source_type": "text",
+                "content": (
+                    "【携程】国航 CA8908 北京首都国际机场 T3 → "
+                    "大连周水子国际机场，2026/7/27 21:50 起飞"
+                ),
+                "departure_place": "北京市朝阳区望京公开测试点",
+            },
+        )
+        self.assertEqual(evening_response.status_code, 200)
+        evening = evening_response.json()
+        self.assertEqual(evening["flight_number"], "CA8908")
+        self.assertEqual(evening["departure_airport"], "PEK")
+        self.assertEqual(evening["destination_airport"], "DLC")
+        self.assertEqual(evening["itinerary_source"], "ctrip")
 
     def test_image_intake_rejects_mime_signature_mismatch(self) -> None:
         response = self.client.post(

@@ -9,6 +9,7 @@ readonly venv_root="${deploy_root}/venv"
 readonly releases_root="${deploy_root}/releases"
 readonly compose_project="mobility-management-agent"
 readonly docker_network="mobility-management-agent"
+readonly runtime_env_file="/etc/mobility-management-agent/runtime.env"
 
 if [[ "$(id -u)" -ne 0 ]]; then
   echo "Run as root (for example through Alibaba Cloud Assistant)." >&2
@@ -23,6 +24,15 @@ for required_command in git curl; do
 done
 
 install -d -m 0755 "${deploy_root}"
+
+if [[ -e "${runtime_env_file}" ]]; then
+  runtime_env_owner="$(stat -c '%u' "${runtime_env_file}")"
+  runtime_env_mode="$(stat -c '%a' "${runtime_env_file}")"
+  if [[ "${runtime_env_owner}" != "0" || "${runtime_env_mode}" != "600" ]]; then
+    echo "${runtime_env_file} must be owned by root with mode 600." >&2
+    exit 1
+  fi
+fi
 
 if [[ -d "${checkout_root}/.git" ]]; then
   git -C "${checkout_root}" fetch --prune origin
@@ -46,9 +56,13 @@ git -C "${checkout_root}" status --short
 
 deploy_with_raw_docker() {
   local commit_sha api_image web_image
+  local -a runtime_env_args=()
   commit_sha="$(git -C "${checkout_root}" rev-parse --short=12 HEAD)"
   api_image="mobility-management-agent-api:${commit_sha}"
   web_image="mobility-management-agent-web:${commit_sha}"
+  if [[ -f "${runtime_env_file}" ]]; then
+    runtime_env_args=(--env-file "${runtime_env_file}")
+  fi
 
   if ! docker build \
     --file "${checkout_root}/infra/docker/api.Dockerfile" \
@@ -86,6 +100,7 @@ deploy_with_raw_docker() {
     --env MOBILITY_PUBLIC_DATA_ENABLED=true \
     --env MOBILITY_API_HOST=0.0.0.0 \
     --env MOBILITY_API_PORT=8000 \
+    "${runtime_env_args[@]}" \
     --health-cmd "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)\"" \
     --health-interval 15s \
     --health-timeout 3s \
@@ -163,6 +178,7 @@ Environment=MOBILITY_DATA_MODE=mixed
 Environment=MOBILITY_PUBLIC_DATA_ENABLED=true
 Environment=MOBILITY_API_HOST=127.0.0.1
 Environment=MOBILITY_API_PORT=18082
+EnvironmentFile=-${runtime_env_file}
 ExecStart=${venv_root}/bin/mobility-agent-api
 Restart=on-failure
 RestartSec=3
@@ -206,11 +222,16 @@ EOF
 }
 
 deployment_mode="docker"
+declare -a compose_env_args=()
+if [[ -f "${runtime_env_file}" ]]; then
+  compose_env_args=(--env-file "${runtime_env_file}")
+fi
 
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
   systemctl stop mobility-management-agent-api.service \
     mobility-management-agent-web.service >/dev/null 2>&1 || true
   docker compose \
+    "${compose_env_args[@]}" \
     --project-name "${compose_project}" \
     --file "${checkout_root}/compose.yaml" \
     up --detach --build --remove-orphans
@@ -218,6 +239,7 @@ elif command -v docker-compose >/dev/null 2>&1; then
   systemctl stop mobility-management-agent-api.service \
     mobility-management-agent-web.service >/dev/null 2>&1 || true
   docker-compose \
+    "${compose_env_args[@]}" \
     --project-name "${compose_project}" \
     --file "${checkout_root}/compose.yaml" \
     up --detach --build --remove-orphans

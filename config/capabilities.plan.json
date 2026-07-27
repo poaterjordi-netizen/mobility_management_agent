@@ -1,5 +1,5 @@
 {
-  "registry_version": "0.4.0",
+  "registry_version": "0.4.1",
   "status": "real-data-preview",
   "capabilities": [
     {
@@ -25,6 +25,7 @@
         "flight.get_public_adsb_telemetry",
         "airport.get_process_snapshot",
         "route.get_snapshot",
+        "route.get_amap_live_driving",
         "weather.get_snapshot",
         "weather.get_official_metar",
         "events.get_user_signals",
@@ -38,7 +39,7 @@
       "status": "implemented",
       "tools": ["decision.compute", "decision.verify"],
       "requires_complete_evidence": true,
-      "policy_version": "decision-policy-0.4.0",
+      "policy_version": "decision-policy-0.4.1",
       "model_can_override": false
     },
     {

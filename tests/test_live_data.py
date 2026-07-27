@@ -178,6 +178,103 @@ class LiveDataTests(unittest.TestCase):
         self.assertIsNone(result)
         self.assertIn("已拒绝绑定", warnings[0])
 
+    def test_amap_route_parses_current_eta_and_tmc_congestion(self) -> None:
+        payload = {
+            "status": "1",
+            "info": "OK",
+            "infocode": "10000",
+            "route": {
+                "paths": [
+                    {
+                        "distance": "22416",
+                        "cost": {"duration": "2265", "traffic_lights": "13"},
+                        "steps": [
+                            {
+                                "tmcs": [
+                                    {"tmc_status": "畅通", "tmc_distance": "21563"},
+                                    {"tmc_status": "未知", "tmc_distance": "853"},
+                                ]
+                            }
+                        ],
+                    }
+                ]
+            },
+        }
+        builder = JourneyContextBuilder(
+            ApiSettings(
+                environment="test",
+                amap_web_service_key="test-server-key",
+            )
+        )
+        builder.public_http.opener = lambda *_args, **_kwargs: FakeResponse(payload)
+        trip = TripInput(
+            flight_number="CA8908",
+            departure_airport="PEK",
+            destination_airport="DLC",
+            terminal="T3",
+            scheduled_departure="2026-07-27T21:50:00+08:00",
+            departure_place="北京市朝阳区望京公开测试点",
+            departure_coordinates={
+                "longitude": 116.470293,
+                "latitude": 39.996171,
+            },
+            live_data_consent=True,
+            itinerary_source="ctrip",
+        )
+        warnings: list[str] = []
+        missing: list[str] = []
+
+        observed = datetime.fromisoformat("2026-07-27T07:30:00+00:00")
+        route = builder._route(trip, observed, warnings, missing)  # noqa: SLF001
+
+        self.assertEqual(route.distance_km, 22.4)
+        self.assertEqual(route.p50_minutes, 38)
+        self.assertEqual(route.p90_minutes, 46)
+        self.assertEqual(route.congestion_level, "low")
+        self.assertEqual(route.destination_label, "北京首都国际机场 T3")
+        self.assertEqual(route.metadata.source_type, "official_api")
+        self.assertEqual(route.metadata.fresh_until.isoformat(), "2026-07-27T07:35:00+00:00")
+        self.assertFalse(warnings)
+        self.assertFalse(missing)
+
+    def test_amap_route_is_not_used_before_estimated_leave_window(self) -> None:
+        calls = 0
+
+        def opener(*_args: object, **_kwargs: object) -> FakeResponse:
+            nonlocal calls
+            calls += 1
+            return FakeResponse({})
+
+        builder = JourneyContextBuilder(
+            ApiSettings(
+                environment="test",
+                amap_web_service_key="test-server-key",
+            )
+        )
+        builder.public_http.opener = opener
+        trip = TripInput(
+            flight_number="CA8908",
+            departure_airport="PEK",
+            destination_airport="DLC",
+            terminal="T3",
+            scheduled_departure="2026-07-28T21:50:00+08:00",
+            departure_place="北京市朝阳区望京公开测试点",
+            departure_coordinates={
+                "longitude": 116.470293,
+                "latitude": 39.996171,
+            },
+            live_data_consent=True,
+        )
+        warnings: list[str] = []
+        missing: list[str] = []
+
+        route = builder._route(trip, self.observed, warnings, missing)  # noqa: SLF001
+
+        self.assertEqual(route.metadata.source_type, "synthetic_rule")
+        self.assertEqual(calls, 0)
+        self.assertIn("route_live", missing)
+        self.assertIn("预计离家前 3 小时", warnings[0])
+
 
 if __name__ == "__main__":
     unittest.main()

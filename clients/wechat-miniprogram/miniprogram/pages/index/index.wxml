@@ -10,7 +10,7 @@
         <view class="brand-en">AI MOBILITY CONCIERGE</view>
       </view>
     </view>
-    <view class="scope"><view class="scope-dot"></view>{{dataScope}} · v{{serviceVersion || "0.4.0"}}</view>
+    <view class="scope"><view class="scope-dot"></view>{{dataScope}} · v{{serviceVersion || "0.4.1"}}</view>
   </view>
 
   <view class="hero">
@@ -115,9 +115,9 @@
           <view class="context-help">约 {{result.context.airport.gate_distance_meters || "—"}} 米</view>
         </view>
         <view class="context-card">
-          <view class="context-label">道路分位数</view>
+          <view class="context-label">驾车道路时间</view>
           <view class="context-value">P50 {{result.context.route.p50_minutes}} · P90 {{result.context.route.p90_minutes}} 分</view>
-          <view class="context-help">{{result.context.route.metadata.source_name}}</view>
+          <view class="context-help">{{result.context.route.metadata.source_name}} · {{routeDetail}}</view>
         </view>
         <view class="context-card">
           <view class="context-label">机场天气</view>

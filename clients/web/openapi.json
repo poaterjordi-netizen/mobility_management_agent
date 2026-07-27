@@ -3,7 +3,7 @@
   "info": {
     "title": "Mobility Management Agent API",
     "summary": "Governed, evidence-backed airport-access mobility concierge",
-    "version": "0.4.0"
+    "version": "0.4.1"
   },
   "paths": {
     "/health": {
@@ -994,7 +994,7 @@
           "policy_version": {
             "type": "string",
             "title": "Policy Version",
-            "default": "decision-policy-0.4.0"
+            "default": "decision-policy-0.4.1"
           }
         },
         "additionalProperties": false,
