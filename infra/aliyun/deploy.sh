@@ -27,10 +27,21 @@ install -d -m 0755 "${deploy_root}"
 if [[ -d "${checkout_root}/.git" ]]; then
   git -C "${checkout_root}" fetch --prune origin
 else
+  if [[ -e "${checkout_root}" ]]; then
+    readonly migration_backup="${deploy_root}/source-backup-$(date -u +%Y%m%dT%H%M%SZ)"
+    mv "${checkout_root}" "${migration_backup}"
+    echo "Preserved the previous non-Git source tree at ${migration_backup}."
+  fi
   git clone "${repository_url}" "${checkout_root}"
 fi
 
-git -C "${checkout_root}" checkout --detach "${release_ref}"
+resolved_ref="${release_ref}"
+if git -C "${checkout_root}" rev-parse --verify --quiet \
+  "origin/${release_ref}^{commit}" >/dev/null; then
+  resolved_ref="origin/${release_ref}"
+fi
+
+git -C "${checkout_root}" checkout --detach "${resolved_ref}"
 git -C "${checkout_root}" status --short
 
 deploy_with_raw_docker() {
