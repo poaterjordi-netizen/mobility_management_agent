@@ -784,6 +784,49 @@ footer p {
   gap: 18px;
 }
 
+.quick-example {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+  padding: 18px 20px;
+  border: 1px solid rgba(105, 230, 220, 0.24);
+  border-radius: 16px;
+  background: linear-gradient(120deg, rgba(105, 230, 220, 0.1), rgba(12, 29, 39, 0.78));
+}
+
+.quick-example > div {
+  display: grid;
+  gap: 5px;
+}
+
+.quick-example strong {
+  color: #e6f7f5;
+  font-size: 14px;
+}
+
+.quick-example span {
+  color: #91a9af;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.quick-example button {
+  display: inline-flex;
+  min-height: 42px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  color: #062027;
+  background: var(--cyan);
+  cursor: pointer;
+  font-weight: 700;
+}
+
 .intake-card,
 .candidate-card,
 .context-grid article,
@@ -800,6 +843,61 @@ footer p {
 .candidate-card {
   min-height: 350px;
   padding: 24px;
+}
+
+.simple-input {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.simple-input b,
+.simple-step-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #d8e7e9;
+  font-size: 13px;
+}
+
+.simple-input b > span,
+.simple-step-title > span {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 99px;
+  color: #062027;
+  background: var(--cyan);
+  font-size: 11px;
+}
+
+.simple-input input {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 13px;
+  border: 1px solid rgba(105, 230, 220, 0.2);
+  border-radius: 11px;
+  color: #eef6f7;
+  background: #0d202a;
+}
+
+.simple-input small,
+.simple-step-title small {
+  color: #788f96;
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+.simple-step-title {
+  margin-bottom: 12px;
+}
+
+.simple-step-title > div {
+  display: grid;
+  gap: 2px;
 }
 
 .mode-tabs {
@@ -886,6 +984,123 @@ footer p {
 .parse-action {
   width: 100%;
   margin-top: 18px;
+}
+
+.decision-empty {
+  display: flex;
+  min-height: 150px;
+  align-items: center;
+  gap: 18px;
+  padding: 26px;
+  border: 1px dashed rgba(105, 230, 220, 0.25);
+  border-radius: 18px;
+  color: var(--cyan);
+  background: rgba(105, 230, 220, 0.04);
+}
+
+.decision-empty > div {
+  display: grid;
+  flex: 1;
+  gap: 6px;
+}
+
+.decision-empty strong {
+  color: #e2f0f1;
+}
+
+.decision-empty span {
+  color: #8fa7ae;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.decision-empty a {
+  color: var(--cyan);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.complete-journey-card {
+  margin-top: 20px;
+  padding: 24px;
+  border: 1px solid rgba(105, 230, 220, 0.22);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(105, 230, 220, 0.08), transparent 58%),
+    var(--panel);
+}
+
+.complete-journey-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.complete-journey-head h3 {
+  margin: 8px 0 0;
+  font-size: 20px;
+}
+
+.complete-journey-head > span {
+  color: #8ca4aa;
+  font-size: 10px;
+}
+
+.journey-steps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin: 22px 0 16px;
+}
+
+.journey-steps > div {
+  display: grid;
+  min-height: 82px;
+  align-content: center;
+  gap: 5px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: rgba(6, 19, 27, 0.58);
+}
+
+.journey-steps b {
+  color: var(--cyan);
+  font-size: 17px;
+}
+
+.journey-steps span,
+.journey-note {
+  color: #8ca3aa;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.journey-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 183, 101, 0.22);
+  border-radius: 12px;
+  color: var(--amber);
+  background: rgba(255, 183, 101, 0.06);
+}
+
+.journey-warning p,
+.journey-note {
+  margin: 0;
+}
+
+.journey-warning p {
+  color: #d8bd9b;
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.journey-note {
+  margin: 14px 0;
 }
 
 .primary-action:disabled,
@@ -1431,6 +1646,10 @@ footer p {
     grid-template-columns: 1fr;
   }
 
+  .journey-steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   .evidence-grid,
   .source-grid,
   .context-grid {
@@ -1474,6 +1693,21 @@ footer p {
   .hero-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .quick-example,
+  .decision-empty,
+  .complete-journey-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .quick-example button {
+    justify-content: center;
+  }
+
+  .journey-steps {
+    grid-template-columns: 1fr;
   }
 
   .text-action {
