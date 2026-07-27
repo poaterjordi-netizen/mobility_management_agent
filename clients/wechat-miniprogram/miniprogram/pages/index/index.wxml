@@ -10,13 +10,17 @@
         <view class="brand-en">AI MOBILITY CONCIERGE</view>
       </view>
     </view>
-    <view class="scope"><view class="scope-dot"></view>合成数据</view>
+    <view class="scope"><view class="scope-dot"></view>合成数据 · v{{serviceVersion || "0.1"}}</view>
   </view>
 
   <view class="hero">
-    <view class="eyebrow">下一段旅程 · 框架版</view>
+    <view class="eyebrow">下一段旅程 · 可核验建议</view>
     <view class="hero-title">明天去机场，<text>几点出发？</text></view>
     <view class="hero-copy">把航班、机场流程和道路风险放进一条可核验的时间线。</view>
+    <view class="hero-actions">
+      <button class="hero-primary" bindtap="goTrip">编辑合成行程</button>
+      <button class="hero-secondary" bindtap="goSettings">检查连接</button>
+    </view>
   </view>
 
   <view wx:if="{{error}}" class="error-card">
@@ -32,9 +36,10 @@
   </view>
 
   <block wx:elif="{{result}}">
+    <view wx:if="{{calculating}}" class="calculating-banner">正在按新偏好重新核验…</view>
     <view class="recommendation-card">
       <view class="card-top">
-        <view class="verified">✓ 确定性核验通过</view>
+        <view class="verified">✓ {{verifiedLabel}}</view>
         <view class="risk">{{riskOptions[riskIndex].label}}方案</view>
       </view>
       <view class="leave-label">建议离开出发地</view>
@@ -64,6 +69,11 @@
         <view class="note-mark">✦</view>
         <view>{{result.assistant_summary}}</view>
       </view>
+      <view class="decision-meta">
+        <text>{{confidenceLabel}}</text>
+        <text>{{evidenceCount}} 项证据</text>
+        <text>{{result.decision.policy_version}}</text>
+      </view>
     </view>
 
     <view class="trip-card">
@@ -86,6 +96,7 @@
           <switch checked="{{trip.checked_baggage}}" color="#24D6C7" bindchange="handleBaggageChange"></switch>
         </view>
       </view>
+      <button class="edit-trip-button" bindtap="goTrip">确认或修改全部行程字段</button>
     </view>
 
     <view class="evidence-title">每一分钟都有依据</view>
@@ -96,10 +107,18 @@
         <view class="evidence-source">{{evidence.source}}</view>
       </view>
     </view>
+
+    <view class="reminder-preview">
+      <view>
+        <view class="reminder-title">T-24 出发提醒</view>
+        <view class="reminder-copy">提醒与预约能力尚未接入。正式开放前需要微信订阅授权、服务端幂等和用户确认。</view>
+      </view>
+      <view class="reminder-status">后续开放</view>
+    </view>
   </block>
 
   <view class="boundary">
     <view class="boundary-title">模型负责理解，代码负责决定</view>
-    <view>当前不读取其他 App，不保存行程，也不会自动叫车或付款。</view>
+    <view>行程只保留在本次小程序运行内存中；当前不读取其他 App，不会自动叫车或付款。</view>
   </view>
 </view>

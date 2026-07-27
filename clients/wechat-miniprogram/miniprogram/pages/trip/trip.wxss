@@ -1,0 +1,163 @@
+.trip-page {
+  padding-top: 54rpx;
+}
+
+.trip-form {
+  margin-top: 38rpx;
+  padding: 30rpx;
+}
+
+.field {
+  margin-top: 28rpx;
+}
+
+.field:first-child {
+  margin-top: 0;
+}
+
+.field-grid {
+  display: flex;
+  gap: 18rpx;
+}
+
+.compact-field {
+  width: calc(50% - 9rpx);
+}
+
+.field-label {
+  color: #8499ad;
+  font-size: 20rpx;
+}
+
+.field-input,
+.picker-field {
+  min-height: 80rpx;
+  margin-top: 11rpx;
+  padding: 0 22rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.09);
+  border-radius: 18rpx;
+  box-sizing: border-box;
+  color: #eef6fc;
+  font-size: 25rpx;
+  line-height: 80rpx;
+  background: rgba(4, 13, 24, 0.45);
+}
+
+.field-placeholder {
+  color: #536a7e;
+}
+
+.field-help,
+.timezone-note {
+  margin-top: 9rpx;
+  color: #687e92;
+  font-size: 18rpx;
+  line-height: 1.5;
+}
+
+.timezone-note {
+  margin: 14rpx 4rpx 0;
+}
+
+.choice-row,
+.switch-field {
+  display: flex;
+  align-items: center;
+}
+
+.choice-row {
+  justify-content: space-between;
+  gap: 28rpx;
+  margin-top: 32rpx;
+  padding-top: 28rpx;
+  border-top: 1rpx solid rgba(255, 255, 255, 0.08);
+}
+
+.choice-picker {
+  width: 230rpx;
+}
+
+.switch-field {
+  gap: 20rpx;
+}
+
+.submit-button {
+  margin-top: 38rpx;
+}
+
+.reset-button {
+  margin-top: 16rpx;
+}
+
+.form-error {
+  margin-top: 26rpx;
+  padding: 20rpx 24rpx;
+  border-radius: 18rpx;
+  color: #ffc2c2;
+  font-size: 21rpx;
+  line-height: 1.55;
+  background: rgba(255, 102, 102, 0.08);
+}
+
+.loading-panel {
+  margin-top: 38rpx;
+  padding: 34rpx;
+}
+
+.loading-line {
+  width: 65%;
+  height: 28rpx;
+  margin-top: 22rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.loading-line:first-child {
+  margin-top: 0;
+}
+
+.loading-wide {
+  width: 92%;
+  height: 70rpx;
+}
+
+.loading-short {
+  width: 42%;
+}
+
+.privacy-note {
+  display: flex;
+  gap: 18rpx;
+  margin-top: 28rpx;
+  padding: 26rpx;
+  border: 1rpx solid rgba(36, 214, 199, 0.12);
+  border-radius: 22rpx;
+  background: rgba(36, 214, 199, 0.045);
+}
+
+.privacy-mark {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  color: #07111f;
+  font-size: 20rpx;
+  font-weight: 700;
+  background: #24d6c7;
+}
+
+.privacy-title {
+  color: #dce8f2;
+  font-size: 23rpx;
+  font-weight: 650;
+}
+
+.privacy-copy {
+  margin-top: 7rpx;
+  color: #758a9e;
+  font-size: 20rpx;
+  line-height: 1.65;
+}

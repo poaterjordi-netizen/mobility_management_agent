@@ -1,6 +1,9 @@
 {
   "pages": [
-    "pages/index/index"
+    "pages/index/index",
+    "pages/trip/trip",
+    "pages/settings/settings",
+    "pages/about/about"
   ],
   "window": {
     "backgroundColor": "#07111F",
@@ -9,7 +12,27 @@
     "navigationBarTextStyle": "white",
     "navigationBarTitleText": "行前"
   },
-  "renderer": "skyline",
   "lazyCodeLoading": "requiredComponents",
-  "sitemapLocation": "sitemap.json"
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "tabBar": {
+    "backgroundColor": "#0B1727",
+    "borderStyle": "white",
+    "color": "#7F94A9",
+    "selectedColor": "#24D6C7",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "建议"
+      },
+      {
+        "pagePath": "pages/trip/trip",
+        "text": "行程"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "设置"
+      }
+    ]
+  }
 }

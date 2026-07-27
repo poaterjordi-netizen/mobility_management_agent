@@ -1,95 +1,162 @@
 const { request } = require("../../utils/request")
-const { formatDate, formatTime } = require("../../utils/time")
-
-const riskOptions = [
-  { label: "标准", value: "standard" },
-  { label: "稳妥", value: "cautious" },
-  { label: "非常稳妥", value: "very_cautious" },
-]
+const { buildDecisionView } = require("../../utils/decision-view")
+const { RISK_OPTIONS, riskIndexFor } = require("../../utils/trip")
 
 Page({
   data: {
     loading: true,
+    calculating: false,
     error: "",
     trip: null,
     result: null,
-    riskOptions,
+    capabilities: null,
+    serviceVersion: "",
+    riskOptions: RISK_OPTIONS,
     riskIndex: 1,
     leaveTime: "--:--",
     latestTime: "--:--",
     terminalTime: "--:--",
     departureTime: "--:--",
     departureDate: "",
+    verifiedLabel: "",
+    confidenceLabel: "",
+    evidenceCount: 0,
   },
 
   onLoad() {
-    this.loadDemo()
+    this._loaded = true
+    this._requestSequence = 0
+    this.bootstrap()
+  },
+
+  onShow() {
+    if (!this._loaded) return
+    const app = getApp()
+    const trip = app.globalData.trip
+    if (!trip) return
+    if (
+      app.globalData.decision
+      && app.globalData.decisionRevision === app.globalData.tripRevision
+    ) {
+      this.applyResult(app.globalData.decision)
+      return
+    }
+    this.calculate(trip)
   },
 
   onPullDownRefresh() {
-    this.loadDemo().finally(() => wx.stopPullDownRefresh())
+    this.bootstrap({ forceDemo: false }).finally(() => wx.stopPullDownRefresh())
   },
 
-  async loadDemo() {
+  async bootstrap(options = {}) {
     this.setData({ loading: true, error: "" })
     try {
-      const trip = await request("/api/v1/demo/trip")
-      const riskIndex = Math.max(
-        0,
-        riskOptions.findIndex((item) => item.value === trip.risk_profile),
-      )
-      this.setData({ trip, riskIndex })
-      await this.calculate()
+      const app = getApp()
+      const [health, capabilities] = await Promise.all([
+        request("/health"),
+        request("/api/v1/capabilities"),
+      ])
+      let trip = app.globalData.trip
+      if (!trip || options.forceDemo) {
+        trip = await request("/api/v1/demo/trip")
+        app.globalData.trip = trip
+        app.globalData.tripRevision += 1
+      }
+      app.globalData.capabilities = capabilities
+      this.setData({
+        capabilities,
+        serviceVersion: health.version || capabilities.version || "",
+      })
+      if (
+        app.globalData.decision
+        && app.globalData.decisionRevision === app.globalData.tripRevision
+      ) {
+        this.applyResult(app.globalData.decision)
+      } else {
+        await this.calculate(trip)
+      }
     } catch (error) {
       this.setData({
         loading: false,
+        calculating: false,
         error: error.message || "暂时无法连接演示服务",
       })
     }
   },
 
-  async calculate() {
-    if (!this.data.trip) return
-    this.setData({ loading: true, error: "" })
+  async calculate(trip = this.data.trip) {
+    if (!trip) return
+    const sequence = ++this._requestSequence
+    this.setData({ calculating: true, error: "", trip, riskIndex: riskIndexFor(trip.risk_profile) })
     try {
       const result = await request("/api/v1/decisions/preview", {
         method: "POST",
-        data: this.data.trip,
+        data: trip,
       })
-      this.setData({
-        result,
-        loading: false,
-        leaveTime: formatTime(result.decision.recommended_leave_at),
-        latestTime: formatTime(result.decision.latest_reasonable_leave_at),
-        terminalTime: formatTime(result.decision.target_terminal_arrival),
-        departureTime: formatTime(result.decision.scheduled_departure),
-        departureDate: formatDate(result.decision.scheduled_departure),
-      })
+      if (sequence !== this._requestSequence) return
+      const app = getApp()
+      app.globalData.trip = result.trip
+      app.globalData.decision = result
+      app.globalData.decisionRevision = app.globalData.tripRevision
+      this.applyResult(result)
     } catch (error) {
+      if (sequence !== this._requestSequence) return
       this.setData({
         loading: false,
+        calculating: false,
         error: error.message || "生成建议失败",
       })
     }
   },
 
+  applyResult(result) {
+    const view = buildDecisionView(result)
+    if (!view) return
+    this.setData({
+      result,
+      trip: result.trip,
+      riskIndex: riskIndexFor(result.trip.risk_profile),
+      loading: false,
+      calculating: false,
+      error: "",
+      ...view,
+    })
+  },
+
   handleRiskChange(event) {
     const riskIndex = Number(event.detail.value)
-    this.setData({
-      riskIndex,
-      "trip.risk_profile": riskOptions[riskIndex].value,
-    })
-    this.calculate()
+    const trip = {
+      ...this.data.trip,
+      risk_profile: RISK_OPTIONS[riskIndex].value,
+    }
+    const app = getApp()
+    app.globalData.trip = trip
+    app.globalData.tripRevision += 1
+    this.setData({ riskIndex, trip })
+    this.calculate(trip)
   },
 
   handleBaggageChange(event) {
-    this.setData({
-      "trip.checked_baggage": event.detail.value,
-    })
-    this.calculate()
+    const trip = {
+      ...this.data.trip,
+      checked_baggage: event.detail.value,
+    }
+    const app = getApp()
+    app.globalData.trip = trip
+    app.globalData.tripRevision += 1
+    this.setData({ trip })
+    this.calculate(trip)
   },
 
   retry() {
-    this.loadDemo()
+    this.bootstrap({ forceDemo: false })
+  },
+
+  goTrip() {
+    wx.switchTab({ url: "/pages/trip/trip" })
+  },
+
+  goSettings() {
+    wx.switchTab({ url: "/pages/settings/settings" })
   },
 })

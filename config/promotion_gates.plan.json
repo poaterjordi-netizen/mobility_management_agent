@@ -1,5 +1,5 @@
 {
-  "gate_version": "plan-0.1.0",
+  "gate_version": "plan-0.2.0",
   "status": "blocked",
   "gates": [
     {
@@ -35,7 +35,14 @@
     {
       "id": "wechat_experience",
       "owner": "TBD",
+      "implemented_baseline": [
+        "four-page Mini Program compiles in WeChat DevTools",
+        "trip remains in runtime memory and is not persisted",
+        "health and capabilities diagnostics pass against Aliyun",
+        "strict request-domain validation is enabled in committed configuration"
+      ],
       "criteria": [
+        "independent production Mini Program AppID exists",
         "strict request-domain validation passes",
         "privacy guide and consent flows pass review",
         "Android and iPhone cold-start tests pass",
