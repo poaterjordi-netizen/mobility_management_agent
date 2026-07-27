@@ -1,0 +1,28 @@
+name: plan-quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Validate planning JSON
+        run: |
+          python -m json.tool config/capabilities.plan.json >/dev/null
+          python -m json.tool config/promotion_gates.plan.json >/dev/null
+      - name: Reject common secret and personal-data files
+        run: |
+          test ! -e .env
+          ! find . -type f \( -name '*.pem' -o -name '*.key' -o -name '*.p12' -o -name 'project.private.config.json' \) -print -quit | grep .
+      - name: Check whitespace
+        run: git diff --check

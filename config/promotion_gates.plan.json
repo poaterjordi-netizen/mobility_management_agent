@@ -1,0 +1,57 @@
+{
+  "gate_version": "plan-0.1.0",
+  "status": "blocked",
+  "gates": [
+    {
+      "id": "local_web_mvp",
+      "owner": "TBD",
+      "criteria": [
+        "50 end-to-end Gold Cases pass",
+        "core decision works with FakeProvider",
+        "all decision times are evidence-backed",
+        "no real personal data in repository"
+      ]
+    },
+    {
+      "id": "real_data_shadow",
+      "owner": "TBD",
+      "criteria": [
+        "each source has approved license and registry",
+        "PIPIA draft exists",
+        "source TTL and fallback are tested",
+        "at least 30 supervised trip replays are evaluated"
+      ]
+    },
+    {
+      "id": "aliyun_staging",
+      "owner": "TBD",
+      "criteria": [
+        "existing ECS capacity gate passes or new ECS is approved",
+        "independent database and runtime identity exist",
+        "backup and rollback are tested",
+        "Mac shutdown does not affect service"
+      ]
+    },
+    {
+      "id": "wechat_experience",
+      "owner": "TBD",
+      "criteria": [
+        "strict request-domain validation passes",
+        "privacy guide and consent flows pass review",
+        "Android and iPhone cold-start tests pass",
+        "subscription reminders are idempotent"
+      ]
+    },
+    {
+      "id": "native_app",
+      "owner": "TBD",
+      "criteria": [
+        "pilot demonstrates recurring user value",
+        "stable flight and airport data contracts exist",
+        "mobile-only capabilities show measurable benefit",
+        "privacy and store policy review pass",
+        "dual-platform maintenance budget is approved"
+      ]
+    }
+  ]
+}

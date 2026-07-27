@@ -1,0 +1,63 @@
+{
+  "registry_version": "plan-0.1.0",
+  "status": "planning-only",
+  "capabilities": [
+    {
+      "id": "create_trip_candidate",
+      "phase": "P1",
+      "tools": ["trip.parse_manual", "trip.parse_image", "trip.parse_ics"],
+      "requires_user_confirmation": true
+    },
+    {
+      "id": "confirm_trip",
+      "phase": "P1",
+      "tools": ["trip.confirm"],
+      "requires_user_confirmation": true
+    },
+    {
+      "id": "compute_departure_decision",
+      "phase": "P1",
+      "tools": [
+        "flight.get_snapshot",
+        "airport.get_process_snapshot",
+        "route.get_snapshot",
+        "weather.get_snapshot",
+        "events.get_signals",
+        "decision.compute",
+        "decision.verify"
+      ],
+      "requires_complete_evidence": true
+    },
+    {
+      "id": "explain_decision",
+      "phase": "P1",
+      "tools": ["decision.get", "evidence.get"],
+      "model_policy": "evidence-only"
+    },
+    {
+      "id": "schedule_reminder",
+      "phase": "P3",
+      "tools": ["reminder.preview", "reminder.schedule", "reminder.cancel"],
+      "requires_user_consent": true
+    },
+    {
+      "id": "open_ride_hailing",
+      "phase": "P1",
+      "tools": ["action.build_deep_link"],
+      "requires_user_confirmation": true,
+      "automatic_booking": false
+    },
+    {
+      "id": "book_ride",
+      "phase": "future",
+      "tools": [],
+      "status": "blocked"
+    },
+    {
+      "id": "read_other_apps",
+      "phase": "future-native-app",
+      "tools": [],
+      "status": "blocked"
+    }
+  ]
+}
