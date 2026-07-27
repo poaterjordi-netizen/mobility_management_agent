@@ -1,0 +1,19 @@
+{
+  "flight_number": "CA8908",
+  "departure_airport": "PEK",
+  "destination_airport": "DLC",
+  "terminal": "T3",
+  "scheduled_departure": "2026-07-27T21:50:00+08:00",
+  "departure_place": "北京市朝阳区望京公开测试点",
+  "departure_coordinates": {
+    "longitude": 116.470293,
+    "latitude": 39.996171
+  },
+  "checked_baggage": true,
+  "accessibility_assistance": false,
+  "risk_profile": "cautious",
+  "live_data_consent": true,
+  "model_egress_consent": false,
+  "itinerary_source": "ctrip",
+  "user_disruption_notes": []
+}

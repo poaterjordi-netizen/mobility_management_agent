@@ -10,6 +10,10 @@ test("builds a stable view from a verified decision response", () => {
     trip: { flight_number: "CA1234" },
     context: {
       flight: { checkin_close_at: "2026-08-01T08:30:00+08:00" },
+      route: {
+        distance_km: 22.4,
+        congestion_level: "low",
+      },
     },
     evidence: [{ evidence_id: "one" }, { evidence_id: "two" }],
     decision: {
@@ -27,6 +31,7 @@ test("builds a stable view from a verified decision response", () => {
   assert.equal(view.checkinCloseTime, "08:30")
   assert.equal(view.verifiedLabel, "确定性核验通过")
   assert.equal(view.evidenceCount, 2)
+  assert.equal(view.routeDetail, "22.4 km · 畅通")
 })
 
 test("returns null for malformed decision payloads", () => {

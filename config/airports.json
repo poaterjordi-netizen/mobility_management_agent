@@ -1,5 +1,5 @@
 {
-  "registry_version": "airport-registry-0.4.0",
+  "registry_version": "airport-registry-0.4.1",
   "updated_at": "2026-07-27T00:00:00+08:00",
   "airports": {
     "PEK": {
@@ -26,7 +26,11 @@
           "checkin_minutes": 32,
           "security_minutes": 22,
           "walking_minutes": 18,
-          "gate_distance_meters": 1350
+          "gate_distance_meters": 1350,
+          "coordinates": {
+            "longitude": 116.613661,
+            "latitude": 40.065150
+          }
         }
       }
     },
@@ -155,6 +159,28 @@
           "security_minutes": 19,
           "walking_minutes": 13,
           "gate_distance_meters": 820
+        }
+      }
+    },
+    "DLC": {
+      "name": "大连周水子国际机场",
+      "icao": "ZYTL",
+      "city": "大连",
+      "coordinates": {
+        "longitude": 121.542585,
+        "latitude": 38.964154
+      },
+      "route_baseline": {
+        "p50_minutes": 30,
+        "p90_minutes": 45,
+        "distance_km": 12.0
+      },
+      "terminals": {
+        "航站楼": {
+          "checkin_minutes": 25,
+          "security_minutes": 18,
+          "walking_minutes": 12,
+          "gate_distance_meters": 750
         }
       }
     }

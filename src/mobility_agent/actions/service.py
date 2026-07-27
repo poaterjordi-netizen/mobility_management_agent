@@ -33,7 +33,8 @@ class ActionService:
         )
         destination = ""
         if airport:
-            coordinates = airport["coordinates"]
+            terminal = airport.get("terminals", {}).get(trip.terminal, {})
+            coordinates = terminal.get("coordinates", airport["coordinates"])
             destination = f"{coordinates['longitude']},{coordinates['latitude']},{destination_name}"
         origin = ""
         if trip.departure_coordinates:

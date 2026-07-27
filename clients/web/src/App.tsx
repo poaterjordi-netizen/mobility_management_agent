@@ -71,6 +71,13 @@ const sourceModeLabels: Record<SourceStatus["mode"], string> = {
   unavailable: "不可用",
 }
 
+const congestionLabels = {
+  low: "畅通",
+  medium: "缓行",
+  high: "拥堵",
+  unknown: "路况未知",
+} as const
+
 function formatTime(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
     timeZone: "Asia/Shanghai",
@@ -357,7 +364,7 @@ export function App() {
         </nav>
         <div className="status-pill">
           <span className="status-dot" />
-          {capabilities?.data_scope ?? "synthetic"} · v{capabilities?.version ?? "0.4.0"}
+          {capabilities?.data_scope ?? "synthetic"} · v{capabilities?.version ?? "0.4.1"}
         </div>
       </header>
 
@@ -710,12 +717,19 @@ export function App() {
                 </article>
                 <article>
                   <Route size={19} />
-                  <span>道路分位数</span>
+                  <span>驾车道路时间</span>
                   <strong>
                     P50 {decision.context.route.p50_minutes} · P90{" "}
                     {decision.context.route.p90_minutes} 分钟
                   </strong>
-                  <small>{decision.context.route.metadata.source_name}</small>
+                  <small>
+                    {decision.context.route.metadata.source_name}
+                    {decision.context.route.distance_km
+                      ? ` · ${decision.context.route.distance_km} km`
+                      : ""}
+                    {" · "}
+                    {congestionLabels[decision.context.route.congestion_level]}
+                  </small>
                 </article>
                 <article>
                   <CloudRain size={19} />
@@ -985,7 +999,7 @@ export function App() {
             <small>MOBILITY MANAGEMENT AGENT</small>
           </span>
         </div>
-        <p>版本 0.4.0 · Live evidence · No automatic booking or payment</p>
+        <p>版本 0.4.1 · Live evidence · No automatic booking or payment</p>
       </footer>
 
       {editing && trip && (
@@ -1190,7 +1204,10 @@ export function App() {
                       setTrip({ ...trip, live_data_consent: event.target.checked })
                     }
                   />
-                  <span>允许本次查询公开 ADS-B/获权航班来源；提供坐标时允许服务端地图算路</span>
+                  <span>
+                    允许本次查询公开 ADS-B/获权航班来源；提供坐标后，在预计离家前 3
+                    小时内允许服务端调用高德实时驾车路线
+                  </span>
                 </label>
                 <label className="checkbox-label">
                   <input

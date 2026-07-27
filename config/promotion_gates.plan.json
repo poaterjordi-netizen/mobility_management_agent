@@ -1,5 +1,5 @@
 {
-  "gate_version": "0.4.0",
+  "gate_version": "0.4.1",
   "status": "real-data-preview",
   "gates": [
     {
@@ -21,11 +21,14 @@
         "credential-free public ADS-B telemetry adapter",
         "Open-Meteo forecast adapter",
         "official advisory registry",
+        "Amap V5 driving ETA, distance and TMC congestion behind consent and a 3-hour pre-departure window",
+        "Amap test key is server-only and restricted to the ECS egress IP",
         "TTL cache, retry, circuit-breaker and fixed-host SSRF controls",
         "success/no-data/malformed-boundary unit tests and live read-only diagnostics"
       ],
       "criteria": [
-        "commercial schedule/gate and traffic providers have approved credentials and license",
+        "commercial schedule/gate provider has approved credentials and license",
+        "Amap commercial/long-term technical service license is approved before production",
         "runtime consent and source status remain visible",
         "source TTL and fallback contract tests pass",
         "supervised trip replays produce calibration evidence"
@@ -53,7 +56,7 @@
         "strict request-domain validation"
       ],
       "criteria": [
-        "v0.4.0 official CLI compile/preview/upload succeeds",
+        "v0.4.1 official CLI compile/preview/upload succeeds",
         "platform development version is selected as experience version",
         "Android and iPhone cold-start checks pass"
       ]

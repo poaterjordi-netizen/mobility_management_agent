@@ -273,7 +273,7 @@ class DepartureDecision(StrictModel):
     binding_constraints: list[str]
     assumptions: list[str]
     missing_evidence: list[str]
-    policy_version: str = "decision-policy-0.4.0"
+    policy_version: str = "decision-policy-0.4.1"
 
 
 class RuntimeBoundary(StrictModel):

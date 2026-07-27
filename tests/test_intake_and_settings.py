@@ -46,6 +46,7 @@ class IntakeAndSettingsTests(unittest.TestCase):
                 "MOBILITY_PERSONAL_DATA_ENABLED": "false",
                 "MOBILITY_API_CORS_ORIGINS": "https://one.example, https://two.example",
                 "MOBILITY_OCR_COMMAND": "/bin/false",
+                "AMAP_WEB_SERVICE_KEY": "runtime-only-test-key",
             }
         )
         self.assertEqual(settings.data_mode, "mixed")
@@ -53,6 +54,7 @@ class IntakeAndSettingsTests(unittest.TestCase):
         self.assertFalse(settings.personal_data_enabled)
         self.assertEqual(len(settings.cors_origins), 2)
         self.assertEqual(settings.ocr_command, "/bin/false")
+        self.assertEqual(settings.amap_web_service_key, "runtime-only-test-key")
 
 
 if __name__ == "__main__":

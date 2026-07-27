@@ -470,7 +470,7 @@ export interface components {
             missing_evidence: string[];
             /**
              * Policy Version
-             * @default decision-policy-0.4.0
+             * @default decision-policy-0.4.1
              */
             policy_version: string;
         };
