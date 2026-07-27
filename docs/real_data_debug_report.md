@@ -14,6 +14,12 @@
 - `scripts/check_live_sources.py` 完成真实联网只读诊断。
 - 高德 V5 驾车路线使用独立测试 Key、服务器出口 IP 白名单和 root-only 运行时配置；
 - 北京望京公开测试点至首都机场 T3 实测返回约 22.4 km、38 分钟，TMC 路况以畅通为主；
+- 生产部署后于 2026-07-27 16:09 再次调用同一路线，返回 22.4 km、P50 40 分钟、
+  项目保守 P90 48 分钟；TMC 为畅通 19.8 km、缓行 1.7 km、未知 0.9 km；
+- 对 CA8908 21:50 晚间样例，生产决策建议 18:40 离开，`verified=true`，仅
+  `flight_live` 因未配置获权航班源而保持缺口；
+- 生产来源注册表显示高德 V5 `configured/enabled`、5 分钟新鲜度；未来路径规划保持
+  `blocked`，云端 smoke 与同机既有客流智能体健康检查均通过；
 - `npm audit --omit=dev` 为 0；开发期 `openapi-typescript` 的 Redocly 1.x 依赖仍报告 4 个
   DoS 类高危告警，仅处理仓库内受信任的 OpenAPI 文件，等待上游兼容升级，不进入生产镜像。
 
