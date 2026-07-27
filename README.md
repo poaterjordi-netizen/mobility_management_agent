@@ -120,8 +120,9 @@ sudo bash infra/aliyun/deploy.sh main
 
 把 `infra/aliyun/mobility-zones.conf` 安装到 Nginx `http` 上下文，并将
 `infra/aliyun/mobility-location.conf` 的两个 `location` 加入现有 HTTPS `server`。
-先运行 `nginx -t`，再平滑重载。部署脚本优先使用 Docker Compose；旧服务器没有
-Compose 时，会回退到等价的隔离 Docker 网络和容器。部署后执行：
+先运行 `nginx -t`，再平滑重载。部署脚本依次尝试 Docker Compose、隔离 Docker
+容器；若国内镜像源不可用，则使用现有 Python/Node 构建并安装两个受限 systemd 服务。
+三种模式统一监听回环端口 18081（网页）和 18082（API）。部署后执行：
 
 ```bash
 bash scripts/smoke_cloud.sh

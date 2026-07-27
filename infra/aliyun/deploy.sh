@@ -5,6 +5,8 @@ readonly repository_url="https://github.com/poaterjordi-netizen/mobility_managem
 readonly release_ref="${1:-main}"
 readonly deploy_root="/opt/mobility-management-agent"
 readonly checkout_root="${deploy_root}/source"
+readonly venv_root="${deploy_root}/venv"
+readonly releases_root="${deploy_root}/releases"
 readonly compose_project="mobility-management-agent"
 readonly docker_network="mobility-management-agent"
 
@@ -13,7 +15,7 @@ if [[ "$(id -u)" -ne 0 ]]; then
   exit 1
 fi
 
-for required_command in git docker curl; do
+for required_command in git curl; do
   if ! command -v "${required_command}" >/dev/null 2>&1; then
     echo "Missing required command: ${required_command}" >&2
     exit 1
@@ -37,14 +39,21 @@ deploy_with_raw_docker() {
   api_image="mobility-management-agent-api:${commit_sha}"
   web_image="mobility-management-agent-web:${commit_sha}"
 
-  docker build \
+  if ! docker build \
     --file "${checkout_root}/infra/docker/api.Dockerfile" \
     --tag "${api_image}" \
-    "${checkout_root}"
-  docker build \
+    "${checkout_root}"; then
+    return 1
+  fi
+  if ! docker build \
     --file "${checkout_root}/infra/docker/web.Dockerfile" \
     --tag "${web_image}" \
-    "${checkout_root}"
+    "${checkout_root}"; then
+    return 1
+  fi
+
+  systemctl stop mobility-management-agent-api.service \
+    mobility-management-agent-web.service >/dev/null 2>&1 || true
 
   if ! docker network inspect "${docker_network}" >/dev/null 2>&1; then
     docker network create "${docker_network}" >/dev/null
@@ -53,7 +62,7 @@ deploy_with_raw_docker() {
   docker rm --force mobility-management-agent-web mobility-management-agent-api \
     >/dev/null 2>&1 || true
 
-  docker run --detach \
+  if ! docker run --detach \
     --name mobility-management-agent-api \
     --network "${docker_network}" \
     --network-alias api \
@@ -69,9 +78,12 @@ deploy_with_raw_docker() {
     --health-timeout 3s \
     --health-retries 5 \
     --health-start-period 10s \
-    "${api_image}" >/dev/null
+    --publish 127.0.0.1:18082:8000 \
+    "${api_image}" >/dev/null; then
+    return 1
+  fi
 
-  docker run --detach \
+  if ! docker run --detach \
     --name mobility-management-agent-web \
     --network "${docker_network}" \
     --restart unless-stopped \
@@ -84,30 +96,139 @@ deploy_with_raw_docker() {
     --health-timeout 3s \
     --health-retries 5 \
     --health-start-period 10s \
-    "${web_image}" >/dev/null
+    "${web_image}" >/dev/null; then
+    docker rm --force mobility-management-agent-api >/dev/null 2>&1 || true
+    return 1
+  fi
 }
 
-if docker compose version >/dev/null 2>&1; then
+deploy_natively() {
+  local commit_sha release_root
+  commit_sha="$(git -C "${checkout_root}" rev-parse --short=12 HEAD)"
+  release_root="${releases_root}/${commit_sha}"
+
+  for native_command in python3 node npm; do
+    if ! command -v "${native_command}" >/dev/null 2>&1; then
+      echo "Native fallback requires ${native_command}." >&2
+      return 1
+    fi
+  done
+
+  docker rm --force mobility-management-agent-web mobility-management-agent-api \
+    >/dev/null 2>&1 || true
+
+  python3 -m venv "${venv_root}"
+  "${venv_root}/bin/python" -m pip install --no-cache-dir "${checkout_root}"
+
+  (
+    cd "${checkout_root}/clients/web"
+    npm ci
+    VITE_BASE_PATH=/mobility/ VITE_API_BASE=/mobility npm run build
+  )
+
+  install -d -m 0755 "${release_root}/web"
+  cp -a "${checkout_root}/clients/web/dist/." "${release_root}/web/"
+  ln -sfn "${release_root}/web" "${deploy_root}/current-web"
+
+  if ! id mobility-agent >/dev/null 2>&1; then
+    useradd --system --home-dir /nonexistent --shell /sbin/nologin mobility-agent
+  fi
+
+  cat >/etc/systemd/system/mobility-management-agent-api.service <<EOF
+[Unit]
+Description=Mobility Management Agent API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mobility-agent
+Group=mobility-agent
+WorkingDirectory=${checkout_root}
+Environment=MOBILITY_ENV=staging
+Environment=MOBILITY_API_HOST=127.0.0.1
+Environment=MOBILITY_API_PORT=18082
+ExecStart=${venv_root}/bin/mobility-agent-api
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  cat >/etc/systemd/system/mobility-management-agent-web.service <<EOF
+[Unit]
+Description=Mobility Management Agent Static Web
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mobility-agent
+Group=mobility-agent
+WorkingDirectory=${deploy_root}/current-web
+ExecStart=/usr/bin/python3 -m http.server 18081 --bind 127.0.0.1 --directory ${deploy_root}/current-web
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  systemctl daemon-reload
+  systemctl enable --now mobility-management-agent-api.service
+  systemctl enable --now mobility-management-agent-web.service
+  systemctl restart mobility-management-agent-api.service
+  systemctl restart mobility-management-agent-web.service
+}
+
+deployment_mode="docker"
+
+if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+  systemctl stop mobility-management-agent-api.service \
+    mobility-management-agent-web.service >/dev/null 2>&1 || true
   docker compose \
     --project-name "${compose_project}" \
     --file "${checkout_root}/compose.yaml" \
     up --detach --build --remove-orphans
 elif command -v docker-compose >/dev/null 2>&1; then
+  systemctl stop mobility-management-agent-api.service \
+    mobility-management-agent-web.service >/dev/null 2>&1 || true
   docker-compose \
     --project-name "${compose_project}" \
     --file "${checkout_root}/compose.yaml" \
     up --detach --build --remove-orphans
 else
-  echo "Docker Compose is unavailable; using isolated raw Docker containers."
-  deploy_with_raw_docker
+  if command -v docker >/dev/null 2>&1; then
+    echo "Docker Compose is unavailable; trying isolated raw Docker containers."
+  fi
+  if ! command -v docker >/dev/null 2>&1 || ! deploy_with_raw_docker; then
+    echo "Container deployment is unavailable; using native systemd services."
+    deployment_mode="native"
+    deploy_natively
+  fi
 fi
 
 for attempt in {1..30}; do
-  if curl --fail --silent --show-error http://127.0.0.1:18081/health >/dev/null; then
-    echo "Mobility Management Agent is healthy on 127.0.0.1:18081."
-    docker ps \
-      --filter name=mobility-management-agent \
-      --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+  if curl --fail --silent --show-error http://127.0.0.1:18081/ >/dev/null \
+    && curl --fail --silent --show-error http://127.0.0.1:18082/health >/dev/null; then
+    echo "Mobility Management Agent web/API are healthy on 18081/18082 (${deployment_mode})."
+    if [[ "${deployment_mode}" == "native" ]]; then
+      systemctl --no-pager --full status mobility-management-agent-api.service \
+        mobility-management-agent-web.service | sed -n '1,80p'
+    else
+      docker ps \
+        --filter name=mobility-management-agent \
+        --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+    fi
     exit 0
   fi
   sleep 2
@@ -115,5 +236,7 @@ done
 
 docker logs --tail 120 mobility-management-agent-api 2>/dev/null || true
 docker logs --tail 120 mobility-management-agent-web 2>/dev/null || true
+journalctl --no-pager -u mobility-management-agent-api.service \
+  -u mobility-management-agent-web.service -n 120 2>/dev/null || true
 echo "Deployment health check failed." >&2
 exit 1
