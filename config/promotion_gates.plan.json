@@ -57,7 +57,7 @@
       ],
       "criteria": [
         "v0.4.1 official CLI compile/preview/upload succeeds",
-        "platform development version is selected as experience version",
+        "first-time experience version and tester configuration remain active for subsequent CLI uploads",
         "Android and iPhone cold-start checks pass"
       ]
     },

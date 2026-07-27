@@ -1,0 +1,19 @@
+{
+  "flight_number": "CA8908",
+  "departure_airport": "PEK",
+  "destination_airport": "DLC",
+  "terminal": "T3",
+  "scheduled_departure": "2026-07-27T21:50:00+08:00",
+  "departure_place": "北京交通大学（海淀校区）",
+  "departure_coordinates": {
+    "longitude": 116.342757,
+    "latitude": 39.952311
+  },
+  "checked_baggage": true,
+  "accessibility_assistance": false,
+  "risk_profile": "cautious",
+  "live_data_consent": true,
+  "model_egress_consent": false,
+  "itinerary_source": "ctrip",
+  "user_disruption_notes": []
+}

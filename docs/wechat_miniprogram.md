@@ -89,8 +89,8 @@ PROJECT=/Users/xiaobosun/software/mobility-management-agent/clients/wechat-minip
   --lang zh
 ```
 
-上传成功只表示开发版本存在。还需在公众平台“版本管理”把 `0.4.1` 设为体验版，并添加批准
-的体验成员。
+本产品首次体验版选择和体验成员配置已经完成。按当前公众平台配置，后续版本只需使用官方
+CLI 上传，无需对每个版本重复点击“设为体验版”；`0.4.1` 已按此流程上传。
 
 ## 6. 体验版验收
 
